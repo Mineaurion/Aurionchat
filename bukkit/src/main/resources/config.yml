@@ -1,0 +1,8 @@
+rabbitmq:
+  host: localhost
+
+Channels:
+  infinity:
+    format: "[&6I&f] {prefix} {display_name} : &f{message}"
+  revelation:
+    format: "[&5R&f] {prefix} {display_name} : &f{message}"

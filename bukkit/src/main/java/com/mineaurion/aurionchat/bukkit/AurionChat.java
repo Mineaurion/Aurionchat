@@ -14,13 +14,20 @@ import java.util.concurrent.TimeoutException;
 
 public class AurionChat extends JavaPlugin {
 
+    private Config config;
+
     @Override
     public void onEnable() {
+
+        config = new Config(this);
+        config.load();
+
         String nickname = Bukkit.getMotd();
         boolean stop = false;
 
         ChatService chatService = getChatService();
         AurionChat plugin = this;
+
         try{
             Bukkit.getConsoleSender().sendMessage("Nickname is " + nickname);
             chatService.join(nickname, "global");
@@ -50,7 +57,7 @@ public class AurionChat extends JavaPlugin {
     public ChatService getChatService(){
         ChatService chatService = null;
         try {
-            chatService = new ChatService("localhost");
+            chatService = new ChatService(config.host);
         }
         catch (IOException | TimeoutException e){
             e.printStackTrace();
