@@ -1,7 +1,12 @@
 rabbitmq:
   host: localhost
 
+Console:
+  spy: "true"
+
 Channels:
+  global:
+    format: "[GLOBAL] {prefix} {display_name} : &f{message}"
   infinity:
     format: "[&6I&f] {prefix} {display_name} : &f{message}"
   revelation:

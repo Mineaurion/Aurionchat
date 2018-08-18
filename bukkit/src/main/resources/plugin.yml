@@ -4,4 +4,4 @@ main: com.mineaurion.aurionchat.bukkit.AurionChat
 commands:
   g:
     description: Send Global Message
-    usage: /g <Message>
+    usage: /g

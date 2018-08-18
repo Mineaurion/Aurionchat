@@ -1,12 +1,15 @@
 package com.mineaurion.aurionchat.bukkit.channel;
 
+import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.rabbitmq.client.*;
 import com.rabbitmq.client.impl.AMQBasicProperties;
 import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 public class ChatService {
@@ -15,27 +18,35 @@ public class ChatService {
     Connection connection;
     Channel channel;
     Consumer consumer;
-    String consumerTag;
-    List<String> messageBuffer;
+    private String consumerTag;
+    private List<String> messageBuffer;
+    private String CHANNEL;
 
-    public ChatService(String host) throws IOException, TimeoutException{
+    List<Map<String, String>> channelMember = new ArrayList<>();
+
+    Map<String, String[]> map = new HashMap<String, String[]>();
+
+    private AurionChat plugin;
+
+
+    public ChatService(String host, AurionChat main) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(host);
         this.connection = factory.newConnection();
         this.channel = this.connection.createChannel();
         this.messageBuffer = new ArrayList<>();
+        this.plugin = main;
+        this.CHANNEL = AurionChat.CHANNEL;
     }
 
-    public void join(String nickname, String channelName) throws IOException{
+    public void join(String nickname) throws IOException{
         if(this.consumerTag != null){
             channel.basicCancel(consumerTag);
         }
-        //
         channel.queueDeclare(getQueueName(nickname),false,false,false,null);
-        //
-        channel.exchangeDeclare(getChannelName(channelName), FANOUT);
-        channel.queueBind(getQueueName(nickname), getChannelName(channelName), "");
-        
+        channel.exchangeDeclare("channel_" + CHANNEL, FANOUT);
+        channel.queueBind(getQueueName(nickname), "channel_" + CHANNEL, "");
+
         boolean autoAck = false;
         Consumer consumer = new DefaultConsumer(channel) {
           @Override
@@ -45,6 +56,9 @@ public class ChatService {
               long deliveryTag = envelope.getDeliveryTag();
 
               String message = new String(body, "UTF-8");
+              String channelName = getChannelName(message);
+
+              plugin.sendMessageToPlayer(channelName,message.replace(channelName + " ",""));
               Bukkit.getConsoleSender().sendMessage(message);
 
               channel.basicAck(deliveryTag, false);
@@ -53,34 +67,21 @@ public class ChatService {
         channel.basicConsume(getQueueName(nickname),autoAck, "myConsumerTag", consumer);
     }
 
-    public void leave(String nickname,String channelName) throws IOException {
+    public void leave(String nickname) throws IOException {
         //E1
-        channel.exchangeUnbind(getChannelName(channelName),"","");
+        channel.exchangeUnbind("channel_" + CHANNEL,"","");
         //E2
         channel.queueUnbind(getQueueName(nickname),"","");
     }
 
-    public void send(String channelName,String nickname,String message) throws IOException {
-        StringBuilder builder = new StringBuilder()
-                .append("[")
-                .append(nickname)
-                .append("]")
-                .append(" ").append(message);
+    public void send(String channelName,String message) throws IOException {
         //E2
-        channel.basicPublish(getChannelName(channelName),"",null,builder.toString().getBytes());
+        message = channelName + " " + message ;
+        channel.basicPublish("channel_" + CHANNEL,"",null,message.getBytes());
     }
 
-
-    String getChannelName(String channelname){
-        return "channel_" + channelname;
-    }
-
-    String getQueueName(String nickname){
+    private String getQueueName(String nickname){
         return "queue_" + nickname;
-    }
-
-    public Channel getChannel() {
-        return channel;
     }
 
     public List<String> takeMessages(){
@@ -90,6 +91,12 @@ public class ChatService {
             messageBuffer.clear();
         }
         return ret;
+    }
+
+    public String getChannelName(String message){
+        String[] split = message.split(" ");
+        Bukkit.getConsoleSender().sendMessage(split[0]);
+        return split[0];
     }
 
 
