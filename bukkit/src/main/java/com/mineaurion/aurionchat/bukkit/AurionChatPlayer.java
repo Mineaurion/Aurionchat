@@ -12,9 +12,9 @@ public class AurionChatPlayer {
 
     private UUID uuid;
     private String name;
+    private String nickname;
     private String currentChannel;
     private Set<String> listening;
-    private String nickname;
     private boolean online;
     private Player player;
     private boolean spy;
@@ -23,9 +23,9 @@ public class AurionChatPlayer {
     public AurionChatPlayer(UUID uuid, String name, String currentChannel, Set<String> listening, String nickname, boolean spy){
         this.uuid = uuid;
         this.name = name;
+        this.nickname = nickname;
         this.currentChannel = currentChannel;
         this.listening = listening;
-        this.nickname = nickname;
         this.spy = spy;
     }
 
@@ -94,9 +94,7 @@ public class AurionChatPlayer {
         return this.spy;
     }
 
-
     public static AurionChatPlayer getAurionChatPlayer(Player player){
-
         for(AurionChatPlayer aurionChatPlayer: AurionChat.players){
             if(aurionChatPlayer.getUuid().toString().equals(player.getUniqueId().toString())){
                 return aurionChatPlayer;
@@ -149,8 +147,5 @@ public class AurionChatPlayer {
         }
         return null;
     }
-
-
-
 
 }

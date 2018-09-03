@@ -3,9 +3,6 @@ package com.mineaurion.aurionchat.bukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 public class Config {
@@ -16,6 +13,7 @@ public class Config {
     public Set<String> channels;
     public String host;
     public String consoleSpy;
+    public String servername;
 
     public Config(AurionChat plugin){
         plugin.getConfig().options().copyDefaults(true);
@@ -26,21 +24,22 @@ public class Config {
     public void load(){
         host       = config.getString("rabbitmq.host");
         channels   = getAllChannel();
-        consoleSpy = getConsoleSpy();
+        consoleSpy = config.getString("console.spy");
+        servername = config.getString("rabbitmq.servername");
     }
 
     public String getFormatChannel(String channelName){
-        return config.getString("Channels."+ channelName + ".format");
+        return config.getString("channels."+ channelName + ".format");
     }
 
-
-    private String getConsoleSpy(){
-        return config.getString("Console.spy");
+    public Set<String> getAllChannel(){
+        return config.getConfigurationSection("channels").getKeys(false);
     }
 
-    private Set<String> getAllChannel(){
-        return config.getConfigurationSection("Channels").getKeys(false);
+    public String getChannelAlias(String channel){
+        return config.getString("channels."+ channel +".alias");
     }
+
 
 
 }

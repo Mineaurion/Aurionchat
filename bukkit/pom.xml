@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.12-R0.1-SNAPSHOT</version>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -44,9 +44,9 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.6</version>
             <scope>provided</scope>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/Vault.jar</systemPath>-->
         </dependency>
-
-
     </dependencies>
 
     <build>

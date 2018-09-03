@@ -2,6 +2,6 @@ name: AurionChat
 version: 1.0
 main: com.mineaurion.aurionchat.bukkit.AurionChat
 commands:
-  g:
-    description: Send Global Message
-    usage: /g
+  chat:
+    aliases: [ch]
+    description: "AurionChat's command to manage chat channels"

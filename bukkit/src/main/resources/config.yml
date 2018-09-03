@@ -1,13 +1,17 @@
 rabbitmq:
   host: localhost
+  servername: "ServerName" #Must be unique beetwen all of our servers
 
-Console:
+console:
   spy: "true"
 
-Channels:
+channels:
   global:
-    format: "[GLOBAL] {prefix} {display_name} : &f{message}"
+    format: "[GLOBAL] {prefix}{display_name} : &f{message}"
+    alias: "g"
   infinity:
-    format: "[&6I&f] {prefix} {display_name} : &f{message}"
+    format: "[&6I&f] {prefix}{display_name} : &f{message}"
+    alias: "inf"
   revelation:
-    format: "[&5R&f] {prefix} {display_name} : &f{message}"
+    format: "[&5R&f] {prefix}{display_name} : &f{message}"
+    alias: "reve"
