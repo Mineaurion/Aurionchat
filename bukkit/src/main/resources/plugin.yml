@@ -1,6 +1,8 @@
-name: AurionChat
-version: 1.0
+name: Aurionchat
+version: ${version}
 main: com.mineaurion.aurionchat.bukkit.AurionChat
+authors: [Yann151924]
+website: https://mineaurion.com
 commands:
   chat:
     aliases: [ch]

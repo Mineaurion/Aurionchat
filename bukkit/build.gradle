@@ -1,0 +1,32 @@
+repositories {
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven {
+        name = 'vault-repo'
+        url  = 'http://nexus.hc.to/content/repositories/pub_releases'
+    }
+}
+
+dependencies {
+    compile project(':common')
+    compile 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    compile 'net.milkbowl.vault:VaultAPI:1.6'
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        expand 'version': project.version
+    }
+}
+
+shadowJar {
+    dependencies {
+        include(dependency(':common'))
+    }
+}

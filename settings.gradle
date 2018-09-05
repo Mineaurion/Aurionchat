@@ -1,0 +1,3 @@
+rootProject.name = 'aurionchat'
+
+include 'common', 'bukkit', 'sponge'

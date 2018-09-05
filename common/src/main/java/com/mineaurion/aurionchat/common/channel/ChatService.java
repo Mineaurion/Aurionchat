@@ -1,17 +1,13 @@
-package com.mineaurion.aurionchat.bukkit.channel;
+package com.mineaurion.aurionchat.common.channel;
 
-import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.rabbitmq.client.*;
-import com.rabbitmq.client.impl.AMQBasicProperties;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-public class ChatService {
+public abstract class ChatService {
     private static final String FANOUT = "fanout";
     private static final String EX_PREFIX = "bcast";
     private Connection connection;
@@ -21,16 +17,13 @@ public class ChatService {
     private List<String> messageBuffer;
     private String CHANNEL;
 
-    private AurionChat plugin;
-
-    public ChatService(String host, AurionChat main) throws IOException, TimeoutException {
+    public ChatService(String host) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(host);
         this.connection = factory.newConnection();
         this.channel = this.connection.createChannel();
         this.messageBuffer = new ArrayList<>();
-        this.plugin = main;
-        this.CHANNEL = AurionChat.CHANNEL;
+        this.CHANNEL = getCHANNEL();
     }
 
     public void join(String serverName) throws IOException{
@@ -43,22 +36,17 @@ public class ChatService {
 
         boolean autoAck = false;
         Consumer consumer = new DefaultConsumer(channel) {
-          @Override
-          public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException{
-              String routingKey = envelope.getRoutingKey();
-              String contentType = properties.getContentType();
-              long deliveryTag = envelope.getDeliveryTag();
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException{
+                String routingKey = envelope.getRoutingKey();
+                String contentType = properties.getContentType();
+                long deliveryTag = envelope.getDeliveryTag();
+                String message = new String(body, "UTF-8");
+                String channelName = getChannelName(message);
 
-              String message = new String(body, "UTF-8");
-              String channelName = getChannelName(message);
-
-              plugin.getUtils().sendMessageToPlayer(channelName,message.replace(channelName + " ",""));
-              //if(plugin.getConfigPlugin().consoleSpy.equalsIgnoreCase("true")){
-                  Bukkit.getConsoleSender().sendMessage(message);
-              //}
-
-              channel.basicAck(deliveryTag, false);
-          }
+                sendMessage(channelName, message);
+                channel.basicAck(deliveryTag, false);
+            }
         };
         channel.basicConsume(getQueueName(serverName),autoAck, "myConsumerTag", consumer);
     }
@@ -80,7 +68,6 @@ public class ChatService {
         connection.close();
     }
 
-
     private String getQueueName(String serverName){
         return "queue_" + serverName;
     }
@@ -89,6 +76,9 @@ public class ChatService {
         String[] split = message.split(" ");
         return split[0];
     }
+
+    abstract public void sendMessage(String channelName, String message);
+    abstract public String getCHANNEL();
 
 
 }

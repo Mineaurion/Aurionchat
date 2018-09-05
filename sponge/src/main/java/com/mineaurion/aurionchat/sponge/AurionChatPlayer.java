@@ -1,18 +1,17 @@
-package com.mineaurion.aurionchat.bukkit;
+package com.mineaurion.aurionchat.sponge;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
-import com.mineaurion.aurionchat.bukkit.AurionChat;
 
 public class AurionChatPlayer extends AurionChatPlayerCommon {
 
     private AurionChat plugin;
-    private Player player;
+    private Optional<Player> player;
 
 
     public AurionChatPlayer(UUID uuid, String name, String currentChannel, Set<String> listening, String nickname, boolean spy){
@@ -23,14 +22,11 @@ public class AurionChatPlayer extends AurionChatPlayerCommon {
     public void setOnline(boolean online){
         this.online = online;
         if(this.online) {
-            this.player = Bukkit.getPlayer(this.uuid);
-        }
-        else{
-            this.player = null;
+            this.player = Sponge.getServer().getPlayer(this.uuid);
         }
     }
 
-    public Player getPlayer(){
+    public Optional<Player> getPlayer(){
         return this.online ? this.player : null;
     }
 
@@ -87,5 +83,4 @@ public class AurionChatPlayer extends AurionChatPlayerCommon {
         }
         return null;
     }
-
 }

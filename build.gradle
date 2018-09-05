@@ -1,0 +1,32 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    dependencies {
+        compile 'com.rabbitmq:amqp-client:5.4.0'
+    }
+    group = project.pluginGroup
+    version = project.pluginVersion
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+    repositories {
+        mavenCentral()
+    }
+    shadowJar {
+        dependencies {
+            include(dependency('com.rabbitmq:amqp-client:5.4.0'))
+        }
+    }
+}

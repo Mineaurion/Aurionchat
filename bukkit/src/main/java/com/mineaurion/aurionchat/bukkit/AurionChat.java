@@ -1,5 +1,6 @@
 package com.mineaurion.aurionchat.bukkit;
 
+import com.mineaurion.aurionchat.bukkit.channel.ChatServiceBukkit;
 import com.mineaurion.aurionchat.bukkit.command.ChatCommand;
 import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
 import net.milkbowl.vault.chat.Chat;
@@ -11,7 +12,8 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.mineaurion.aurionchat.bukkit.channel.ChatService;
+
+
 import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
 import com.mineaurion.aurionchat.bukkit.listeners.ChatListener;
 
@@ -104,7 +106,7 @@ public class AurionChat extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("onDisable is called!");
-        ChatService chatService = getChatService();
+        ChatServiceBukkit chatService = getChatService();
         try{
             chatService.close();
         }
@@ -114,10 +116,10 @@ public class AurionChat extends JavaPlugin {
         }
     }
 
-    public ChatService getChatService(){
-        ChatService chatService = null;
+    public ChatServiceBukkit getChatService(){
+        ChatServiceBukkit chatService = null;
         try {
-            chatService = new ChatService(config.host, this);
+            chatService = new ChatServiceBukkit(config.host, this);
         }
         catch (IOException | TimeoutException e){
             e.printStackTrace();
