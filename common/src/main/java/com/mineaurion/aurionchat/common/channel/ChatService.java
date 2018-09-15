@@ -48,7 +48,7 @@ public abstract class ChatService {
                 channel.basicAck(deliveryTag, false);
             }
         };
-        channel.basicConsume(getQueueName(serverName),autoAck, "myConsumerTag", consumer);
+        channel.basicConsume(getQueueName(serverName), autoAck, "myConsumerTag", consumer);
     }
 
     public void leave(String serverName) throws IOException {

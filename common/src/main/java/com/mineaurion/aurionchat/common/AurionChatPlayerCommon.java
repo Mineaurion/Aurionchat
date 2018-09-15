@@ -38,6 +38,7 @@ public abstract class AurionChatPlayerCommon {
     public boolean setCurrentChannel(String channel){
         if(channel != null){
             this.currentChannel = channel;
+            addListening(channel);
             return true;
         }
         return false;

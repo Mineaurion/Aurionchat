@@ -12,7 +12,6 @@ public class Config {
 
     public Set<String> channels;
     public String host;
-    public String consoleSpy;
     public String servername;
 
     public Config(AurionChat plugin){
@@ -24,7 +23,6 @@ public class Config {
     public void load(){
         host       = config.getString("rabbitmq.host");
         channels   = getAllChannel();
-        consoleSpy = config.getString("console.spy");
         servername = config.getString("rabbitmq.servername");
     }
 
@@ -38,6 +36,10 @@ public class Config {
 
     public String getChannelAlias(String channel){
         return config.getString("channels."+ channel +".alias");
+    }
+
+    public String getConsoleSpy(){
+        return config.getString("console.spy");
     }
 
 

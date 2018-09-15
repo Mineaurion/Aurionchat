@@ -26,8 +26,8 @@ public class AurionChatPlayer extends AurionChatPlayerCommon {
         }
     }
 
-    public Optional<Player> getPlayer(){
-        return this.online ? this.player : null;
+    public Player getPlayer(){
+        return this.online ? this.player.orElse(null) : null;
     }
 
     public static AurionChatPlayer getAurionChatPlayer(Player player){

@@ -41,10 +41,11 @@ public class LoginListener {
             listening.add(current);
             aurionChatPlayer = new AurionChatPlayer(uuid, name, current, listening, name, false);
             AurionChat.players.add(aurionChatPlayer);
-            aurionChatPlayer.addListening("global");
-            aurionChatPlayer.setCurrentChannel("global");
         }
-
+        aurionChatPlayer.setOnline(true);
+        AurionChat.onlinePlayers.add(aurionChatPlayer);
+        aurionChatPlayer.addListening("global");
+        aurionChatPlayer.setCurrentChannel("global");
     }
 
     private void playerLeaving(Player player){

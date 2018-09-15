@@ -1,9 +1,7 @@
 package com.mineaurion.aurionchat.sponge;
 
-import com.google.inject.Inject;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 
@@ -14,9 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class Config {
-
-    @Inject
-    private Logger logger;
 
     private AurionChat plugin;
 
@@ -49,5 +44,17 @@ public class Config {
             channels.add(node.toString());
         }
         return channels;
+    }
+
+    public String getServername(){
+        return config.getNode("rabbitmq", "servername").getString();
+    }
+
+    public String getHostname(){
+        return config.getNode("rabbitmq", "host").getString();
+    }
+
+    public String getConsoleSpy(){
+        return config.getNode("console","spy").getString();
     }
 }

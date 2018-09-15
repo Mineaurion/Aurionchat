@@ -2,7 +2,12 @@ package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
 import com.mineaurion.aurionchat.sponge.channel.ChatServiceSponge;
+import com.mineaurion.aurionchat.sponge.command.CommandManager;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
+import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
+import com.mineaurion.aurionchat.sponge.listeners.CommandListener;
+import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.LuckPermsApi;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
@@ -11,8 +16,10 @@ import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -21,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -30,6 +38,9 @@ import java.util.concurrent.TimeoutException;
         url = "https://mineaurion.com",
         authors = {
                 "Yann151924"
+        },
+        dependencies = {
+            @Dependency(id= "luckperms", optional = true)
         }
 )
 public class AurionChat {
@@ -60,6 +71,7 @@ public class AurionChat {
     public static Set<AurionChatPlayer> players = new HashSet<>();
     public static Set<AurionChatPlayer> onlinePlayers = new HashSet<>();
 
+    public static Optional<LuckPermsApi> luckPermsApi;
 
     @Listener
     public void Init(GamePreInitializationEvent event) {
@@ -67,24 +79,44 @@ public class AurionChat {
         config = getConfig();
         sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
         setupListeners();
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
+        setupChannels(config);
+        luckPermsApi = Sponge.getPluginManager().getPlugin("luckperms").isPresent() ? LuckPerms.getApiSafe() : Optional.empty();
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
+        loadCommands(this);
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
     }
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) throws IOException {
-        logger.info("Successfully running AurionChat - Debug");
+        getLogger().info("Successfully running AurionChat - Debug");
     }
 
 
     public void setupListeners(){
         EventManager eventManager = Sponge.getEventManager();
         eventManager.registerListeners(this, new LoginListener(this));
+        eventManager.registerListeners(this, new ChatListener(this));
+        eventManager.registerListeners(this, new CommandListener(this));
+    }
+    public void setupChannels(Config config){
+        try{
+            getChatService().join(config.getServername());
+        }
+        catch (Exception e){
+            getLogger().error(e.getMessage());
+        }
     }
 
+    public void loadCommands(AurionChat plugin){
+        CommandManager commandManager = new CommandManager(plugin);
+        Sponge.getCommandManager().register(plugin, commandManager.cmdChat, "channel", "ch");
+    }
 
     public ChatServiceSponge getChatService(){
         ChatServiceSponge chatService = null;
         try{
-            chatService = new ChatServiceSponge("sponge1", this);
+            chatService = new ChatServiceSponge(getConfig().getHostname(), this);
         }
         catch(IOException | TimeoutException e){
             e.printStackTrace();
@@ -97,14 +129,21 @@ public class AurionChat {
             configReturn = new Config(this);
         }
         catch (Exception e){
-            logger.error(e.getMessage());
+            getLogger().error(e.getMessage());
         }
         return configReturn;
     }
 
+    public Utils getUtils(){
+        return new Utils(this);
+    }
 
     public void sendConsoleMessage(String message){
         Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+    }
+
+    public Logger getLogger(){
+        return logger;
     }
 
 }

@@ -20,9 +20,10 @@ public class ChatServiceBukkit extends ChatService {
 
     @Override
     public void sendMessage(String channelName, String message){
-        plugin.getUtils().sendMessageToPlayer(channelName,message.replace(channelName + " ",""));
-        if(plugin.getConfigPlugin().consoleSpy.equalsIgnoreCase("true")){
-        Bukkit.getConsoleSender().sendMessage(message);
+        String messageClean = message.replace(channelName + " ", "");
+        plugin.getUtils().sendMessageToPlayer(channelName, messageClean);
+        if(plugin.getConfigPlugin().getConsoleSpy().equalsIgnoreCase("true")){
+            Bukkit.getConsoleSender().sendMessage(messageClean);
         }
     }
 

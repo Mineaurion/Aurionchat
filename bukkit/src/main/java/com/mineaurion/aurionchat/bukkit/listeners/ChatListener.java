@@ -33,9 +33,6 @@ public class ChatListener implements Listener {
                 }
             }
         }
-
-        aurionChatPlayer.addListening("test");
-
         String evMessage = event.getMessage();
         String evChannel = aurionChatPlayer.getCurrentChannel();
         String messageFormat = plugin.getUtils().processMessage(evChannel,evMessage,event.getPlayer());

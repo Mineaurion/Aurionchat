@@ -1,18 +1,14 @@
 package com.mineaurion.aurionchat.sponge.channel;
 
-import com.google.inject.Inject;
 import com.mineaurion.aurionchat.common.channel.ChatService;
 import com.mineaurion.aurionchat.sponge.AurionChat;
-import org.slf4j.Logger;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public class ChatServiceSponge extends ChatService {
     private AurionChat plugin;
-
-    @Inject
-    private Logger logger;
 
     public ChatServiceSponge(String host, AurionChat plugin) throws IOException, TimeoutException {
         super(host);
@@ -21,7 +17,10 @@ public class ChatServiceSponge extends ChatService {
 
     @Override
     public void sendMessage(String channelName, String message){
-        logger.info(message);
+        plugin.getUtils().sendMessageToPlayer(channelName,message.replace(channelName + " ",""));
+        if(plugin.getConfig().getConsoleSpy().equalsIgnoreCase("true")){
+            plugin.sendConsoleMessage(message);
+        }
     }
 
     @Override
