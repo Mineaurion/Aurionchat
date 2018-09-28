@@ -20,13 +20,15 @@ import java.util.Set;
 public class Utils {
 
     private AurionChat plugin;
+    private Config config;
 
     public Utils(AurionChat plugin){
         this.plugin = plugin;
+        this.config = plugin.getConfig();
     }
 
     public String processMessage(String channel, Text message, Player player){
-        String channelFormat = plugin.getConfig().getFormatChannel(channel);
+        String channelFormat = config.getFormatChannel(channel);
         String messageColors;
         if(player.hasPermission("aurionchat.chat.colors")){
             messageColors = TextSerializers.FORMATTING_CODE.serialize(message);
@@ -71,6 +73,15 @@ public class Utils {
 
     private String getDisplayName(Player player){
         return TextSerializers.FORMATTING_CODE.serialize(player.getDisplayNameData().displayName().get());
+    }
+
+    public void broadcastToPlayer(String channelName, String message){
+        String channelPermission = config.getPermissionChannelAutomessage(channelName);
+        for(Player player: Sponge.getServer().getOnlinePlayers()){
+            if(player.hasPermission(channelPermission)){
+                player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+            }
+        }
     }
 
 }

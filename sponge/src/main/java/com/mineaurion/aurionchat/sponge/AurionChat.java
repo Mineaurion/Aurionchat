@@ -19,6 +19,7 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.serializer.TextSerializer;
@@ -115,11 +116,16 @@ public class AurionChat {
 
     public ChatServiceSponge getChatService(){
         ChatServiceSponge chatService = null;
+        config = getConfig();
         try{
-            chatService = new ChatServiceSponge(getConfig().getHostname(), this);
+            chatService = new ChatServiceSponge(config.getUri(), this);
         }
-        catch(IOException | TimeoutException e){
+        catch(Exception e){
+            getLogger().error("Connection error with the rabbitmq instance");
             e.printStackTrace();
+            Sponge.getEventManager().unregisterListeners(this);
+            Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
+            Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
         }
         return chatService;
     }
@@ -139,6 +145,7 @@ public class AurionChat {
     }
 
     public void sendConsoleMessage(String message){
+
         Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
     }
 

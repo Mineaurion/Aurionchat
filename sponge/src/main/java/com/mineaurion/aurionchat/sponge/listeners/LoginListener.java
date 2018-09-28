@@ -44,8 +44,13 @@ public class LoginListener {
         }
         aurionChatPlayer.setOnline(true);
         AurionChat.onlinePlayers.add(aurionChatPlayer);
-        aurionChatPlayer.addListening("global");
-        aurionChatPlayer.setCurrentChannel("global");
+
+        for( String channel:plugin.getConfig().getAllChannel()){
+            if(aurionChatPlayer.getPlayer().hasPermission("aurionchat.joinchannel." + channel)){
+                aurionChatPlayer.addListening(channel);
+                aurionChatPlayer.setCurrentChannel(channel);
+            }
+        }
     }
 
     private void playerLeaving(Player player){

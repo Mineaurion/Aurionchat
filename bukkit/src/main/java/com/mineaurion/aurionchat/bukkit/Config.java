@@ -11,7 +11,7 @@ public class Config {
     public Boolean setup;
 
     public Set<String> channels;
-    public String host;
+    public String uri;
     public String servername;
 
     public Config(AurionChat plugin){
@@ -21,7 +21,7 @@ public class Config {
     }
 
     public void load(){
-        host       = config.getString("rabbitmq.host");
+        uri       = config.getString("rabbitmq.uri");
         channels   = getAllChannel();
         servername = config.getString("rabbitmq.servername");
     }
@@ -36,6 +36,20 @@ public class Config {
 
     public String getChannelAlias(String channel){
         return config.getString("channels."+ channel +".alias");
+    }
+
+    public boolean getAutomessageEnable(){
+        return config.getBoolean("automessage.enable");
+    }
+
+    public Set<String> getAllAutomessageChannel(){
+        Set<String> channels = config.getConfigurationSection("automessage").getKeys(false);
+        channels.remove("enable");
+        return channels;
+    }
+
+    public String getPermissionChannelAutomessage(String channelName){
+        return config.getString("automessage." + channelName + ".permission");
     }
 
     public String getConsoleSpy(){

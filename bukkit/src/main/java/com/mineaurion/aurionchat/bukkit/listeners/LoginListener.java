@@ -34,7 +34,6 @@ public class LoginListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event){
-
         AurionChatPlayer aurionChatPlayer = AurionChatPlayer.getAurionChatPlayer(event.getPlayer());
         if(aurionChatPlayer == null){
             Player player = event.getPlayer();
@@ -48,8 +47,14 @@ public class LoginListener implements Listener {
         }
         aurionChatPlayer.setOnline(true);
         AurionChat.onlinePlayers.add(aurionChatPlayer);
-        aurionChatPlayer.addListening("global");
-        aurionChatPlayer.setCurrentChannel("global");
+
+        for( String channel:plugin.getConfigPlugin().getAllChannel()){
+            if(aurionChatPlayer.getPlayer().hasPermission("aurionchat.joinchannel." + channel)){
+                aurionChatPlayer.addListening(channel);
+                aurionChatPlayer.setCurrentChannel(channel);
+            }
+        }
+
     }
 
     private void playerLeaving(Player player){

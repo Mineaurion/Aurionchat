@@ -3,6 +3,10 @@ package com.mineaurion.aurionchat.common.channel;
 import com.rabbitmq.client.*;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -17,9 +21,11 @@ public abstract class ChatService {
     private List<String> messageBuffer;
     private String CHANNEL;
 
-    public ChatService(String host) throws IOException, TimeoutException {
+    public ChatService(String uri) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(host);
+        factory.setUri(uri);
+        factory.setAutomaticRecoveryEnabled(true);
+        factory.setNetworkRecoveryInterval(5000);
         this.connection = factory.newConnection();
         this.channel = this.connection.createChannel();
         this.messageBuffer = new ArrayList<>();

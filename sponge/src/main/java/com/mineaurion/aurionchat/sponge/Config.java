@@ -50,11 +50,32 @@ public class Config {
         return config.getNode("rabbitmq", "servername").getString();
     }
 
-    public String getHostname(){
-        return config.getNode("rabbitmq", "host").getString();
+    public String getUri(){
+        return config.getNode("rabbitmq", "uri").getString();
     }
 
     public String getConsoleSpy(){
         return config.getNode("console","spy").getString();
     }
+
+    public Set<String> getAllAutomessageChannel(){
+        Set<String> channels = new HashSet<>();
+        Map<Object,? extends CommentedConfigurationNode> nodeList = config.getNode("automessage").getChildrenMap();
+        nodeList.remove("enable");
+        for(Object node: nodeList.keySet()){
+            channels.add(node.toString());
+        }
+        return channels;
+    }
+
+    public boolean getAutomessageEnable(){
+        return config.getNode("automessage", "enable").getBoolean();
+    }
+
+    public String getPermissionChannelAutomessage(String channelName){
+        return config.getNode("automessage", channelName, "permission").getString();
+    }
+
+
+
 }

@@ -25,12 +25,15 @@ public class ChatCommand implements CommandExecutor {
             command = (args.length < 1) ? "Default" : args[0];
             switch (command){
                 case "join":
+                case "j":
                     ChatAction(aurionChatPlayer, args[1],"join");
                     break;
                 case "leave":
+                case "l":
                     ChatAction(aurionChatPlayer, args[1],"leave");
                     break;
                 case "spy":
+                case "s":
                     ChatAction(aurionChatPlayer,args[1],"spy");
                     break;
                 case "alllisten":
