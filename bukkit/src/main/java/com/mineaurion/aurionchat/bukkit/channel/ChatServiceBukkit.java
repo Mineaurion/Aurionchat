@@ -28,6 +28,7 @@ public class ChatServiceBukkit extends ChatService {
     @Override
     public void sendMessage(String channelName, String message){
         String messageClean = message.replace(channelName + " ", "");
+        //#TODO a check
         if(config.getAutomessageEnable()){
             Set<String> automessageChannels = config.getAllAutomessageChannel();
             if(automessageChannels.contains(channelName)){
