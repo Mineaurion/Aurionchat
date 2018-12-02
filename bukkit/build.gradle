@@ -16,6 +16,7 @@ repositories {
 dependencies {
     compile project(':common')
     compile 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    //compile files('libs/spigot-1.7.10-SNAPSHOT-b1657.jar')
     compile 'net.milkbowl.vault:VaultAPI:1.6'
 }
 

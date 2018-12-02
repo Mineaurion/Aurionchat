@@ -1,8 +1,9 @@
 package com.mineaurion.aurionchat.bukkit;
 
-import com.mineaurion.aurionchat.bukkit.channel.ChatServiceBukkit;
+import com.mineaurion.aurionchat.bukkit.channel.ChatService;
 import com.mineaurion.aurionchat.bukkit.command.ChatCommand;
 import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
+import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import net.milkbowl.vault.chat.Chat;
 
 import net.milkbowl.vault.permission.Permission;
@@ -18,22 +19,17 @@ import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
 import com.mineaurion.aurionchat.bukkit.listeners.ChatListener;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeoutException;
 
 public class AurionChat extends JavaPlugin {
 
     private Config config;
+    private AurionChatPlayers aurionChatPlayers;
+    private Utils utils;
     private LoginListener loginListener;
     private ChatListener chatListener;
     private CommandListener commandListener;
 
-    private static AurionChat instance;
     public static final String CHANNEL = "aurionchat";
-
-    public static Set<AurionChatPlayer> players = new HashSet<>();
-    public static Set<AurionChatPlayer> onlinePlayers = new HashSet<>();
-
 
     public static Chat chat = null;
     public static Permission permission = null;
@@ -42,30 +38,30 @@ public class AurionChat extends JavaPlugin {
 
 
     public AurionChat(){
-        instance = this;
+
     }
 
 
     @Override
     public void onEnable(){
-        AurionChat plugin = this;
-
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Initializing..."));
-        config = getConfigPlugin();
-        config.load();
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Config Loaded."));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Checking for Vault..."));
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
+        config = new Config(this);
+        aurionChatPlayers = new AurionChatPlayers();
+        utils = new Utils(this);
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Checking for Vault...");
         if(!setupPermissions()){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - &cCould not find Vault dependency, disabling."));
+            sendConsoleMessage("&8[&eAurionChat&8]&e - &cCould not find Vault dependency, disabling.");
             Bukkit.getPluginManager().disablePlugin(this);
         }
         setupChat();
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Enabled Successfully"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Registering Listeners"));
-        setupListener(plugin);
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Enabled Successfully");
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
+        setupListener(this);
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Connecting to RabbitMQ");
         setupChannels(config);
 
-        this.getCommand("chat").setExecutor(new ChatCommand(plugin));
+        getCommand("chat").setExecutor(new ChatCommand(this));
     }
 
     private void setupChat(){
@@ -96,7 +92,7 @@ public class AurionChat extends JavaPlugin {
 
     private void setupChannels(Config config){
         try{
-            getChatService().join(config.servername);
+            getChatService().join(config.getServername());
         }
         catch(IOException e){
             getLogger().warning(e.getMessage());
@@ -106,23 +102,23 @@ public class AurionChat extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("onDisable is called!");
-        ChatServiceBukkit chatService = getChatService();
+        ChatService chatService = getChatService();
         try{
             chatService.close();
         }
         catch(Exception e){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Error when communication closed"));
-            Bukkit.getConsoleSender().sendMessage(e.getMessage());
+            sendConsoleMessage("&8[&eAurionChat&8]&e - Error when communication closed");
+            sendConsoleMessage(e.getMessage());
         }
     }
 
-    public ChatServiceBukkit getChatService(){
-        ChatServiceBukkit chatService = null;
+    public ChatService getChatService(){
+        ChatService chatService = null;
         try {
-            chatService = new ChatServiceBukkit(config.uri, this);
+            chatService = new ChatService(config.getUri(), this);
         }
         catch (Exception e){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&eAurionChat&8]&e - Connection error with the rabbitmq instance"));
+            sendConsoleMessage("&8[&eAurionChat&8]&e - Connection error with the rabbitmq instance");
             e.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
         }
@@ -130,10 +126,18 @@ public class AurionChat extends JavaPlugin {
     }
 
     public Config getConfigPlugin(){
-        return new Config(this);
+        return this.config;
     }
 
     public Utils getUtils(){
-        return new Utils(this);
+        return this.utils;
+    }
+
+    public AurionChatPlayers getAurionChatPlayers(){
+        return this.aurionChatPlayers;
+    }
+
+    public void sendConsoleMessage(String message){
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
 }

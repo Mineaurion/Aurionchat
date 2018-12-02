@@ -2,8 +2,12 @@ rabbitmq:
   uri: "amqp://guest:guest@localhost:5672/"
   servername: "ServerName" #Must be unique beetwen all of our servers
 
-console:
-  spy: "true"
+options:
+  spy: true
+  automessage: true
+  sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
+  #sound: "ORB_PICKUP" #1.7
+
 
 channels:
   global:
@@ -17,7 +21,6 @@ channels:
     alias: "reve"
 
 automessage:
-    enable: true
     auto-fr:
       permission: ""
     auto-en:

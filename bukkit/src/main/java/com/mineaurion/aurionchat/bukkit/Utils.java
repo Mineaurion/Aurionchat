@@ -1,20 +1,23 @@
 package com.mineaurion.aurionchat.bukkit;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
+import java.util.UUID;
 
 public class Utils {
 
     private AurionChat plugin;
     private Config config;
+    private AurionChatPlayers aurionChatPlayers;
 
     public Utils(AurionChat plugin){
         this.plugin = plugin;
         this.config = plugin.getConfigPlugin();
+        this.aurionChatPlayers = plugin.getAurionChatPlayers();
     }
 
     public String processMessage(String channel, String message, Player player){
@@ -30,18 +33,16 @@ public class Utils {
     }
 
     public void sendMessageToPlayer(String channelName, String message){
-        for(AurionChatPlayer p: AurionChat.onlinePlayers){
-            Set<String> listening = p.getListening();
-            Player player = p .getPlayer();
-            if(listening.contains(channelName)){
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
-                if(message.toLowerCase().contains("@" + player.getDisplayName().toLowerCase() ) || message.toLowerCase().contains("@" + player.getName().toLowerCase())){
-                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-                }
+        Set<UUID> playersListenChannel = aurionChatPlayers.getPlayersListeningChannel(channelName);
+        for(UUID uuid: playersListenChannel){
+            Player player = Bukkit.getPlayer(uuid);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
+            if(message.toLowerCase().contains("@" + player.getDisplayName().toLowerCase() ) || message.toLowerCase().contains("@" + player.getName().toLowerCase())){
+                player.playSound(player.getLocation(), config.getPingSound(), 1, 1);
             }
         }
-    }
 
+    }
 
     public void broadcastToPlayer(String channelName, String message){
         String channelPermission = config.getPermissionChannelAutomessage(channelName);

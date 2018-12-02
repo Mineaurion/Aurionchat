@@ -1,5 +1,6 @@
 package com.mineaurion.aurionchat.sponge;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import me.lucko.luckperms.api.Contexts;
 import me.lucko.luckperms.api.LuckPermsApi;
 import me.lucko.luckperms.api.User;
@@ -16,19 +17,22 @@ import org.spongepowered.api.text.title.Title;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public class Utils {
 
     private AurionChat plugin;
     private Config config;
+    private AurionChatPlayers aurionChatPlayers;
 
     public Utils(AurionChat plugin){
         this.plugin = plugin;
         this.config = plugin.getConfig();
+        this.aurionChatPlayers = plugin.getAurionChatPlayers();
     }
 
     public String processMessage(String channel, Text message, Player player){
-        String channelFormat = config.getFormatChannel(channel);
+        String channelFormat = config.channels.get(channel).format;
         String messageColors;
         if(player.hasPermission("aurionchat.chat.colors")){
             messageColors = TextSerializers.FORMATTING_CODE.serialize(message);
@@ -43,16 +47,18 @@ public class Utils {
     }
 
     public void sendMessageToPlayer(String channelName, String message){
-        for(AurionChatPlayer p: AurionChat.onlinePlayers){
-            Set<String> listening = p.getListening();
-            if(listening.contains(channelName)){
-                Player player = p.getPlayer();
-                player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
-                if(message.contains("@" + getDisplayName(player) ) || message.contains("@" + player)){
-                    player.playSound(SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP, player.getLocation().getPosition(), 10.0);
-                    player.sendTitle(Title.builder().subtitle(TextSerializers.FORMATTING_CODE.deserialize("Mention")).fadeIn(20).fadeOut(20).stay(40).build());
+        Set<UUID> playersListenChannel = aurionChatPlayers.getPlayersListeningChannel(channelName);
+        for(UUID uuid: playersListenChannel){
+            Optional<Player> player = Sponge.getServer().getPlayer(uuid);
+            if(player.isPresent()){
+                Player p = player.get();
+                p.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+                if(message.contains("@" + getDisplayName(p) ) || message.contains("@" + player)){
+                    p.playSound(config.options.sound, p.getLocation().getPosition(), 10.0);
+                    p.sendTitle(Title.builder().subtitle(TextSerializers.FORMATTING_CODE.deserialize("Mention")).fadeIn(20).fadeOut(20).stay(40).build());
                 }
             }
+
         }
     }
 
@@ -76,7 +82,7 @@ public class Utils {
     }
 
     public void broadcastToPlayer(String channelName, String message){
-        String channelPermission = config.getPermissionChannelAutomessage(channelName);
+        String channelPermission = config.automessage.get(channelName).permission;
         for(Player player: Sponge.getServer().getOnlinePlayers()){
             if(player.hasPermission(channelPermission)){
                 player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));

@@ -1,10 +1,9 @@
 package com.mineaurion.aurionchat.sponge.channel;
 
-import com.mineaurion.aurionchat.common.channel.ChatService;
+import com.mineaurion.aurionchat.common.channel.ChatServiceCommun;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.Config;
 import com.mineaurion.aurionchat.sponge.Utils;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,12 +12,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-public class ChatServiceSponge extends ChatService {
+public class ChatService extends ChatServiceCommun {
     private AurionChat plugin;
     private Config config;
     private Utils utils;
 
-    public ChatServiceSponge(String uri, AurionChat plugin) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
+    public ChatService(String uri, AurionChat plugin) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
         super(uri);
         this.plugin = plugin;
         this.config = plugin.getConfig();
@@ -27,16 +26,17 @@ public class ChatServiceSponge extends ChatService {
 
     @Override
     public void sendMessage(String channelName, String message){
+        String channel = channelName.toLowerCase();
         String messageClean = message.replace(channelName + " ", "");
         //#TODO a check
-        if(config.getAutomessageEnable()){
-            Set<String> automessageChannels = config.getAllAutomessageChannel();
-            if(automessageChannels.contains(channelName)){
-                utils.broadcastToPlayer(channelName, message);
+        if(config.options.automessage){
+            Set<String> automessageChannels = config.channels.keySet();
+            if(automessageChannels.contains(channel)){
+                utils.broadcastToPlayer(channel, message);
             }
         }
-        utils.sendMessageToPlayer(channelName, messageClean);
-        if(config.getConsoleSpy().equalsIgnoreCase("true")){
+        utils.sendMessageToPlayer(channel, messageClean);
+        if(config.options.spyConsole){
             plugin.sendConsoleMessage(message);
         }
     }

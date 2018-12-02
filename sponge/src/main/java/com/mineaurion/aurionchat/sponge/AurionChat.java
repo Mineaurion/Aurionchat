@@ -1,14 +1,19 @@
 package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
-import com.mineaurion.aurionchat.sponge.channel.ChatServiceSponge;
+import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.sponge.channel.ChatService;
 import com.mineaurion.aurionchat.sponge.command.CommandManager;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.CommandListener;
 import me.lucko.luckperms.LuckPerms;
 import me.lucko.luckperms.api.LuckPermsApi;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
@@ -20,18 +25,15 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.service.ProviderRegistration;
-import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 @Plugin(
         id = "aurionchat",
@@ -46,38 +48,36 @@ import java.util.concurrent.TimeoutException;
 )
 public class AurionChat {
 
-    @Inject
-    @ConfigDir(sharedRoot = false)
-    public Path configDir;
+    @Inject @DefaultConfig(sharedRoot = true)
+    public Path path;
+
+    @Inject @DefaultConfig(sharedRoot = true)
+    ConfigurationLoader<CommentedConfigurationNode> loader;
 
     @Inject
-    @DefaultConfig(sharedRoot = false)
-    public Path defaultConf;
-
-    @Inject
-    @DefaultConfig(sharedRoot = false)
-    public File defaultConfigFile;
-
-    @Inject
-    public PluginContainer pluginContainer;
-
+    Game game;
 
     @Inject
     private Logger logger;
 
     private Config config;
-    private Config configReturn;
+    private AurionChatPlayers aurionChatPlayers;
+    private Utils utils;
+
 
     public static final String CHANNEL = "aurionchat";
-    public static Set<AurionChatPlayer> players = new HashSet<>();
-    public static Set<AurionChatPlayer> onlinePlayers = new HashSet<>();
 
     public static Optional<LuckPermsApi> luckPermsApi;
 
     @Listener
-    public void Init(GamePreInitializationEvent event) {
+    public void Init(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
         sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
-        config = getConfig();
+        if(!Files.exists(path)){
+            game.getAssetManager().getAsset(this,"config.conf").get().copyToFile(path);
+        }
+        config = loader.load().getValue(Config.type);
+        aurionChatPlayers = new AurionChatPlayers();
+        utils = new Utils(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
         setupListeners();
         sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
@@ -102,7 +102,7 @@ public class AurionChat {
     }
     public void setupChannels(Config config){
         try{
-            getChatService().join(config.getServername());
+            getChatService().join(config.rabbitmq.servername);
         }
         catch (Exception e){
             getLogger().error(e.getMessage());
@@ -114,11 +114,11 @@ public class AurionChat {
         Sponge.getCommandManager().register(plugin, commandManager.cmdChat, "channel", "ch");
     }
 
-    public ChatServiceSponge getChatService(){
-        ChatServiceSponge chatService = null;
+    public ChatService getChatService(){
+        ChatService chatService = null;
         config = getConfig();
         try{
-            chatService = new ChatServiceSponge(config.getUri(), this);
+            chatService = new ChatService(config.rabbitmq.uri, this);
         }
         catch(Exception e){
             getLogger().error("Connection error with the rabbitmq instance");
@@ -130,20 +130,6 @@ public class AurionChat {
         return chatService;
     }
 
-    public Config getConfig(){
-        try{
-            configReturn = new Config(this);
-        }
-        catch (Exception e){
-            getLogger().error(e.getMessage());
-        }
-        return configReturn;
-    }
-
-    public Utils getUtils(){
-        return new Utils(this);
-    }
-
     public void sendConsoleMessage(String message){
 
         Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
@@ -151,6 +137,18 @@ public class AurionChat {
 
     public Logger getLogger(){
         return logger;
+    }
+
+    public Config getConfig(){
+        return this.config;
+    }
+
+    public Utils getUtils(){
+        return this.utils;
+    }
+
+    public AurionChatPlayers getAurionChatPlayers(){
+        return this.aurionChatPlayers;
     }
 
 }

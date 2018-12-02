@@ -6,19 +6,17 @@ import com.mineaurion.aurionchat.bukkit.Utils;
 import org.bukkit.Bukkit;
 
 
-import com.mineaurion.aurionchat.common.channel.ChatService;
+import com.mineaurion.aurionchat.common.channel.ChatServiceCommun;
 
-import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
-public class ChatServiceBukkit extends ChatService {
+public class ChatService extends ChatServiceCommun {
 
     private AurionChat plugin;
     private Config config;
     private Utils utils;
 
-    public ChatServiceBukkit(String uri, AurionChat plugin) throws Exception {
+    public ChatService(String uri, AurionChat plugin) throws Exception {
         super(uri);
         this.plugin = plugin;
         this.config = plugin.getConfigPlugin();
@@ -27,16 +25,17 @@ public class ChatServiceBukkit extends ChatService {
 
     @Override
     public void sendMessage(String channelName, String message){
-        String messageClean = message.replace(channelName + " ", "");
+        String channel = channelName.toLowerCase();
+        String messageClean = message.replace(channel + " ", "");
         //#TODO a check
         if(config.getAutomessageEnable()){
             Set<String> automessageChannels = config.getAllAutomessageChannel();
-            if(automessageChannels.contains(channelName)){
-                utils.broadcastToPlayer(channelName, messageClean);
+            if(automessageChannels.contains(channel)){
+                utils.broadcastToPlayer(channel, messageClean);
             }
         }
-        utils.sendMessageToPlayer(channelName, messageClean);
-        if(plugin.getConfigPlugin().getConsoleSpy().equalsIgnoreCase("true")){
+        utils.sendMessageToPlayer(channel, messageClean);
+        if(plugin.getConfigPlugin().getConsoleSpy()){
             Bukkit.getConsoleSender().sendMessage(messageClean);
         }
 

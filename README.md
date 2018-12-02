@@ -30,7 +30,7 @@ When you send the message if other people listen to the same channel as you type
 
 
 - aurionchat.chat.colors : Usage of colors in chat
-- aurionchat.joinchannel.<channelName> : Auto join the channel
+- aurionchat.joinchannel.\<channelName\> : Auto join the channel
 
 
 ---

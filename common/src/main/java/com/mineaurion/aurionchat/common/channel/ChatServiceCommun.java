@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-public abstract class ChatService {
+public abstract class ChatServiceCommun {
     private static final String FANOUT = "fanout";
     private static final String EX_PREFIX = "bcast";
     private Connection connection;
@@ -21,7 +21,7 @@ public abstract class ChatService {
     private List<String> messageBuffer;
     private String CHANNEL;
 
-    public ChatService(String uri) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
+    public ChatServiceCommun(String uri) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setUri(uri);
         factory.setAutomaticRecoveryEnabled(true);

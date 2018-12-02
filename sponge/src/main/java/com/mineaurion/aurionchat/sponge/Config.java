@@ -1,81 +1,54 @@
 package com.mineaurion.aurionchat.sponge;
 
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.asset.Asset;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
+import ninja.leaping.configurate.objectmapping.Setting;
+import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.spongepowered.api.effect.sound.SoundType;
+import org.spongepowered.api.effect.sound.SoundTypes;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+@ConfigSerializable
 public class Config {
+    public final static TypeToken<Config> type = TypeToken.of(Config.class);
 
-    private AurionChat plugin;
-
-    public CommentedConfigurationNode config;
-
-    public Config(AurionChat plugin) throws IOException {
-        this.plugin = plugin;
-        HoconConfigurationLoader loader = HoconConfigurationLoader.builder().setPath(plugin.defaultConf).build();
-        config = loader.load();
-
-        if(!plugin.defaultConfigFile.exists()){
-            plugin.sendConsoleMessage("&eConfig file copied");
-            Asset configAsset = plugin.pluginContainer.getAsset("config.conf").get();
-            configAsset.copyToFile(plugin.defaultConf);
-        }
+    @Setting public Rabbitmq rabbitmq = new Rabbitmq();
+    @ConfigSerializable
+    public static class Rabbitmq{
+        @Setting
+        public String uri = "amqp://guest:guest@localhost:5672/";
+        @Setting(comment = "Must Be unique beetwen all of your servers")
+        public String servername = "ServerName";
     }
 
-    public String getFormatChannel(String channelName){
-        return config.getNode("channels", channelName, "format").getString();
+    @Setting public Options options = new Options();
+    @ConfigSerializable
+    public static class Options{
+        @Setting
+        public SoundType sound = SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP;
+        @Setting(comment = "Allow console to print all message")
+        public boolean spyConsole = true;
+        @Setting
+        public boolean automessage = true;
     }
 
-    public String getChannelAlias(String channelName){
-        return config.getNode("channels", channelName, "alias").getString();
+    @Setting(comment = "Channel name must be alphanumeric, no special char")
+    public Map<String, Channel> channels = ImmutableMap.of("global", new Channel());
+    @ConfigSerializable
+    public static class Channel{
+        @Setting
+        public String format = "[GLOBAL] {prefix}{display_name} : &f{message}";
+        @Setting(comment = "Define an alias of the channel for command purpose")
+        public String alias = "g";
     }
 
-    public Set<String> getAllChannel(){
-        Set<String> channels = new HashSet<>();
-        Map<Object,? extends CommentedConfigurationNode> nodeList = config.getNode("channels").getChildrenMap();
-        for(Object node: nodeList.keySet()){
-            channels.add(node.toString());
-        }
-        return channels;
+    @Setting
+    public Map<String, Automessage> automessage = ImmutableMap.of("auto-fr", new Automessage());
+    @ConfigSerializable
+    public static class Automessage{
+        @Setting(comment = "Define the permission for the channel of automessage")
+        public String permission = "";
     }
-
-    public String getServername(){
-        return config.getNode("rabbitmq", "servername").getString();
-    }
-
-    public String getUri(){
-        return config.getNode("rabbitmq", "uri").getString();
-    }
-
-    public String getConsoleSpy(){
-        return config.getNode("console","spy").getString();
-    }
-
-    public Set<String> getAllAutomessageChannel(){
-        Set<String> channels = new HashSet<>();
-        Map<Object,? extends CommentedConfigurationNode> nodeList = config.getNode("automessage").getChildrenMap();
-        nodeList.remove("enable");
-        for(Object node: nodeList.keySet()){
-            channels.add(node.toString());
-        }
-        return channels;
-    }
-
-    public boolean getAutomessageEnable(){
-        return config.getNode("automessage", "enable").getBoolean();
-    }
-
-    public String getPermissionChannelAutomessage(String channelName){
-        return config.getNode("automessage", channelName, "permission").getString();
-    }
-
-
 
 }

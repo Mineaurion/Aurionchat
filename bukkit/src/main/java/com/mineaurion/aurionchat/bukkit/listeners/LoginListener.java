@@ -1,8 +1,7 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
-import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
-import org.bukkit.Bukkit;
+import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,9 +16,11 @@ import java.util.UUID;
 
 public class LoginListener implements Listener {
     private AurionChat plugin;
+    private AurionChatPlayers aurionChatPlayers;
 
-    public LoginListener(AurionChat main) {
-        plugin = main;
+    public LoginListener(AurionChat plugin) {
+        this.plugin = plugin;
+        this.aurionChatPlayers = plugin.getAurionChatPlayers();
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -34,35 +35,22 @@ public class LoginListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event){
-        AurionChatPlayer aurionChatPlayer = AurionChatPlayer.getAurionChatPlayer(event.getPlayer());
-        if(aurionChatPlayer == null){
-            Player player = event.getPlayer();
-            UUID uuid = player.getUniqueId();
-            String name = player.getName();
-            Set<String> listening = new HashSet<>();
-            String current = "global";
-            listening.add(current);
-            aurionChatPlayer = new AurionChatPlayer(uuid, name, current, listening, name, false);
-            AurionChat.players.add(aurionChatPlayer);
-        }
-        aurionChatPlayer.setOnline(true);
-        AurionChat.onlinePlayers.add(aurionChatPlayer);
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        Set<String> listenChannel = new HashSet<String>();
+        String currentChannel = "global";
 
         for( String channel:plugin.getConfigPlugin().getAllChannel()){
-            if(aurionChatPlayer.getPlayer().hasPermission("aurionchat.joinchannel." + channel)){
-                aurionChatPlayer.addListening(channel);
-                aurionChatPlayer.setCurrentChannel(channel);
+            if(player.hasPermission("aurionchat.joinchannel." + channel)){
+                listenChannel.add(channel);
+                currentChannel = channel;
             }
         }
+        aurionChatPlayers.addPlayer(uuid, listenChannel, currentChannel);
 
     }
 
     private void playerLeaving(Player player){
-        AurionChatPlayer aurionChatPlayer = AurionChatPlayer.getAurionChatPlayer(player);
-        if(aurionChatPlayer.getPlayer() == null){
-            return;
-        }
-        aurionChatPlayer.setOnline(false);
-        AurionChat.onlinePlayers.remove(aurionChatPlayer);
+        aurionChatPlayers.removePlayer(player.getUniqueId());
     }
 }
