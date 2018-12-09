@@ -36,8 +36,8 @@ public class ChatService extends ChatServiceCommun {
             }
         }
         utils.sendMessageToPlayer(channel, messageClean);
-        if(config.options.spyConsole){
-            plugin.sendConsoleMessage(message);
+        if(config.options.spy){
+            plugin.sendConsoleMessage(messageClean);
         }
     }
 

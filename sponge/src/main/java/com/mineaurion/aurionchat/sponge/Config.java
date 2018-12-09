@@ -28,7 +28,7 @@ public class Config {
         @Setting
         public SoundType sound = SoundTypes.ENTITY_EXPERIENCE_ORB_PICKUP;
         @Setting(comment = "Allow console to print all message")
-        public boolean spyConsole = true;
+        public boolean spy = true;
         @Setting
         public boolean automessage = true;
     }

@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 
 
 import com.mineaurion.aurionchat.common.channel.ChatServiceCommun;
+import org.bukkit.ChatColor;
 
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class ChatService extends ChatServiceCommun {
         }
         utils.sendMessageToPlayer(channel, messageClean);
         if(plugin.getConfigPlugin().getConsoleSpy()){
-            Bukkit.getConsoleSender().sendMessage(messageClean);
+            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',messageClean));
         }
 
     }
