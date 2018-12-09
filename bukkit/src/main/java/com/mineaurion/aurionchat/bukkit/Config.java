@@ -1,8 +1,6 @@
 package com.mineaurion.aurionchat.bukkit;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import java.util.Set;
 
