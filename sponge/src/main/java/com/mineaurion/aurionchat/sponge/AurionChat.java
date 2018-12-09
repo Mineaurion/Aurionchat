@@ -39,6 +39,7 @@ import java.util.Set;
         id = "aurionchat",
         name = "Aurionchat",
         url = "https://mineaurion.com",
+        description = "Chat accross server with rabbitmq",
         authors = {
                 "Yann151924"
         },
