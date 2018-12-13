@@ -4,20 +4,17 @@ import com.mineaurion.aurionchat.common.channel.ChatServiceCommun;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.Config;
 import com.mineaurion.aurionchat.sponge.Utils;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.scheduler.Task;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 public class ChatService extends ChatServiceCommun {
     private AurionChat plugin;
     private Config config;
     private Utils utils;
 
-    public ChatService(String uri, AurionChat plugin) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
+    public ChatService(String uri, AurionChat plugin){
         super(uri);
         this.plugin = plugin;
         this.config = plugin.getConfig();
@@ -30,7 +27,7 @@ public class ChatService extends ChatServiceCommun {
         String messageClean = message.replace(channelName + " ", "");
         //#TODO a check
         if(config.options.automessage){
-            Set<String> automessageChannels = config.channels.keySet();
+            Set<String> automessageChannels = config.automessage.keySet();
             if(automessageChannels.contains(channel)){
                 utils.broadcastToPlayer(channel, message);
             }
@@ -44,5 +41,12 @@ public class ChatService extends ChatServiceCommun {
     @Override
     public String getCHANNEL(){
         return AurionChat.CHANNEL;
+    }
+
+    @Override
+    public void desactivatePlugin(){
+        Sponge.getEventManager().unregisterListeners(plugin);
+        Sponge.getCommandManager().getOwnedBy(plugin).forEach(Sponge.getCommandManager()::removeMapping);
+        Sponge.getScheduler().getScheduledTasks(plugin).forEach(Task::cancel);
     }
 }

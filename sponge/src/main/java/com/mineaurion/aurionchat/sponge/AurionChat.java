@@ -20,6 +20,7 @@ import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.scheduler.Task;
@@ -85,8 +86,13 @@ public class AurionChat {
     }
 
     @Listener
-    public void onServerStart(GameStartedServerEvent event) throws IOException {
-        getLogger().info("Successfully running AurionChat - Debug");
+    public void onServerStart(GameStartedServerEvent event){
+        getLogger().info("Successfully running AurionChat");
+    }
+
+    @Listener
+    public void onServerStop(GameStoppingEvent event) throws IOException{
+        getChatService().leave(config.rabbitmq.servername);
     }
 
 
@@ -111,19 +117,19 @@ public class AurionChat {
     }
 
     public ChatService getChatService(){
-        ChatService chatService = null;
+//        ChatService chatService = null;
         config = getConfig();
-        try{
-            chatService = new ChatService(config.rabbitmq.uri, this);
-        }
-        catch(Exception e){
-            getLogger().error("Connection error with the rabbitmq instance");
-            e.printStackTrace();
-            Sponge.getEventManager().unregisterListeners(this);
-            Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
-            Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
-        }
-        return chatService;
+        //try{
+//            chatService = new ChatService(config.rabbitmq.uri, this);
+//        }
+//        catch(Exception e){
+//            getLogger().error("Connection error with the rabbitmq instance");
+//            e.printStackTrace();
+//            Sponge.getEventManager().unregisterListeners(this);
+//            Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
+//            Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
+//        }
+        return  new ChatService(config.rabbitmq.uri, this);
     }
 
     public void sendConsoleMessage(String message){

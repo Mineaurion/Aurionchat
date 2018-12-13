@@ -17,7 +17,7 @@ public class ChatService extends ChatServiceCommun {
     private Config config;
     private Utils utils;
 
-    public ChatService(String uri, AurionChat plugin) throws Exception {
+    public ChatService(String uri, AurionChat plugin){
         super(uri);
         this.plugin = plugin;
         this.config = plugin.getConfigPlugin();
@@ -45,5 +45,10 @@ public class ChatService extends ChatServiceCommun {
     @Override
     public String getCHANNEL(){
         return AurionChat.CHANNEL;
+    }
+
+    @Override
+    public void desactivatePlugin(){
+        Bukkit.getPluginManager().disablePlugin(plugin);
     }
 }

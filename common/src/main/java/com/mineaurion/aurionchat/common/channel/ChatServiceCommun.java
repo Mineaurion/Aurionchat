@@ -21,15 +21,27 @@ public abstract class ChatServiceCommun {
     private List<String> messageBuffer;
     private String CHANNEL;
 
-    public ChatServiceCommun(String uri) throws URISyntaxException, NoSuchAlgorithmException, KeyManagementException, IOException, TimeoutException {
+    public ChatServiceCommun(String uri){
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setUri(uri);
+        try{
+            factory.setUri(uri);
+        }
+        catch (KeyManagementException|URISyntaxException|NoSuchAlgorithmException UriKeyException){
+            desactivatePlugin();
+            System.out.println("Uri Syntax Exception, please check the config or the documentation of rabbitmq");
+        }
         factory.setAutomaticRecoveryEnabled(true);
         factory.setNetworkRecoveryInterval(5000);
-        this.connection = factory.newConnection();
-        this.channel = this.connection.createChannel();
-        this.messageBuffer = new ArrayList<>();
-        this.CHANNEL = getCHANNEL();
+        try{
+            connection = factory.newConnection();
+            channel = connection.createChannel();
+        }
+        catch (IOException|TimeoutException exception){
+            System.out.println("Connection error with rabbitmq");
+            System.out.println(exception.getMessage());
+        }
+        messageBuffer = new ArrayList<>();
+        CHANNEL = getCHANNEL();
     }
 
     public void join(String serverName) throws IOException{
@@ -84,6 +96,7 @@ public abstract class ChatServiceCommun {
     }
 
     abstract public void sendMessage(String channelName, String message);
+    abstract public void desactivatePlugin();
     abstract public String getCHANNEL();
 
 

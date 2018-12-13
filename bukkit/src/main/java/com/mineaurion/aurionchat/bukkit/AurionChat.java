@@ -113,16 +113,7 @@ public class AurionChat extends JavaPlugin {
     }
 
     public ChatService getChatService(){
-        ChatService chatService = null;
-        try {
-            chatService = new ChatService(config.getUri(), this);
-        }
-        catch (Exception e){
-            sendConsoleMessage("&8[&eAurionChat&8]&e - Connection error with the rabbitmq instance");
-            e.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
-        return chatService;
+        return new ChatService(config.getUri(), this);
     }
 
     public Config getConfigPlugin(){
