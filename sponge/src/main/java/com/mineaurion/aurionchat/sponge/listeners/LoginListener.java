@@ -42,8 +42,10 @@ public class LoginListener {
         String currenChannel = "global";
         for(String channel: config.channels.keySet()){
             if(player.hasPermission("aurionchat.joinchannel." + channel)){
-                listenChannel.add(channel);
                 currenChannel = channel;
+            }
+            if(player.hasPermission("aurionchat.listenchannel." + channel)){
+                listenChannel.add(channel);
             }
         }
         aurionChatPlayers.addPlayer(uuid, listenChannel, currenChannel);

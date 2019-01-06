@@ -46,9 +46,11 @@ public class Utils {
 
     public void broadcastToPlayer(String channelName, String message){
         String channelPermission = config.getPermissionChannelAutomessage(channelName);
-        for(Player player: plugin.getServer().getOnlinePlayers()){
-            if(player.hasPermission(channelPermission)){
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
+        if(plugin.getServer().getOnlinePlayers().size() > 0){
+            for(Player player: plugin.getServer().getOnlinePlayers()){
+                if(player.hasPermission(channelPermission)){
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
+                }
             }
         }
     }

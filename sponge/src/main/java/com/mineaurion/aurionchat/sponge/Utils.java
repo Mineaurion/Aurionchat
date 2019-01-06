@@ -80,9 +80,11 @@ public class Utils {
 
     public void broadcastToPlayer(String channelName, String message){
         String channelPermission = config.automessage.get(channelName).permission;
-        for(Player player: Sponge.getServer().getOnlinePlayers()){
-            if(player.hasPermission(channelPermission)){
-                player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+        if(Sponge.getServer().getOnlinePlayers().size() > 0){
+            for(Player player: Sponge.getServer().getOnlinePlayers()){
+                if(player.hasPermission(channelPermission)){
+                    player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+                }
             }
         }
     }

@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     compile project(':common')
-    compile 'org.spongepowered:spongeapi:7.0.0'
+    compile 'org.spongepowered:spongeapi:7.1.0'
 }
 
 sponge.plugin.id = pluginId
