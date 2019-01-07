@@ -42,6 +42,7 @@ public class LoginListener implements Listener {
 
         for( String channel:plugin.getConfigPlugin().getAllChannel()){
             if(player.hasPermission("aurionchat.joinchannel." + channel)){
+                listenChannel.add(channel);
                 currentChannel = channel;
             }
             if(player.hasPermission("aurionchat.listenchannel." + channel)){
