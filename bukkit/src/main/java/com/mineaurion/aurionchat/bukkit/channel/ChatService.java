@@ -10,6 +10,7 @@ import com.mineaurion.aurionchat.common.channel.ChatServiceCommun;
 import org.bukkit.ChatColor;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ChatService extends ChatServiceCommun {
 
@@ -27,7 +28,7 @@ public class ChatService extends ChatServiceCommun {
     @Override
     public void sendMessage(String channelName, String message){
         String channel = channelName.toLowerCase();
-        String messageClean = message.replace(channel + " ", "");
+        String messageClean = message.replaceFirst(Pattern.quote(channel + " "), "");
         //#TODO a check
         if(config.getAutomessageEnable()){
             Set<String> automessageChannels = config.getAllAutomessageChannel();

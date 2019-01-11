@@ -8,6 +8,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ChatService extends ChatServiceCommun {
     private AurionChat plugin;
@@ -24,7 +25,7 @@ public class ChatService extends ChatServiceCommun {
     @Override
     public void sendMessage(String channelName, String message){
         String channel = channelName.toLowerCase();
-        String messageClean = message.replace(channelName + " ", "");
+        String messageClean = message.replaceFirst(Pattern.quote(channel + " "), "");
         //#TODO a check
         if(config.options.automessage){
             Set<String> automessageChannels = config.automessage.keySet();
