@@ -16,11 +16,7 @@ public class Config {
     public String getUri(){
         return config.getString("rabbitmq.uri");
     }
-
-    public String getServername(){
-        return config.getString("rabbitmq.servername");
-    }
-
+    
     public String getFormatChannel(String channelName){
         return config.getString("channels."+ channelName + ".format");
     }

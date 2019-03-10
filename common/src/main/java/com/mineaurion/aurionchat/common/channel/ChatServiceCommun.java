@@ -4,22 +4,19 @@ import com.rabbitmq.client.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public abstract class ChatServiceCommun {
-    private static final String FANOUT = "fanout";
-    private static final String EX_PREFIX = "bcast";
     private Connection connection;
     private Channel channel;
-    private Consumer consumer;
     private String consumerTag;
-    private List<String> messageBuffer;
-    private String CHANNEL;
+
+    private static String EXCHANGE_NAME = "aurions.chat";
 
     public ChatServiceCommun(String uri){
         ConnectionFactory factory = new ConnectionFactory();
@@ -40,64 +37,38 @@ public abstract class ChatServiceCommun {
             System.out.println("Connection error with rabbitmq");
             System.out.println(exception.getMessage());
         }
-        messageBuffer = new ArrayList<>();
-        CHANNEL = getCHANNEL();
     }
 
-    public void join(String serverName) throws IOException{
+    public void join() throws IOException{
         if(this.consumerTag != null){
             channel.basicCancel(consumerTag);
         }
-        channel.queueDeclare(getQueueName(serverName),false,false,false,null);
-        channel.exchangeDeclare("channel_" + CHANNEL, FANOUT);
-        channel.queueBind(getQueueName(serverName), "channel_" + CHANNEL, "");
+        channel.exchangeDeclare(EXCHANGE_NAME, "topic");
+        String queueName = channel.queueDeclare().getQueue();
+        channel.queueBind(queueName, EXCHANGE_NAME, "aurions.chat.*");
 
-        boolean autoAck = false;
-        Consumer consumer = new DefaultConsumer(channel) {
-            @Override
-            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException{
-                String routingKey = envelope.getRoutingKey();
-                String contentType = properties.getContentType();
-                long deliveryTag = envelope.getDeliveryTag();
-                String message = new String(body, "UTF-8");
-                String channelName = getChannelName(message);
-
-                sendMessage(channelName, message);
-                channel.basicAck(deliveryTag, false);
-            }
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+          String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+          String channel = delivery.getEnvelope().getRoutingKey().split("\\.")[1];
+          sendMessage(channel, message);
         };
-        channel.basicConsume(getQueueName(serverName), autoAck, "myConsumerTag", consumer);
+        channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
     }
 
-    public void leave(String serverName) throws IOException {
-        //E1
-        channel.exchangeUnbind("channel_" + CHANNEL,"","");
-        //E2
-        channel.queueUnbind(getQueueName(serverName),"","");
+    public void leave() throws IOException {
+        channel.exchangeUnbind(EXCHANGE_NAME,"","aurions.chat.*");
+        channel.queueUnbind(channel.queueDeclare().getQueue(), EXCHANGE_NAME,"aurions.chat.*");
     }
 
     public void send(String channelName,String message) throws IOException {
-        //E2
-        message = channelName + " " + message ;
-        channel.basicPublish("channel_" + CHANNEL,"",null,message.getBytes());
+        channel.basicPublish(EXCHANGE_NAME,"aurions.chat." + channelName, null, message.getBytes());
     }
     public void close() throws TimeoutException, IOException{
         channel.close();
         connection.close();
     }
 
-    private String getQueueName(String serverName){
-        return "queue_" + serverName;
-    }
-
-    private String getChannelName(String message){
-        String[] split = message.split(" ");
-        return split[0];
-    }
-
     abstract public void sendMessage(String channelName, String message);
     abstract public void desactivatePlugin();
-    abstract public String getCHANNEL();
-
 
 }

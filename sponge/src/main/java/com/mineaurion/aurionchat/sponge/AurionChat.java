@@ -23,19 +23,21 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.Properties;
 
 @Plugin(
         id = "aurionchat",
         name = "Aurionchat",
         url = "https://mineaurion.com",
-        description = "Chat accross server with rabbitmq",
+        description = "Chat across server with rabbitmq",
         authors = {
                 "Yann151924"
         },
@@ -60,9 +62,7 @@ public class AurionChat {
     private Config config;
     private AurionChatPlayers aurionChatPlayers;
     private Utils utils;
-
-
-    public static final String CHANNEL = "aurionchat";
+    private ChatService chatService;
 
     public static Optional<LuckPermsApi> luckPermsApi;
 
@@ -78,9 +78,15 @@ public class AurionChat {
         sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
         setupListeners();
         sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
-        setupChannels(config);
-        luckPermsApi = Sponge.getPluginManager().getPlugin("luckperms").isPresent() ? LuckPerms.getApiSafe() : Optional.empty();
+        chatService = new ChatService(config.rabbitmq.uri, this);
+        try{
+            chatService.join();
+        }
+        catch (IOException e){
+            getLogger().error(e.getMessage());
+        }
         sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
+        luckPermsApi = Sponge.getPluginManager().getPlugin("luckperms").isPresent() ? LuckPerms.getApiSafe() : Optional.empty();
         loadCommands(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
     }
@@ -92,7 +98,7 @@ public class AurionChat {
 
     @Listener
     public void onServerStop(GameStoppingEvent event) throws IOException{
-        getChatService().leave(config.rabbitmq.servername);
+        chatService.leave();
     }
 
 
@@ -102,39 +108,19 @@ public class AurionChat {
         eventManager.registerListeners(this, new ChatListener(this));
         eventManager.registerListeners(this, new CommandListener(this));
     }
-    public void setupChannels(Config config){
-        try{
-            getChatService().join(config.rabbitmq.servername);
-        }
-        catch (Exception e){
-            getLogger().error(e.getMessage());
-        }
-    }
+
 
     public void loadCommands(AurionChat plugin){
         CommandManager commandManager = new CommandManager(plugin);
         Sponge.getCommandManager().register(plugin, commandManager.cmdChat, "channel", "ch");
     }
 
-    public ChatService getChatService(){
-//        ChatService chatService = null;
-        config = getConfig();
-        //try{
-//            chatService = new ChatService(config.rabbitmq.uri, this);
-//        }
-//        catch(Exception e){
-//            getLogger().error("Connection error with the rabbitmq instance");
-//            e.printStackTrace();
-//            Sponge.getEventManager().unregisterListeners(this);
-//            Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
-//            Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
-//        }
-        return  new ChatService(config.rabbitmq.uri, this);
+    public void sendConsoleMessage(String message){
+        Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
     }
 
-    public void sendConsoleMessage(String message){
-
-        Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+    public ChatService getChatService(){
+        return  this.chatService;
     }
 
     public Logger getLogger(){

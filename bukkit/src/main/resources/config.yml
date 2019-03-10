@@ -1,6 +1,5 @@
 rabbitmq:
   uri: "amqp://guest:guest@localhost:5672/"
-  servername: "ServerName" #Must be unique beetwen all of our servers
 
 options:
   spy: true

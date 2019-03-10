@@ -1,10 +1,18 @@
 package com.mineaurion.aurionchat.bukkit;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.common.LuckPermsUtils;
+import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.Contexts;
+import me.lucko.luckperms.api.LuckPermsApi;
+import me.lucko.luckperms.api.User;
+import me.lucko.luckperms.api.caching.MetaData;
+import me.lucko.luckperms.api.caching.UserData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,11 +21,13 @@ public class Utils {
     private AurionChat plugin;
     private Config config;
     private AurionChatPlayers aurionChatPlayers;
+    private Optional<LuckPermsUtils> luckPermsUtils;
 
     public Utils(AurionChat plugin){
         this.plugin = plugin;
         this.config = plugin.getConfigPlugin();
         this.aurionChatPlayers = plugin.getAurionChatPlayers();
+        this.luckPermsUtils = plugin.getLuckPermsUtils();
     }
 
     public String processMessage(String channel, String message, Player player){
@@ -26,11 +36,34 @@ public class Utils {
             message = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',message));
         }
         return channelFormat
-                .replace("{prefix}", AurionChat.chat.getPlayerPrefix(player))
-                .replace("{suffix}", AurionChat.chat.getPlayerSuffix(player))
+                .replace("{prefix}", getPlayerPrefix(player).orElse(""))
+                .replace("{suffix}", getPlayerSuffix(player).orElse(""))
                 .replace("{display_name}", player.getDisplayName())
                 .replace("{message}", message);
     }
+
+    public Optional<String> getPlayerPrefix(Player player){
+        Optional<String> prefix;
+        if(luckPermsUtils.isPresent()){
+            prefix = luckPermsUtils.get().getPlayerPrefix(player, player.getUniqueId());
+        }
+        else{
+             prefix = Optional.ofNullable(AurionChat.chat.getPlayerPrefix(player));
+        }
+        return prefix;
+    }
+
+    public Optional<String> getPlayerSuffix(Player player){
+        Optional<String> suffix;
+        if(luckPermsUtils.isPresent()){
+            suffix = luckPermsUtils.get().getPlayerSuffix(player, player.getUniqueId());
+        }
+        else{
+            suffix = Optional.ofNullable(AurionChat.chat.getPlayerSuffix(player));
+        }
+        return suffix;
+    }
+
 
     public void sendMessageToPlayer(String channelName, String message){
         Set<UUID> playersListenChannel = aurionChatPlayers.getPlayersListeningChannel(channelName);

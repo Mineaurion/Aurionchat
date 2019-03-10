@@ -25,7 +25,6 @@ public class ChatService extends ChatServiceCommun {
     @Override
     public void sendMessage(String channelName, String message){
         String channel = channelName.toLowerCase();
-        String messageClean = message.replaceFirst(Pattern.quote(channel + " "), "");
         //#TODO a check
         if(config.options.automessage){
             Set<String> automessageChannels = config.automessage.keySet();
@@ -33,15 +32,10 @@ public class ChatService extends ChatServiceCommun {
                 utils.broadcastToPlayer(channel, message);
             }
         }
-        utils.sendMessageToPlayer(channel, messageClean);
+        utils.sendMessageToPlayer(channel, message);
         if(config.options.spy){
-            plugin.sendConsoleMessage(messageClean);
+            plugin.sendConsoleMessage(message);
         }
-    }
-
-    @Override
-    public String getCHANNEL(){
-        return AurionChat.CHANNEL;
     }
 
     @Override

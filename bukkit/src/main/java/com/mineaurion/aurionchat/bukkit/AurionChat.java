@@ -4,6 +4,9 @@ import com.mineaurion.aurionchat.bukkit.channel.ChatService;
 import com.mineaurion.aurionchat.bukkit.command.ChatCommand;
 import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
 import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.common.LuckPermsUtils;
+import me.lucko.luckperms.LuckPerms;
+import me.lucko.luckperms.api.LuckPermsApi;
 import net.milkbowl.vault.chat.Chat;
 
 import net.milkbowl.vault.permission.Permission;
@@ -19,23 +22,23 @@ import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
 import com.mineaurion.aurionchat.bukkit.listeners.ChatListener;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class AurionChat extends JavaPlugin {
 
     private Config config;
     private AurionChatPlayers aurionChatPlayers;
     private Utils utils;
+    private ChatService chatService;
     private LoginListener loginListener;
     private ChatListener chatListener;
     private CommandListener commandListener;
-
-    public static final String CHANNEL = "aurionchat";
+    private Optional<LuckPermsUtils> luckPermsUtils = Optional.empty();
 
     public static Chat chat = null;
     public static Permission permission = null;
 
     public CommandMap commandmap;
-
 
     public AurionChat(){
 
@@ -54,22 +57,25 @@ public class AurionChat extends JavaPlugin {
             sendConsoleMessage("&8[&eAurionChat&8]&e - &cCould not find Vault dependency, disabling.");
             Bukkit.getPluginManager().disablePlugin(this);
         }
-        setupChat();
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Enabled Successfully");
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
-        setupListener(this);
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Connecting to RabbitMQ");
-        setupChannels(config);
-
-        getCommand("chat").setExecutor(new ChatCommand(this));
-    }
-
-    private void setupChat(){
         RegisteredServiceProvider<Chat> chatProvider = getServer().getServicesManager().getRegistration(Chat.class);
         if(chatProvider != null){
             chat = (Chat)chatProvider.getProvider();
         }
-        //return chat != null;
+        RegisteredServiceProvider<LuckPermsApi> LuckPermsprovider = Bukkit.getServicesManager().getRegistration(LuckPermsApi.class);
+        Optional<LuckPermsApi> luckPermsApi = Optional.ofNullable(LuckPermsprovider.getProvider());
+        luckPermsApi.ifPresent(api -> luckPermsUtils = Optional.of(new LuckPermsUtils(api)));
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Enabled Successfully");
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
+        setupListener(this);
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Connecting to RabbitMQ");
+        chatService = new ChatService(config.getUri(), this);
+        try{
+            chatService.join();
+        }
+        catch (IOException e){
+            getLogger().warning(e.getMessage());
+        }
+        getCommand("chat").setExecutor(new ChatCommand(this));
     }
 
     private boolean setupPermissions(){
@@ -90,21 +96,10 @@ public class AurionChat extends JavaPlugin {
         pluginManager.registerEvents(this.commandListener, this);
     }
 
-    private void setupChannels(Config config){
-        try{
-            getChatService().join(config.getServername());
-        }
-        catch(IOException e){
-            getLogger().warning(e.getMessage());
-        }
-    }
-
     @Override
     public void onDisable() {
-        getLogger().info("onDisable is called!");
-        ChatService chatService = getChatService();
         try{
-            chatService.close();
+            this.chatService.close();
         }
         catch(Exception e){
             sendConsoleMessage("&8[&eAurionChat&8]&e - Error when communication closed");
@@ -113,7 +108,7 @@ public class AurionChat extends JavaPlugin {
     }
 
     public ChatService getChatService(){
-        return new ChatService(config.getUri(), this);
+        return this.chatService;
     }
 
     public Config getConfigPlugin(){
@@ -126,6 +121,10 @@ public class AurionChat extends JavaPlugin {
 
     public AurionChatPlayers getAurionChatPlayers(){
         return this.aurionChatPlayers;
+    }
+
+    public Optional<LuckPermsUtils> getLuckPermsUtils(){
+        return luckPermsUtils;
     }
 
     public void sendConsoleMessage(String message){

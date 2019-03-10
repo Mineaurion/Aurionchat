@@ -68,7 +68,22 @@ public class Utils {
                 Contexts contexts = api.get().getContextsForPlayer(player);
                 UserData userData = user.get().getCachedData();
                 MetaData metaData = userData.getMetaData(contexts);
-                prefix = Optional.of(metaData.getPrefix());
+                prefix = Optional.ofNullable(metaData.getPrefix());
+            }
+        }
+        return prefix;
+    }
+
+    private Optional<String> getSuffixLuckPerms(Player player){
+        Optional<LuckPermsApi> api = AurionChat.luckPermsApi;
+        Optional<String> prefix = Optional.empty();
+        if(api.isPresent()){
+            Optional<User> user = api.get().getUserSafe(player.getUniqueId());
+            if(user.isPresent()){
+                Contexts contexts = api.get().getContextsForPlayer(player);
+                UserData userData = user.get().getCachedData();
+                MetaData metaData = userData.getMetaData(contexts);
+                prefix = Optional.ofNullable(metaData.getSuffix());
             }
         }
         return prefix;
