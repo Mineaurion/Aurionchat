@@ -5,7 +5,6 @@ buildscript {
 
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
-
     }
 }
 
@@ -16,6 +15,7 @@ subprojects {
     dependencies {
         compile 'com.rabbitmq:amqp-client:5.4.0'
         compile 'me.lucko.luckperms:luckperms-api:4.2'
+        implementation 'com.google.code.gson:gson:2.8.5'
     }
     group = project.pluginGroup
     version = project.pluginVersion

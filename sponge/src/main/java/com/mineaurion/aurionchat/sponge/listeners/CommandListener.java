@@ -27,7 +27,7 @@ public class CommandListener {
     @Listener
     public void onCommand(SendCommandEvent event, @First Player player){
         Set<String> chatChannels = config.channels.keySet();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
 
         String command = event.getCommand();
         String message = event.getArguments();

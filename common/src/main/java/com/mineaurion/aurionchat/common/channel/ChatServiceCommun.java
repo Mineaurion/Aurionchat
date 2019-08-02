@@ -1,5 +1,7 @@
 package com.mineaurion.aurionchat.common.channel;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.rabbitmq.client.*;
 
 import java.io.IOException;
@@ -7,8 +9,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 public abstract class ChatServiceCommun {
@@ -16,7 +16,7 @@ public abstract class ChatServiceCommun {
     private Channel channel;
     private String consumerTag;
 
-    private static String EXCHANGE_NAME = "aurions.chat";
+    private static String EXCHANGE_NAME = "aurion.chat";
 
     public ChatServiceCommun(String uri){
         ConnectionFactory factory = new ConnectionFactory();
@@ -45,23 +45,26 @@ public abstract class ChatServiceCommun {
         }
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
         String queueName = channel.queueDeclare().getQueue();
-        channel.queueBind(queueName, EXCHANGE_NAME, "aurions.chat.*");
+        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.chat.*");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-          String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-          String channel = delivery.getEnvelope().getRoutingKey().split("\\.")[1];
+          String json = new String(delivery.getBody(), StandardCharsets.UTF_8);
+          String message = new JsonParser().parse(json).getAsJsonObject().get("message").getAsString();
+          String channel = delivery.getEnvelope().getRoutingKey().split("\\.")[2];
           sendMessage(channel, message);
         };
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
     }
 
     public void leave() throws IOException {
-        channel.exchangeUnbind(EXCHANGE_NAME,"","aurions.chat.*");
-        channel.queueUnbind(channel.queueDeclare().getQueue(), EXCHANGE_NAME,"aurions.chat.*");
+        channel.queueUnbind(channel.queueDeclare().getQueue(), EXCHANGE_NAME,"aurion.chat.*");
     }
 
     public void send(String channelName,String message) throws IOException {
-        channel.basicPublish(EXCHANGE_NAME,"aurions.chat." + channelName, null, message.getBytes());
+        JsonObject json = new JsonObject();
+        json.addProperty("message", message);
+
+        channel.basicPublish(EXCHANGE_NAME,"aurion.chat." + channelName, null, json.toString().getBytes());
     }
     public void close() throws TimeoutException, IOException{
         channel.close();

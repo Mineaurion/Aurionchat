@@ -29,7 +29,7 @@ public class ChatListener {
             return;
         }
         UUID uuid = player.getUniqueId();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(uuid);
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(uuid);
 
         Text evMessage = event.getRawMessage();
         String evChannel = aurionChatPlayer.getCurrentChannel();

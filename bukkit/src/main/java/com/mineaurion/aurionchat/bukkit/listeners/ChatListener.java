@@ -28,7 +28,7 @@ public class ChatListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
         String spy = "";
 
 //        if(!player.hasPermission("aurionchat.spy.override")){

@@ -25,7 +25,7 @@ public class ChatCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         String command;
         Player player = Bukkit.getPlayer(sender.getName());
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
         if(cmd.getName().equalsIgnoreCase("chat") || cmd.getName().equalsIgnoreCase("ch")){
             command = (args.length < 1) ? "Default" : args[0];
             switch (command){

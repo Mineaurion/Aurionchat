@@ -34,7 +34,7 @@ public class ChatCommand implements CommandExecutor {
         if(src instanceof Player){
             Player player = (Player) src;
             UUID uuid = ((Player) src).getUniqueId();
-            AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(uuid);
+            AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(uuid);
             String channel = args.<String>getOne("channel").orElse("");
             if(this.action.equalsIgnoreCase("alllisten")){
                 ChatAllListen(player, aurionChatPlayer);

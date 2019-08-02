@@ -28,7 +28,7 @@ public class ChatDefaultCommand implements CommandExecutor {
         if(src instanceof Player){
             Player player = (Player) src;
             UUID uuid = player.getUniqueId();
-            AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(uuid);
+            AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(uuid);
             StringBuilder message = new StringBuilder();
             StringBuilder channels = new StringBuilder();
 

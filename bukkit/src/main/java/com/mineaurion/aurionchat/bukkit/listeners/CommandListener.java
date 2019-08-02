@@ -29,7 +29,7 @@ public class CommandListener implements CommandExecutor, Listener {
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event){
         Set<String> chatChannels = plugin.getConfigPlugin().getAllChannel();
         Player player = event.getPlayer();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionsChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
 
         String command = event.getMessage().substring(1).split(" ")[0];
         String message = (event.getMessage().length() == command.length() + 1) ? event.getMessage().substring(command.length() + 1) : event.getMessage().substring(command.length() + 2);
