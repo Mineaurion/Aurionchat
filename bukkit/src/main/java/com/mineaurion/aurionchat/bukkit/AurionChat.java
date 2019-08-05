@@ -70,7 +70,7 @@ public class AurionChat extends JavaPlugin {
         sendConsoleMessage("&8[&eAurionChat&8]&e - Connecting to RabbitMQ");
         chatService = new ChatService(config.getUri(), this);
         try{
-            chatService.join();
+            chatService.join(config.getServername());
         }
         catch (IOException e){
             getLogger().warning(e.getMessage());
@@ -99,6 +99,7 @@ public class AurionChat extends JavaPlugin {
     @Override
     public void onDisable() {
         try{
+            this.chatService.leave(config.getServername());
             this.chatService.close();
         }
         catch(Exception e){

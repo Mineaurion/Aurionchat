@@ -39,12 +39,12 @@ public abstract class ChatServiceCommun {
         }
     }
 
-    public void join() throws IOException{
+    public void join(String queueName) throws IOException{
         if(this.consumerTag != null){
             channel.basicCancel(consumerTag);
         }
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
-        String queueName = channel.queueDeclare().getQueue();
+        channel.queueDeclare(queueName, false, false, false, null);
         channel.queueBind(queueName, EXCHANGE_NAME, "aurion.chat.*");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
@@ -56,8 +56,8 @@ public abstract class ChatServiceCommun {
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
     }
 
-    public void leave() throws IOException {
-        channel.queueUnbind(channel.queueDeclare().getQueue(), EXCHANGE_NAME,"aurion.chat.*");
+    public void leave(String queueName) throws IOException {
+        channel.queueDelete(queueName);
     }
 
     public void send(String channelName,String message) throws IOException {

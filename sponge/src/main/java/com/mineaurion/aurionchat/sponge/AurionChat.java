@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 @Plugin(
         id = "aurionchat",
@@ -80,7 +81,7 @@ public class AurionChat {
         sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
         chatService = new ChatService(config.rabbitmq.uri, this);
         try{
-            chatService.join();
+            chatService.join(config.rabbitmq.servername);
         }
         catch (IOException e){
             getLogger().error(e.getMessage());
@@ -97,8 +98,9 @@ public class AurionChat {
     }
 
     @Listener
-    public void onServerStop(GameStoppingEvent event) throws IOException{
-        chatService.leave();
+    public void onServerStop(GameStoppingEvent event) throws IOException, TimeoutException {
+        chatService.leave(config.rabbitmq.servername);
+        chatService.close();
     }
 
 
