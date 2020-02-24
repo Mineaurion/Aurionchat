@@ -47,11 +47,16 @@ public class ChatCommand implements CommandExecutor {
                 default:
                     StringBuilder message = new StringBuilder();
                     StringBuilder channels = new StringBuilder();
+                    StringBuilder avalaibleChannels = new StringBuilder();
                     for (String channel: aurionChatPlayer.getChannels()){
                         channels.append(channel).append(" ");
                     }
+                    for(String avalaibleChannel: plugin.getConfigPlugin().getAllChannel()) {
+                        avalaibleChannels.append(avalaibleChannel);
+                    }
                     message.append("&7Your current channel:&f ").append(aurionChatPlayer.getCurrentChannel()).append("\n")
-                           .append("&7Spying on channels:&f ").append(channels.toString());
+                           .append("&7Spying on channels:&f ").append(channels.toString())
+                           .append("&7Avalaible channels:&f ").append(avalaibleChannels.toString());
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.toString()));
                     break;
             }

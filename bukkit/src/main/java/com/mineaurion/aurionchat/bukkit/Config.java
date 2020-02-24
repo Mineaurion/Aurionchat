@@ -33,22 +33,12 @@ public class Config {
         return config.getString("channels."+ channel +".alias");
     }
 
-    public Set<String> getAllAutomessageChannel(){
-        Set<String> channels = config.getConfigurationSection("automessage").getKeys(false);
-        channels.remove("enable");
-        return channels;
-    }
-
-    public String getPermissionChannelAutomessage(String channelName){
-        return config.getString("automessage." + channelName + ".permission");
-    }
-
     public boolean getConsoleSpy(){
         return config.getBoolean("options.spy");
     }
 
     public boolean getAutomessageEnable(){
-        return config.getBoolean("options.enable");
+        return config.getBoolean("options.automessage");
     }
 
     public Sound getPingSound(){

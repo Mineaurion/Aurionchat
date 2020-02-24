@@ -43,12 +43,4 @@ public class Config {
         public String alias = "g";
     }
 
-    @Setting
-    public Map<String, Automessage> automessage = ImmutableMap.of("auto-fr", new Automessage());
-    @ConfigSerializable
-    public static class Automessage{
-        @Setting(comment = "Define the permission for the channel of automessage")
-        public String permission = "";
-    }
-
 }

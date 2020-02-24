@@ -27,10 +27,7 @@ public class ChatService extends ChatServiceCommun {
         String channel = channelName.toLowerCase();
         //#TODO a check
         if(config.options.automessage){
-            Set<String> automessageChannels = config.automessage.keySet();
-            if(automessageChannels.contains(channel)){
                 utils.broadcastToPlayer(channel, message);
-            }
         }
         utils.sendMessageToPlayer(channel, message);
         if(config.options.spy){

@@ -20,18 +20,18 @@ When you send the message if other people listen to the same channel as you type
 ### Commands
 
 
-- channel : List the channel listened
-- channel \<channelName\> join : Listen and Join the desired channel
-- channel \<channelName\> leave : Leave the desired channel
-- channel \<channelName\> spy : Listen the desired channel
-- channel alllisten : Listen to all available channel
+- `channel` : List the channel listened
+- `channel <channelName> join` : Listen and Join the desired channel
+- `channel <channelName> leave` : Leave the desired channel
+- `channel <channelName> spy` : Listen the desired channel
+- `channel alllisten` : Listen to all available channel
 
 ### Permissions
 
-
-- aurionchat.chat.colors : Usage of colors in chat
-- aurionchat.joinchannel.\<channelName\> : Auto join the channel
-- aurionchat.listenchannel.\<channelName\> : Listen to the channel
+- `aurionchat.chat.speak`: Can speak in channel
+- `aurionchat.chat.colors` : Usage of colors in chat
+- `aurionchat.joinchannel.<channelName>` : Auto join the channel
+- `aurionchat.listenchannel.<channelName>` : Listen to the channel
 
 
 ---
@@ -54,6 +54,7 @@ At this time you can use only this token :
 
 ```
 {prefix} : Get the prefix from Vault (Bukkit) Or LuckPerms (Sponge)
+{suffix} : Get the suffix from Vault (Bukkit) or LuckPerms (Sponge)
 {display_name} : Get the displayname you have on the server
 {message} : The message :)
 
@@ -62,7 +63,6 @@ You can put any color code beetwen the token or any characters if you want.
 
 
 ## Automessage
-
 
 For this part to work you need to install this plugin `link` on one of our server. 
 
@@ -76,8 +76,7 @@ To this :
  enable=false
 ```
 
-Every channel need to be prefix by the ``auto-`` and have some permissio node declared, don't forget to add all of our broadcast. If you don't the server won't display the message automessage at all.
-
+Permission of every automessage channel is : `aurionchat.automessage.<channelName>`
 
 ### Discord
 

@@ -18,9 +18,3 @@ channels:
   revelation:
     format: "[&5R&f] {prefix}{display_name} : &f{message}"
     alias: "reve"
-
-automessage:
-    auto-fr:
-      permission: ""
-    auto-en:
-      permission: ""

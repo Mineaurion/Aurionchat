@@ -30,10 +30,7 @@ public class ChatService extends ChatServiceCommun {
         String channel = channelName.toLowerCase();
         //#TODO a check
         if(config.getAutomessageEnable()){
-            Set<String> automessageChannels = config.getAllAutomessageChannel();
-            if(automessageChannels.contains(channel)){
-                utils.broadcastToPlayer(channel, message);
-            }
+            utils.broadcastToPlayer(channel, message);
         }
         utils.sendMessageToPlayer(channel, message);
         if(plugin.getConfigPlugin().getConsoleSpy()){

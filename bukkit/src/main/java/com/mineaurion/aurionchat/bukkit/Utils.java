@@ -78,10 +78,9 @@ public class Utils {
     }
 
     public void broadcastToPlayer(String channelName, String message){
-        String channelPermission = config.getPermissionChannelAutomessage(channelName);
         if(plugin.getServer().getOnlinePlayers().size() > 0){
             for(Player player: plugin.getServer().getOnlinePlayers()){
-                if(player.hasPermission(channelPermission)){
+                if(player.hasPermission("aurionchat.automessage." + channelName)){
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
                 }
             }
