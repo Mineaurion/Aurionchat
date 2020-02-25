@@ -26,17 +26,19 @@ public class ChatService extends ChatServiceCommun {
     }
 
     @Override
-    public void sendMessage(String channelName, String message){
-        String channel = channelName.toLowerCase();
-        //#TODO a check
+    public void sendMessage(String channel, String message){
+        utils.sendMessageToPlayer(channel, message);
+        if(plugin.getConfigPlugin().getConsoleSpy()){
+            plugin.sendConsoleMessage(message);
+        }
+
+    }
+
+    @Override
+    public void sendAutoMessage(String channel, String message) {
         if(config.getAutomessageEnable()){
             utils.broadcastToPlayer(channel, message);
         }
-        utils.sendMessageToPlayer(channel, message);
-        if(plugin.getConfigPlugin().getConsoleSpy()){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',message));
-        }
-
     }
 
     @Override
