@@ -64,7 +64,7 @@ You can put any color code beetwen the token or any characters if you want.
 
 ## Automessage
 
-For this part to work you need to install this plugin `link` on one of our server. 
+For this part to work you need to install this [plugin](https://github.com/Mineaurion/AurionChat-AutoMessage)  on one of our server. 
 
 You can disable the automessage for one server in the configurtion just switch this :
 ```
