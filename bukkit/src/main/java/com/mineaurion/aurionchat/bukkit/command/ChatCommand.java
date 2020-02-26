@@ -52,10 +52,10 @@ public class ChatCommand implements CommandExecutor {
                         channels.append(channel).append(" ");
                     }
                     for(String avalaibleChannel: plugin.getConfigPlugin().getAllChannel()) {
-                        avalaibleChannels.append(avalaibleChannel);
+                        avalaibleChannels.append(avalaibleChannel).append(" ");
                     }
                     message.append("&7Your current channel:&f ").append(aurionChatPlayer.getCurrentChannel()).append("\n")
-                           .append("&7Spying on channels:&f ").append(channels.toString())
+                           .append("&7Spying on channels:&f ").append(channels.toString()).append("\n")
                            .append("&7Avalaible channels:&f ").append(avalaibleChannels.toString());
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.toString()));
                     break;

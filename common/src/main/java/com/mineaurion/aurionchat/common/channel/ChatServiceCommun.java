@@ -46,7 +46,9 @@ public abstract class ChatServiceCommun {
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
         channel.queueDeclare(queueName, false, false, false, null);
         //canaux peuvent etre : aurion.chat.<server> et/ou aurion.automessage.<server>
-        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.#");
+        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.chat.*");
+        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.automessage.*");
+
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
           String json = new String(delivery.getBody(), StandardCharsets.UTF_8);
