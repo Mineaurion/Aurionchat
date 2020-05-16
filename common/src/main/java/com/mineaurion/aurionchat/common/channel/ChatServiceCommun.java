@@ -45,13 +45,23 @@ public abstract class ChatServiceCommun {
         }
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
         channel.queueDeclare(queueName, false, false, false, null);
+        //canaux peuvent etre : aurion.chat.<server> et/ou aurion.automessage.<server>
         channel.queueBind(queueName, EXCHANGE_NAME, "aurion.chat.*");
+        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.automessage.*");
+
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
           String json = new String(delivery.getBody(), StandardCharsets.UTF_8);
           String message = new JsonParser().parse(json).getAsJsonObject().get("message").getAsString();
-          String channel = delivery.getEnvelope().getRoutingKey().split("\\.")[2];
-          sendMessage(channel, message);
+          String type = delivery.getEnvelope().getRoutingKey().split("\\.")[1];
+          String channel = delivery.getEnvelope().getRoutingKey().split("\\.")[2].toLowerCase();
+          if(type.equalsIgnoreCase("automessage")){
+              sendAutoMessage(channel, message);
+          } else if(type.equalsIgnoreCase("chat")) {
+              sendMessage(channel, message);
+          } else {
+              System.out.println("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
+          }
         };
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
     }
@@ -72,6 +82,7 @@ public abstract class ChatServiceCommun {
     }
 
     abstract public void sendMessage(String channelName, String message);
+    abstract public void sendAutoMessage(String channelName, String message);
     abstract public void desactivatePlugin();
 
 }

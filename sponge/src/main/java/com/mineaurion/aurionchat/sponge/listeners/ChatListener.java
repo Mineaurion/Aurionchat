@@ -28,8 +28,11 @@ public class ChatListener {
         if(event.isCancelled()) {
             return;
         }
-        UUID uuid = player.getUniqueId();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(uuid);
+        if(!player.hasPermission("aurionchat.chat.speak")){
+            event.setCancelled(true);
+            return;
+        }
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
 
         Text evMessage = event.getRawMessage();
         String evChannel = aurionChatPlayer.getCurrentChannel();

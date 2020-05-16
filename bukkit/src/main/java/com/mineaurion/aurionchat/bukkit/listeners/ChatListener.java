@@ -28,16 +28,13 @@ public class ChatListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
-        String spy = "";
 
-//        if(!player.hasPermission("aurionchat.spy.override")){
-//            for(AurionChatPlayer p: AurionChat.onlinePlayers){
-//                if((p.isOnline()) && (p.isSpy())){
-//                    p.getPlayer().sendMessage(spy);
-//                }
-//            }
-//        }
+        if(!player.hasPermission("aurionchat.chat.speak")){
+            event.setCancelled(true);
+            return;
+        }
+        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
+
         String evMessage = event.getMessage();
         String evChannel = aurionChatPlayer.getCurrentChannel();
         String messageFormat = plugin.getUtils().processMessage(evChannel, evMessage, player);

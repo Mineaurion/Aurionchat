@@ -31,13 +31,17 @@ public class ChatDefaultCommand implements CommandExecutor {
             AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(uuid);
             StringBuilder message = new StringBuilder();
             StringBuilder channels = new StringBuilder();
+            StringBuilder avalaibleChannels = new StringBuilder();
 
             for(String channel:aurionChatPlayer.getChannels()){
                 channels.append(channel).append(" ");
             }
+            for(String avalaibleChannel: plugin.getConfig().channels.keySet()){
+                avalaibleChannels.append(avalaibleChannel);
+            }
             message.append("&7Your current channel:&f ").append(aurionChatPlayer.getCurrentChannel()).append("\n")
-                    .append("&7Spying on channels:&f ").append(channels.toString());
-
+                    .append("&7Spying on channels:&f ").append(channels.toString())
+                    .append("&7 Avalaible channel:&f ").append(avalaibleChannels.toString());
             player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message.toString()) );
         }
         else{
