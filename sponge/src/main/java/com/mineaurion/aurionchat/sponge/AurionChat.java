@@ -2,13 +2,14 @@ package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
 import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.common.LuckPermsUtils;
 import com.mineaurion.aurionchat.sponge.channel.ChatService;
 import com.mineaurion.aurionchat.sponge.command.CommandManager;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.CommandListener;
-import me.lucko.luckperms.LuckPerms;
-import me.lucko.luckperms.api.LuckPermsApi;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -23,6 +24,7 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.FileInputStream;
@@ -64,8 +66,9 @@ public class AurionChat {
     private AurionChatPlayers aurionChatPlayers;
     private Utils utils;
     private ChatService chatService;
+    private LuckPermsUtils luckPermsUtils = null;
 
-    public static Optional<LuckPermsApi> luckPermsApi;
+    public static LuckPerms luckPermsApi = null;
 
     @Listener
     public void Init(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
@@ -87,7 +90,8 @@ public class AurionChat {
             getLogger().error(e.getMessage());
         }
         sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
-        luckPermsApi = Sponge.getPluginManager().getPlugin("luckperms").isPresent() ? LuckPerms.getApiSafe() : Optional.empty();
+        Optional<ProviderRegistration<LuckPerms>> provider = Sponge.getServiceManager().getRegistration(LuckPerms.class);
+        provider.ifPresent(luckPermsProviderRegistration -> luckPermsUtils = new LuckPermsUtils(luckPermsProviderRegistration.getProvider()));
         loadCommands(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
     }
@@ -136,6 +140,8 @@ public class AurionChat {
     public Utils getUtils(){
         return this.utils;
     }
+
+    public LuckPermsUtils getLuckPermsUtils() { return this.luckPermsUtils; }
 
     public AurionChatPlayers getAurionChatPlayers(){
         return this.aurionChatPlayers;

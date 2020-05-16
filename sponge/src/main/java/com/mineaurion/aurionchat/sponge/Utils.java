@@ -1,11 +1,11 @@
 package com.mineaurion.aurionchat.sponge;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayers;
-import me.lucko.luckperms.api.Contexts;
-import me.lucko.luckperms.api.LuckPermsApi;
-import me.lucko.luckperms.api.User;
-import me.lucko.luckperms.api.caching.MetaData;
-import me.lucko.luckperms.api.caching.UserData;
+import com.mineaurion.aurionchat.common.LuckPermsUtils;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.cacheddata.CachedMetaData;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.query.QueryOptions;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -21,11 +21,13 @@ public class Utils {
     private AurionChat plugin;
     private Config config;
     private AurionChatPlayers aurionChatPlayers;
+    private LuckPermsUtils luckPermsUtils;
 
     public Utils(AurionChat plugin){
         this.plugin = plugin;
         this.config = plugin.getConfig();
         this.aurionChatPlayers = plugin.getAurionChatPlayers();
+        this.luckPermsUtils = plugin.getLuckPermsUtils();
     }
 
     public String processMessage(String channel, Text message, Player player){
@@ -38,7 +40,8 @@ public class Utils {
             messageColors = TextSerializers.formattingCode('&').stripCodes(TextSerializers.FORMATTING_CODE.serialize(message));
         }
         return channelFormat
-                .replace("{prefix}", getPrefixLuckPerms(player).orElse(""))
+                .replace("{prefix}", this.luckPermsUtils.getPlayerPrefix(player.getUniqueId()).orElse(""))
+                .replace("{suffix}", this.luckPermsUtils.getPlayerSuffix(player.getUniqueId()).orElse(""))
                 .replace("{display_name}", getDisplayName(player))
                 .replace("{message}", messageColors);
     }
@@ -57,36 +60,6 @@ public class Utils {
             }
 
         }
-    }
-
-    private Optional<String> getPrefixLuckPerms(Player player){
-        Optional<LuckPermsApi> api = AurionChat.luckPermsApi;
-        Optional<String> prefix = Optional.empty();
-        if(api.isPresent()){
-            Optional<User> user = api.get().getUserSafe(player.getUniqueId());
-            if(user.isPresent()){
-                Contexts contexts = api.get().getContextsForPlayer(player);
-                UserData userData = user.get().getCachedData();
-                MetaData metaData = userData.getMetaData(contexts);
-                prefix = Optional.ofNullable(metaData.getPrefix());
-            }
-        }
-        return prefix;
-    }
-
-    private Optional<String> getSuffixLuckPerms(Player player){
-        Optional<LuckPermsApi> api = AurionChat.luckPermsApi;
-        Optional<String> prefix = Optional.empty();
-        if(api.isPresent()){
-            Optional<User> user = api.get().getUserSafe(player.getUniqueId());
-            if(user.isPresent()){
-                Contexts contexts = api.get().getContextsForPlayer(player);
-                UserData userData = user.get().getCachedData();
-                MetaData metaData = userData.getMetaData(contexts);
-                prefix = Optional.ofNullable(metaData.getSuffix());
-            }
-        }
-        return prefix;
     }
 
     private String getDisplayName(Player player){

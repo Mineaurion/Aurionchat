@@ -1,48 +1,43 @@
 package com.mineaurion.aurionchat.common;
 
-import me.lucko.luckperms.api.Contexts;
-import me.lucko.luckperms.api.LuckPermsApi;
-import me.lucko.luckperms.api.User;
-import me.lucko.luckperms.api.caching.MetaData;
-import me.lucko.luckperms.api.caching.UserData;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.cacheddata.CachedMetaData;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.query.QueryOptions;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public class LuckPermsUtils {
 
-    private LuckPermsApi api;
+    private LuckPerms api;
 
-    public LuckPermsUtils(LuckPermsApi api){
+    public LuckPermsUtils(LuckPerms api){
         this.api = api;
     }
 
-    private Optional<MetaData> getPlayerMetaData(Object player, UUID uuid){
-        Optional<User> user = api.getUserSafe(uuid);
-        Optional<MetaData> metaData = Optional.empty();
-        if(user.isPresent()){
-            Contexts contexts = api.getContextsForPlayer(player);
-            UserData userData = user.get().getCachedData();
-            metaData = Optional.of(userData.getMetaData(contexts));
+
+    private Optional<CachedMetaData> getMetaData(UUID uuid){
+        Optional<CachedMetaData> cachedMetaData = Optional.empty();
+        if(this.api != null){
+            User user = this.api.getUserManager().getUser(uuid);
+            if(user != null){
+                Optional<QueryOptions> context = api.getContextManager().getQueryOptions(user);
+                if(context.isPresent()){
+                    cachedMetaData = Optional.of(user.getCachedData().getMetaData(context.get()));
+                }
+            }
         }
-        return metaData;
+        return cachedMetaData;
     }
 
-    public Optional<String> getPlayerPrefix(Object player, UUID uuid){
-        Optional<MetaData> metaData = getPlayerMetaData(player, uuid);
-        Optional<String> prefix = Optional.empty();
-        if(metaData.isPresent()){
-            prefix = Optional.ofNullable(metaData.get().getPrefix());
-        }
-        return prefix;
+    public Optional<String> getPlayerPrefix(UUID uuid){
+        Optional<CachedMetaData> cachedMetaData = getMetaData(uuid);
+        return Optional.ofNullable(cachedMetaData.get().getPrefix());
     }
 
-    public Optional<String> getPlayerSuffix(Object player, UUID uuid){
-        Optional<MetaData> metaData = getPlayerMetaData(player, uuid);
-        Optional<String> suffix = Optional.empty();
-        if(metaData.isPresent()){
-            suffix = Optional.ofNullable(metaData.get().getSuffix());
-        }
-        return suffix;
+    public Optional<String> getPlayerSuffix(UUID uuid) {
+        Optional<CachedMetaData> cachedMetaData = getMetaData(uuid);
+        return Optional.ofNullable(cachedMetaData.get().getSuffix());
     }
 }

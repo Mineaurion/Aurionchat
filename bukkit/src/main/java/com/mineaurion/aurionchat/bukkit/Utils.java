@@ -2,12 +2,6 @@ package com.mineaurion.aurionchat.bukkit;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
-import me.lucko.luckperms.LuckPerms;
-import me.lucko.luckperms.api.Contexts;
-import me.lucko.luckperms.api.LuckPermsApi;
-import me.lucko.luckperms.api.User;
-import me.lucko.luckperms.api.caching.MetaData;
-import me.lucko.luckperms.api.caching.UserData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -21,7 +15,7 @@ public class Utils {
     private AurionChat plugin;
     private Config config;
     private AurionChatPlayers aurionChatPlayers;
-    private Optional<LuckPermsUtils> luckPermsUtils;
+    private LuckPermsUtils luckPermsUtils;
 
     public Utils(AurionChat plugin){
         this.plugin = plugin;
@@ -43,25 +37,11 @@ public class Utils {
     }
 
     public Optional<String> getPlayerPrefix(Player player){
-        Optional<String> prefix;
-        if(luckPermsUtils.isPresent()){
-            prefix = luckPermsUtils.get().getPlayerPrefix(player, player.getUniqueId());
-        }
-        else{
-             prefix = Optional.ofNullable(AurionChat.chat.getPlayerPrefix(player));
-        }
-        return prefix;
+        return luckPermsUtils != null ? luckPermsUtils.getPlayerPrefix(player.getUniqueId()) : Optional.ofNullable(AurionChat.chat.getPlayerPrefix(player));
     }
 
     public Optional<String> getPlayerSuffix(Player player){
-        Optional<String> suffix;
-        if(luckPermsUtils.isPresent()){
-            suffix = luckPermsUtils.get().getPlayerSuffix(player, player.getUniqueId());
-        }
-        else{
-            suffix = Optional.ofNullable(AurionChat.chat.getPlayerSuffix(player));
-        }
-        return suffix;
+        return luckPermsUtils != null ? luckPermsUtils.getPlayerSuffix(player.getUniqueId()) : Optional.ofNullable(AurionChat.chat.getPlayerSuffix(player));
     }
 
 

@@ -5,8 +5,7 @@ import com.mineaurion.aurionchat.bukkit.command.ChatCommand;
 import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
 import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
-import me.lucko.luckperms.LuckPerms;
-import me.lucko.luckperms.api.LuckPermsApi;
+import net.luckperms.api.LuckPerms;
 import net.milkbowl.vault.chat.Chat;
 
 import net.milkbowl.vault.permission.Permission;
@@ -30,15 +29,11 @@ public class AurionChat extends JavaPlugin {
     private AurionChatPlayers aurionChatPlayers;
     private Utils utils;
     private ChatService chatService;
-    private LoginListener loginListener;
-    private ChatListener chatListener;
-    private CommandListener commandListener;
-    private Optional<LuckPermsUtils> luckPermsUtils = Optional.empty();
+    private LuckPerms luckPermsApi;
+    private LuckPermsUtils luckPermsUtils = null;
 
     public static Chat chat = null;
     public static Permission permission = null;
-
-    public CommandMap commandmap;
 
     public AurionChat(){
 
@@ -61,9 +56,12 @@ public class AurionChat extends JavaPlugin {
         if(chatProvider != null){
             chat = (Chat)chatProvider.getProvider();
         }
-        RegisteredServiceProvider<LuckPermsApi> LuckPermsprovider = Bukkit.getServicesManager().getRegistration(LuckPermsApi.class);
-        Optional<LuckPermsApi> luckPermsApi = Optional.ofNullable(LuckPermsprovider.getProvider());
-        luckPermsApi.ifPresent(api -> luckPermsUtils = Optional.of(new LuckPermsUtils(api)));
+        RegisteredServiceProvider<LuckPerms> luckPermsprovider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+        if(luckPermsprovider != null) {
+            luckPermsApi = luckPermsprovider.getProvider();
+            luckPermsUtils = new LuckPermsUtils(luckPermsApi);
+        }
+
         sendConsoleMessage("&8[&eAurionChat&8]&e - Enabled Successfully");
         sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
         setupListener(this);
@@ -88,12 +86,9 @@ public class AurionChat extends JavaPlugin {
 
     private void setupListener(AurionChat plugin){
         PluginManager pluginManager = getServer().getPluginManager();
-        this.loginListener = new LoginListener(plugin);
-        this.chatListener  = new ChatListener(plugin);
-        this.commandListener = new CommandListener(plugin);
-        pluginManager.registerEvents(this.loginListener, this);
-        pluginManager.registerEvents(this.chatListener, this);
-        pluginManager.registerEvents(this.commandListener, this);
+        pluginManager.registerEvents(new LoginListener(plugin), this);
+        pluginManager.registerEvents(new ChatListener(plugin), this);
+        pluginManager.registerEvents(new CommandListener(plugin), this);
     }
 
     @Override
@@ -124,7 +119,7 @@ public class AurionChat extends JavaPlugin {
         return this.aurionChatPlayers;
     }
 
-    public Optional<LuckPermsUtils> getLuckPermsUtils(){
+    public LuckPermsUtils getLuckPermsUtils(){
         return luckPermsUtils;
     }
 
