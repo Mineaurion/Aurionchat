@@ -37,7 +37,7 @@ public class ChatDefaultCommand implements CommandExecutor {
                 channels.append(channel).append(" ");
             }
             for(String avalaibleChannel: plugin.getConfig().channels.keySet()){
-                avalaibleChannels.append(avalaibleChannel);
+                avalaibleChannels.append(avalaibleChannel).append(" ");
             }
             message.append("&7Your current channel:&f ").append(aurionChatPlayer.getCurrentChannel()).append("\n")
                     .append("&7Spying on channels:&f ").append(channels.toString())

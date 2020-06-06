@@ -7,9 +7,6 @@ import com.mineaurion.aurionchat.sponge.Utils;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
 
-import java.util.Set;
-import java.util.regex.Pattern;
-
 public class ChatService extends ChatServiceCommun {
     private AurionChat plugin;
     private Config config;

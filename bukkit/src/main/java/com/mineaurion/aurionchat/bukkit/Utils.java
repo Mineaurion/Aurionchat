@@ -30,18 +30,18 @@ public class Utils {
             message = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',message));
         }
         return channelFormat
-                .replace("{prefix}", getPlayerPrefix(player).orElse(""))
-                .replace("{suffix}", getPlayerSuffix(player).orElse(""))
+                .replace("{prefix}", getPlayerPrefix(player))
+                .replace("{suffix}", getPlayerSuffix(player))
                 .replace("{display_name}", player.getDisplayName())
                 .replace("{message}", message);
     }
 
-    public Optional<String> getPlayerPrefix(Player player){
-        return luckPermsUtils != null ? luckPermsUtils.getPlayerPrefix(player.getUniqueId()) : Optional.ofNullable(AurionChat.chat.getPlayerPrefix(player));
+    public String getPlayerPrefix(Player player){
+        return luckPermsUtils != null ? luckPermsUtils.getPlayerPrefix(player.getUniqueId()) : AurionChat.chat.getPlayerPrefix(player);
     }
 
-    public Optional<String> getPlayerSuffix(Player player){
-        return luckPermsUtils != null ? luckPermsUtils.getPlayerSuffix(player.getUniqueId()) : Optional.ofNullable(AurionChat.chat.getPlayerSuffix(player));
+    public String getPlayerSuffix(Player player){
+        return luckPermsUtils != null ? luckPermsUtils.getPlayerSuffix(player.getUniqueId()) : AurionChat.chat.getPlayerSuffix(player);
     }
 
 

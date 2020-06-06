@@ -66,13 +66,13 @@ public class AurionChat {
     private AurionChatPlayers aurionChatPlayers;
     private Utils utils;
     private ChatService chatService;
-    private LuckPermsUtils luckPermsUtils = null;
-
-    public static LuckPerms luckPermsApi = null;
+    private LuckPermsUtils luckPermsUtils;
 
     @Listener
     public void Init(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
         sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
+        Optional<ProviderRegistration<LuckPerms>> provider = Sponge.getServiceManager().getRegistration(LuckPerms.class);
+        provider.ifPresent(luckPermsProviderRegistration -> luckPermsUtils = new LuckPermsUtils(luckPermsProviderRegistration.getProvider()));
         if(!Files.exists(path)){
             game.getAssetManager().getAsset(this,"config.conf").get().copyToFile(path);
         }
@@ -90,8 +90,6 @@ public class AurionChat {
             getLogger().error(e.getMessage());
         }
         sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
-        Optional<ProviderRegistration<LuckPerms>> provider = Sponge.getServiceManager().getRegistration(LuckPerms.class);
-        provider.ifPresent(luckPermsProviderRegistration -> luckPermsUtils = new LuckPermsUtils(luckPermsProviderRegistration.getProvider()));
         loadCommands(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
     }
@@ -141,7 +139,7 @@ public class AurionChat {
         return this.utils;
     }
 
-    public LuckPermsUtils getLuckPermsUtils() { return this.luckPermsUtils; }
+    public Optional<LuckPermsUtils> getLuckPermsUtils() { return Optional.ofNullable(this.luckPermsUtils); }
 
     public AurionChatPlayers getAurionChatPlayers(){
         return this.aurionChatPlayers;

@@ -18,13 +18,11 @@ import java.util.UUID;
 
 public class Utils {
 
-    private AurionChat plugin;
     private Config config;
     private AurionChatPlayers aurionChatPlayers;
-    private LuckPermsUtils luckPermsUtils;
+    private Optional<LuckPermsUtils> luckPermsUtils;
 
     public Utils(AurionChat plugin){
-        this.plugin = plugin;
         this.config = plugin.getConfig();
         this.aurionChatPlayers = plugin.getAurionChatPlayers();
         this.luckPermsUtils = plugin.getLuckPermsUtils();
@@ -40,10 +38,18 @@ public class Utils {
             messageColors = TextSerializers.formattingCode('&').stripCodes(TextSerializers.FORMATTING_CODE.serialize(message));
         }
         return channelFormat
-                .replace("{prefix}", this.luckPermsUtils.getPlayerPrefix(player.getUniqueId()).orElse(""))
-                .replace("{suffix}", this.luckPermsUtils.getPlayerSuffix(player.getUniqueId()).orElse(""))
+                .replace("{prefix}", getPlayerPrefix(player.getUniqueId()))
+                .replace("{suffix}", getPlayerSuffix(player.getUniqueId()))
                 .replace("{display_name}", getDisplayName(player))
                 .replace("{message}", messageColors);
+    }
+
+    public String getPlayerPrefix(UUID uuid){
+        return luckPermsUtils.map(permsUtils -> permsUtils.getPlayerPrefix(uuid)).orElse("");
+    }
+
+    public String getPlayerSuffix(UUID uuid){
+        return luckPermsUtils.map(permsUtils -> permsUtils.getPlayerSuffix(uuid)).orElse("");
     }
 
     public void sendMessageToPlayer(String channelName, String message){

@@ -29,7 +29,6 @@ public class AurionChat extends JavaPlugin {
     private AurionChatPlayers aurionChatPlayers;
     private Utils utils;
     private ChatService chatService;
-    private LuckPerms luckPermsApi;
     private LuckPermsUtils luckPermsUtils = null;
 
     public static Chat chat = null;
@@ -43,10 +42,6 @@ public class AurionChat extends JavaPlugin {
     @Override
     public void onEnable(){
         sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
-        config = new Config(this);
-        aurionChatPlayers = new AurionChatPlayers();
-        utils = new Utils(this);
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
         sendConsoleMessage("&8[&eAurionChat&8]&e - Checking for Vault...");
         if(!setupPermissions()){
             sendConsoleMessage("&8[&eAurionChat&8]&e - &cCould not find Vault dependency, disabling.");
@@ -58,9 +53,12 @@ public class AurionChat extends JavaPlugin {
         }
         RegisteredServiceProvider<LuckPerms> luckPermsprovider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if(luckPermsprovider != null) {
-            luckPermsApi = luckPermsprovider.getProvider();
-            luckPermsUtils = new LuckPermsUtils(luckPermsApi);
+            luckPermsUtils = new LuckPermsUtils(luckPermsprovider.getProvider());
         }
+        config = new Config(this);
+        aurionChatPlayers = new AurionChatPlayers();
+        utils = new Utils(this);
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
 
         sendConsoleMessage("&8[&eAurionChat&8]&e - Enabled Successfully");
         sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
