@@ -10,11 +10,11 @@ buildscript {
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     apply plugin: 'com.github.johnrengelman.shadow'
     dependencies {
-        compile 'com.rabbitmq:amqp-client:5.9.0'
-        compile 'net.luckperms:api:5.1'
+        compileOnly 'com.rabbitmq:amqp-client:5.9.0'
+        compileOnly 'net.luckperms:api:5.1'
         implementation 'com.google.code.gson:gson:2.8.5'
     }
     group = project.pluginGroup
