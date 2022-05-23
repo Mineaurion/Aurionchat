@@ -7,29 +7,44 @@ public class AurionChatPlayer {
     private String currentChannel;
 
     public AurionChatPlayer(Set<String> channels, String currentChannel){
+
         super();
         this.channels = channels;
         this.currentChannel = currentChannel;
     }
 
+    public String getCurrentChannel(){
+        return this.currentChannel;
+    }
+
+    public void setCurrentChannel(String channel){
+        this.currentChannel = channel;
+    }
+
+
     public Set<String> getChannels(){
         return channels;
     }
 
-    public String getCurrentChannel(){
-        return currentChannel;
+    public void setChannels(Set<String> channels)
+    {
+        this.channels = channels;
     }
 
-    public void setCurrentChannel(String channel){
-        currentChannel = channel;
+    public void addChannel(String channel)
+    {
+        this.channels.add(channel);
     }
 
-    public void addListening(String channel){
-        channels.add(channel);
+    public void removeChannel(String channel)
+    {
+        this.channels.remove(channel);
     }
 
-    public void removeListening(String channel){
-        channels.remove(channel);
+    @Override
+    public String toString()
+    {
+        return "currentChannel:" + this.currentChannel + ",channels:" + this.channels.toString();
     }
 
 }

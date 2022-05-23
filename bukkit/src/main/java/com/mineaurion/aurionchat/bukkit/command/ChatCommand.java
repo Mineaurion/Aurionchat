@@ -2,7 +2,6 @@ package com.mineaurion.aurionchat.bukkit.command;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -13,33 +12,31 @@ import org.bukkit.entity.Player;
 import java.util.Set;
 
 public class ChatCommand implements CommandExecutor {
-
-    private AurionChat plugin;
-    private AurionChatPlayers aurionChatPlayers;
-    public ChatCommand(AurionChat plugin){
-        this.plugin = plugin;
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
+    private enum Action {
+        JOIN,
+        LEAVE,
+        SPY,
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         String command;
         Player player = Bukkit.getPlayer(sender.getName());
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
         if(cmd.getName().equalsIgnoreCase("chat") || cmd.getName().equalsIgnoreCase("ch")){
             command = (args.length < 1) ? "Default" : args[0];
             switch (command){
                 case "join":
                 case "j":
-                    ChatAction(player, aurionChatPlayer, args[1],"join");
+                    ChatAction(player, aurionChatPlayer, args[1], Action.JOIN);
                     break;
                 case "leave":
                 case "l":
-                    ChatAction(player, aurionChatPlayer, args[1],"leave");
+                    ChatAction(player, aurionChatPlayer, args[1], Action.LEAVE);
                     break;
                 case "spy":
                 case "s":
-                    ChatAction(player, aurionChatPlayer,args[1],"spy");
+                    ChatAction(player, aurionChatPlayer,args[1], Action.SPY);
                     break;
                 case "alllisten":
                     ChatAllListen(player, aurionChatPlayer);
@@ -51,12 +48,12 @@ public class ChatCommand implements CommandExecutor {
                     for (String channel: aurionChatPlayer.getChannels()){
                         channels.append(channel).append(" ");
                     }
-                    for(String avalaibleChannel: plugin.getConfigPlugin().getAllChannel()) {
+                    for(String avalaibleChannel: AurionChat.config.getAllChannel()) {
                         avalaibleChannels.append(avalaibleChannel).append(" ");
                     }
                     message.append("&7Your current channel:&f ").append(aurionChatPlayer.getCurrentChannel()).append("\n")
-                           .append("&7Spying on channels:&f ").append(channels.toString()).append("\n")
-                           .append("&7Avalaible channels:&f ").append(avalaibleChannels.toString());
+                           .append("&7Spying on channels:&f ").append(channels).append("\n")
+                           .append("&7Avalaible channels:&f ").append(avalaibleChannels);
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&',message.toString()));
                     break;
             }
@@ -65,21 +62,21 @@ public class ChatCommand implements CommandExecutor {
         return false;
     }
 
-    private void ChatAction(Player player, AurionChatPlayer aurionChatPlayer, String channel, String action){
-        Set<String> channels = plugin.getConfigPlugin().getAllChannel();
+    private void ChatAction(Player player, AurionChatPlayer aurionChatPlayer, String channel, Action action){
+        Set<String> channels = AurionChat.config.getAllChannel();
         if(channels.contains(channel)){
             switch(action){
-                case "join":
-                    aurionChatPlayer.removeListening(aurionChatPlayer.getCurrentChannel());
+                case JOIN:
+                    aurionChatPlayer.removeChannel(aurionChatPlayer.getCurrentChannel());
                     aurionChatPlayer.setCurrentChannel(channel);
                     player.sendMessage(ChatColor.GOLD + "You have joined the " + channel + " channel.");
                     break;
-                case "leave":
-                    aurionChatPlayer.removeListening(channel);
+                case LEAVE:
+                    aurionChatPlayer.removeChannel(channel);
                     player.sendMessage(ChatColor.GOLD + "You have leaved the " + channel + " channel.");
                     break;
-                case "spy":
-                    aurionChatPlayer.addListening(channel);
+                case SPY:
+                    aurionChatPlayer.addChannel(channel);
                     player.sendMessage(ChatColor.GOLD + "You have spy the " + channel + " channel.");
                     break;
             }
@@ -90,8 +87,8 @@ public class ChatCommand implements CommandExecutor {
     }
 
     private void ChatAllListen(Player player, AurionChatPlayer aurionChatPlayer){
-        for(String channel: plugin.getConfigPlugin().getAllChannel()){
-            ChatAction(player, aurionChatPlayer, channel, "spy");
+        for(String channel: AurionChat.config.getAllChannel()){
+            ChatAction(player, aurionChatPlayer, channel, Action.SPY);
         }
     }
 

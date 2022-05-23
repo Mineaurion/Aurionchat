@@ -1,7 +1,8 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.bukkit.Config;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,17 +11,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class LoginListener implements Listener {
-    private AurionChat plugin;
-    private AurionChatPlayers aurionChatPlayers;
 
-    public LoginListener(AurionChat plugin) {
-        this.plugin = plugin;
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
+    private final Map<UUID, AurionChatPlayer> aurionChatPlayers;
+
+    public LoginListener() {
+        this.aurionChatPlayers = AurionChat.aurionChatPlayers;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -35,12 +33,12 @@ public class LoginListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event){
+        Config config = AurionChat.config;
         Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        Set<String> listenChannel = new HashSet<String>();
+        Set<String> listenChannel = new HashSet<>(Arrays.asList("global", config.getServername()));
         String currentChannel = "global";
 
-        for( String channel:plugin.getConfigPlugin().getAllChannel()){
+        for( String channel: config.getAllChannel()){
             if(player.hasPermission("aurionchat.joinchannel." + channel)){
                 listenChannel.add(channel);
                 currentChannel = channel;
@@ -49,11 +47,12 @@ public class LoginListener implements Listener {
                 listenChannel.add(channel);
             }
         }
-        aurionChatPlayers.addPlayer(uuid, listenChannel, currentChannel);
+        AurionChatPlayer aurionChatPlayer = new AurionChatPlayer(listenChannel, currentChannel);
+        this.aurionChatPlayers.putIfAbsent(event.getPlayer().getUniqueId(), aurionChatPlayer);
 
     }
 
     private void playerLeaving(Player player){
-        aurionChatPlayers.removePlayer(player.getUniqueId());
+        this.aurionChatPlayers.remove(player.getUniqueId());
     }
 }

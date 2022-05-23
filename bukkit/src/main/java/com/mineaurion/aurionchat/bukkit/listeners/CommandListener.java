@@ -1,8 +1,9 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
+import com.mineaurion.aurionchat.bukkit.Config;
+import com.mineaurion.aurionchat.bukkit.Utils;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -17,25 +18,25 @@ import java.io.IOException;
 import java.util.Set;
 
 public class CommandListener implements CommandExecutor, Listener {
-    private AurionChat plugin;
-    private AurionChatPlayers aurionChatPlayers;
+    private final AurionChat plugin;
+    private final Config config;
 
     public CommandListener(AurionChat plugin){
         this.plugin = plugin;
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
+        this.config = AurionChat.config;
     }
 
     @EventHandler
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event){
-        Set<String> chatChannels = plugin.getConfigPlugin().getAllChannel();
+        Set<String> chatChannels = this.config.getAllChannel();
         Player player = event.getPlayer();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
         String command = event.getMessage().substring(1).split(" ")[0];
         String message = (event.getMessage().length() == command.length() + 1) ? event.getMessage().substring(command.length() + 1) : event.getMessage().substring(command.length() + 2);
 
         for(String channel: chatChannels){
-            String channelAlias = plugin.getConfigPlugin().getChannelAlias(channel);
+            String channelAlias = this.config.getChannelAlias(channel);
 
             if(command.equalsIgnoreCase(channel) || command.equalsIgnoreCase(channelAlias)){
                 if(event.getMessage().length() == command.length() + 1){
@@ -43,11 +44,11 @@ public class CommandListener implements CommandExecutor, Listener {
                     event.setCancelled(true);
                     return;
                 }
-                aurionChatPlayer.addListening(channel);
-                String sendFormat = plugin.getUtils().processMessage(channel,message, player);
+                aurionChatPlayer.addChannel(channel);
+                String sendFormat = Utils.processMessage(channel,message, player);
 
                 try{
-                    plugin.getChatService().send(channel,sendFormat);
+                    this.plugin.getChatService().send(channel,sendFormat);
                 }
                 catch(IOException e){
                     Bukkit.getConsoleSender().sendMessage(e.getMessage());

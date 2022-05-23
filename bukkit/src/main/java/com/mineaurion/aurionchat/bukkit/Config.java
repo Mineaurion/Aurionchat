@@ -2,6 +2,7 @@ package com.mineaurion.aurionchat.bukkit;
 
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+
 import java.util.Set;
 
 public class Config {
@@ -44,7 +45,4 @@ public class Config {
     public Sound getPingSound(){
         return Sound.valueOf(config.getString("options.sound"));
     }
-
-
-
 }

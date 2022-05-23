@@ -1,6 +1,7 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
+        maven { url  = 'https://plugins.gradle.org/m2/' }
     }
 
     dependencies {
@@ -13,15 +14,12 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'com.github.johnrengelman.shadow'
     dependencies {
-        compileOnly 'com.rabbitmq:amqp-client:5.9.0'
+        implementation 'com.rabbitmq:amqp-client:5.14.2'
         compileOnly 'net.luckperms:api:5.1'
         implementation 'com.google.code.gson:gson:2.8.5'
     }
     group = project.pluginGroup
     version = project.pluginVersion
-
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
 
     repositories {
         mavenCentral()

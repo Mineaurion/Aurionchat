@@ -1,30 +1,18 @@
 package com.mineaurion.aurionchat.bukkit;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.Collection;
 
 public class Utils {
+    private static final Config config = AurionChat.config;
+    private static final LuckPermsUtils luckPermsUtils = AurionChat.luckPermsUtils;
 
-    private AurionChat plugin;
-    private Config config;
-    private AurionChatPlayers aurionChatPlayers;
-    private LuckPermsUtils luckPermsUtils;
-
-    public Utils(AurionChat plugin){
-        this.plugin = plugin;
-        this.config = plugin.getConfigPlugin();
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
-        this.luckPermsUtils = plugin.getLuckPermsUtils();
-    }
-
-    public String processMessage(String channel, String message, Player player){
+    public static String processMessage(String channel, String message, Player player){
         String channelFormat = config.getFormatChannel(channel);
         if(!player.hasPermission("aurionchat.chat.colors")){
             message = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',message));
@@ -36,34 +24,35 @@ public class Utils {
                 .replace("{message}", message);
     }
 
-    public String getPlayerPrefix(Player player){
+    public static String getPlayerPrefix(Player player){
         return luckPermsUtils != null ? luckPermsUtils.getPlayerPrefix(player.getUniqueId()) : AurionChat.chat.getPlayerPrefix(player);
     }
 
-    public String getPlayerSuffix(Player player){
+    public static String getPlayerSuffix(Player player){
         return luckPermsUtils != null ? luckPermsUtils.getPlayerSuffix(player.getUniqueId()) : AurionChat.chat.getPlayerSuffix(player);
     }
 
 
-    public void sendMessageToPlayer(String channelName, String message){
-        Set<UUID> playersListenChannel = aurionChatPlayers.getPlayersListeningChannel(channelName);
-        for(UUID uuid: playersListenChannel){
-            Player player = Bukkit.getPlayer(uuid);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
-            if(message.toLowerCase().contains("@" + player.getDisplayName().toLowerCase() ) || message.toLowerCase().contains("@" + player.getName().toLowerCase())){
-                player.playSound(player.getLocation(), config.getPingSound(), 1, 1);
+    public static void sendMessageToPlayer(String channelName, String message){
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
+            if(aurionChatPlayer.getChannels().contains(channelName)){
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
+                if(message.toLowerCase().contains("@" + player.getDisplayName().toLowerCase() ) || message.toLowerCase().contains("@" + player.getName().toLowerCase())){
+                    player.playSound(player.getLocation(), config.getPingSound(), 1, 1);
+                }
             }
-        }
-
+        });
     }
 
-    public void broadcastToPlayer(String channelName, String message){
-        if(plugin.getServer().getOnlinePlayers().size() > 0){
-            for(Player player: plugin.getServer().getOnlinePlayers()){
+    public static void broadcastToPlayer(String channelName, String message){
+        Collection<? extends Player> playerList = Bukkit.getOnlinePlayers();
+        if(playerList.size() > 0){
+            playerList.forEach(player -> {
                 if(player.hasPermission("aurionchat.automessage." + channelName)){
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&',message));
                 }
-            }
+            });
         }
     }
 }

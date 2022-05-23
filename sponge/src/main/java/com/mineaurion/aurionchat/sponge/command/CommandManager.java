@@ -1,18 +1,21 @@
 package com.mineaurion.aurionchat.sponge.command;
 
-import com.mineaurion.aurionchat.sponge.AurionChat;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
 public class CommandManager {
-
-    private AurionChat plugin;
     public CommandSpec cmdChat;
 
+    public enum Action {
+        JOIN,
+        LEAVE,
+        SPY,
+        ALLLISTEN,
+    }
 
-    public CommandManager(AurionChat plugin){
-        this.plugin = plugin;
+
+    public CommandManager(){
         Init();
     }
 
@@ -22,27 +25,27 @@ public class CommandManager {
                     .permission("aurionchat.command.channel")
                     .description(Text.of("AurionChat's command to manage chat channels"))
                     .arguments(GenericArguments.optional(GenericArguments.string(Text.of("channel"))))
-                    .executor(new ChatCommand(plugin, "join"))
+                    .executor(new ChatCommand( Action.JOIN))
                     .build();
 
         CommandSpec cmdLeaveChat = CommandSpec.builder()
                     .permission("aurionchat.command.channel")
                     .description(Text.of("AurionChat's command to manage chat channels"))
                     .arguments(GenericArguments.optional(GenericArguments.string(Text.of("channel"))))
-                    .executor(new ChatCommand(plugin, "leave"))
+                    .executor(new ChatCommand(Action.LEAVE))
                     .build();
 
         CommandSpec cmdSpyChat = CommandSpec.builder()
                     .permission("aurionchat.command.channel")
                     .description(Text.of("AurionChat's command to manage chat channels"))
                     .arguments(GenericArguments.optional(GenericArguments.string(Text.of("channel"))))
-                    .executor(new ChatCommand(plugin, "spy"))
+                    .executor(new ChatCommand(Action.SPY))
                     .build();
 
         CommandSpec cmdAllListenChat = CommandSpec.builder()
                     .permission("aurionchat.command.channel")
                     .description(Text.of("AurionChat's command to manage chat channels"))
-                    .executor(new ChatCommand(plugin, "alllisten"))
+                    .executor(new ChatCommand(Action.ALLLISTEN))
                     .build();
 
 
@@ -52,7 +55,7 @@ public class CommandManager {
                     .child(cmdSpyChat, "spy","s")
                     .child(cmdAllListenChat, "alllisten", "allspy")
                     .permission("aurionchat.command.channel")
-                    .executor(new ChatDefaultCommand(plugin))
+                    .executor(new ChatDefaultCommand())
                     .build();
 
     }

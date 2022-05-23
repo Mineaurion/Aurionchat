@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class LuckPermsUtils {
 
-    private LuckPerms luckPerms;
+    private final LuckPerms luckPerms;
 
     public LuckPermsUtils(LuckPerms api){
         this.luckPerms = api;

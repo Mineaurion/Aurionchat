@@ -1,6 +1,6 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.Config;
 import org.spongepowered.api.entity.living.player.Player;
@@ -8,20 +8,15 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class LoginListener {
+    private final Config config;
+    private final Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
-    private AurionChat plugin;
-    private Config config;
-    private AurionChatPlayers aurionChatPlayers;
-
-    public LoginListener(AurionChat plugin){
-        this.plugin = plugin;
-        this.config = plugin.getConfig();
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
+    public LoginListener(){
+        this.config = AurionChat.config;
+        this.aurionChatPlayers = AurionChat.aurionChatPlayers;
     }
 
     @Listener
@@ -37,8 +32,7 @@ public class LoginListener {
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event){
         Player player = event.getTargetEntity();
-        UUID uuid = player.getUniqueId();
-        Set<String> listenChannel = new HashSet<String>();
+        Set<String> listenChannel = new HashSet<>(Arrays.asList("global", config.rabbitmq.servername));
         String currenChannel = "global";
         for(String channel: config.channels.keySet()){
             if(player.hasPermission("aurionchat.joinchannel." + channel)){
@@ -49,10 +43,11 @@ public class LoginListener {
                 listenChannel.add(channel);
             }
         }
-        aurionChatPlayers.addPlayer(uuid, listenChannel, currenChannel);
+        AurionChatPlayer aurionChatPlayer = new AurionChatPlayer(listenChannel, currenChannel);
+        this.aurionChatPlayers.putIfAbsent(event.getTargetEntity().getUniqueId(), aurionChatPlayer);
     }
 
     private void playerLeaving(Player player){
-        aurionChatPlayers.removePlayer(player.getUniqueId());
+        this.aurionChatPlayers.remove(player.getUniqueId());
     }
 }

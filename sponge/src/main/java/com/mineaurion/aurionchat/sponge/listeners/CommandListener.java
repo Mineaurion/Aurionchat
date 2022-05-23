@@ -1,9 +1,9 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.Config;
+import com.mineaurion.aurionchat.sponge.Utils;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.SendCommandEvent;
@@ -14,20 +14,18 @@ import java.util.Set;
 
 public class CommandListener {
 
-    private AurionChat plugin;
-    private Config config;
-    private AurionChatPlayers aurionChatPlayers;
+    private final AurionChat plugin;
+    private final Config config;
 
     public CommandListener(AurionChat plugin){
         this.plugin = plugin;
-        this.config = plugin.getConfig();
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
+        this.config = AurionChat.config;
     }
 
     @Listener
     public void onCommand(SendCommandEvent event, @First Player player){
         Set<String> chatChannels = config.channels.keySet();
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
         String command = event.getCommand();
         String message = event.getArguments();
@@ -41,14 +39,14 @@ public class CommandListener {
                     event.setCancelled(true);
                     return;
                 }
-                aurionChatPlayer.addListening(channel);
-                String sendFormat = plugin.getUtils().processMessage(channel, TextSerializers.FORMATTING_CODE.deserialize(message), player);
+                aurionChatPlayer.addChannel(channel);
+                String sendFormat = Utils.processMessage(channel, TextSerializers.FORMATTING_CODE.deserialize(message), player);
 
                 try{
                     plugin.getChatService().send(channel, sendFormat);
                 }
                 catch(Exception e){
-                    plugin.getLogger().error(e.getMessage());
+                    AurionChat.logger.error(e.getMessage());
                 }
                 event.setCancelled(true);
             }

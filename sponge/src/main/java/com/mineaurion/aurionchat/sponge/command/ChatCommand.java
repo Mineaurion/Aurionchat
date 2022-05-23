@@ -1,10 +1,8 @@
 package com.mineaurion.aurionchat.sponge.command;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.Config;
-import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -15,28 +13,25 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.mineaurion.aurionchat.sponge.Utils.sendConsoleMessage;
+
 public class ChatCommand implements CommandExecutor {
+    private final CommandManager.Action action;
+    private final Config config;
 
-    private AurionChat plugin;
-    private String action;
-    private Config config;
-    private AurionChatPlayers aurionChatPlayers;
-
-    public ChatCommand(AurionChat plugin, String action){
-        this.plugin = plugin;
+    public ChatCommand(CommandManager.Action action){
         this.action = action;
-        this.config = plugin.getConfig();
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
+        this.config = AurionChat.config;
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(CommandSource src, CommandContext args) {
         if(src instanceof Player){
             Player player = (Player) src;
             UUID uuid = ((Player) src).getUniqueId();
-            AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(uuid);
+            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(uuid);
             String channel = args.<String>getOne("channel").orElse("");
-            if(this.action.equalsIgnoreCase("alllisten")){
+            if(this.action == CommandManager.Action.ALLLISTEN){
                 ChatAllListen(player, aurionChatPlayer);
             }
             else{
@@ -44,26 +39,26 @@ public class ChatCommand implements CommandExecutor {
             }
         }
         else{
-            plugin.sendConsoleMessage("Console can listen all channel if you want, check config");
+            sendConsoleMessage("Console can listen all channel if you want, check config");
         }
         return CommandResult.success();
     }
 
-    private void ChatAction(Player player, AurionChatPlayer aurionChatPlayer, String channel, String action){
+    private void ChatAction(Player player, AurionChatPlayer aurionChatPlayer, String channel, CommandManager.Action action){
         Set<String> channels = config.channels.keySet();
         if(channels.contains(channel)){
             switch(action){
-                case "join":
-                    aurionChatPlayer.removeListening(aurionChatPlayer.getCurrentChannel());
+                case JOIN:
+                    aurionChatPlayer.removeChannel(aurionChatPlayer.getCurrentChannel());
                     aurionChatPlayer.setCurrentChannel(channel);
                     player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize( "&cYou have joined the " + channel + " channel."));
                     break;
-                case "leave":
-                    aurionChatPlayer.removeListening(channel);
+                case LEAVE:
+                    aurionChatPlayer.removeChannel(channel);
                     player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&6You have leaved the " + channel + " channel."));
                     break;
-                case "spy":
-                    aurionChatPlayer.addListening(channel);
+                case SPY:
+                    aurionChatPlayer.addChannel(channel);
                     player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize("&6You have spy the " + channel + " channel."));
                     break;
             }
@@ -74,9 +69,8 @@ public class ChatCommand implements CommandExecutor {
     }
 
     private void ChatAllListen(Player player, AurionChatPlayer aurionChatPlayer){
-        Set<String> channels = config.channels.keySet();
-        for(String channel:channels){
-            ChatAction(player, aurionChatPlayer, channel, "spy");
+        for(String channel: config.channels.keySet()){
+            ChatAction(player, aurionChatPlayer, channel, CommandManager.Action.SPY);
         }
     }
 
