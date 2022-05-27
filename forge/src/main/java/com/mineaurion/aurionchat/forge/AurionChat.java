@@ -1,12 +1,13 @@
-package com.mineaurion.aurionchat;
+package com.mineaurion.aurionchat.forge;
+
 
 import com.electronwill.nightconfig.core.conversion.ObjectConverter;
-import com.mineaurion.aurionchat.command.ChatCommand;
-import com.mineaurion.aurionchat.config.Config;
-import com.mineaurion.aurionchat.config.ConfigData;
-import com.mineaurion.aurionchat.listeners.ChatListener;
-import com.mineaurion.aurionchat.listeners.CommandListener;
-import com.mineaurion.aurionchat.listeners.LoginListener;
+import com.mineaurion.aurionchat.forge.command.ChatCommand;
+import com.mineaurion.aurionchat.forge.config.Config;
+import com.mineaurion.aurionchat.forge.config.ConfigData;
+import com.mineaurion.aurionchat.forge.listeners.ChatListener;
+import com.mineaurion.aurionchat.forge.listeners.CommandListener;
+import com.mineaurion.aurionchat.forge.listeners.LoginListener;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,11 +32,10 @@ import static net.minecraftforge.fml.ExtensionPoint.DISPLAYTEST;
 @Mod("aurionchat")
 public class AurionChat {
     public static ConfigData config;
-
     public static Map<UUID, AurionChatPlayer> aurionChatPlayers = new HashMap<>();
-
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
+    public static Utils utils = new Utils();
 
     public ChatService getChatService() {
         return chatService;
@@ -100,7 +100,7 @@ public class AurionChat {
 
     @SubscribeEvent
     public void onRegisterCommandEvent(RegisterCommandsEvent event){
-        ChatCommand.register(event.getDispatcher());
+        new ChatCommand(event.getDispatcher());
     }
 
     @SubscribeEvent

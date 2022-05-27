@@ -1,53 +1,39 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.listeners.LoginListenerCommon;
 import com.mineaurion.aurionchat.sponge.AurionChat;
-import com.mineaurion.aurionchat.sponge.Config;
-import org.spongepowered.api.entity.living.player.Player;
+import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
-public class LoginListener {
-    private final Config config;
-    private final Map<UUID, AurionChatPlayer> aurionChatPlayers;
+import static com.mineaurion.aurionchat.sponge.AurionChat.config;
 
+public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
+
+    private static final Map<UUID, AurionChatPlayer> aurionChatPlayers = AurionChat.aurionChatPlayers;
     public LoginListener(){
-        this.config = AurionChat.config;
-        this.aurionChatPlayers = AurionChat.aurionChatPlayers;
+        super(aurionChatPlayers);
     }
 
     @Listener
-    public void onPlayerKick(KickPlayerEvent event){
-        playerLeaving(event.getTargetEntity());
+    public void onPlayerKick(KickPlayerEvent event) {
+        this.playerLeaving(event.getTargetEntity().getUniqueId());
     }
 
     @Listener
-    public void onPlayerQuit(ClientConnectionEvent.Disconnect event){
-        playerLeaving(event.getTargetEntity());
+    public void onPlayerQuit(ClientConnectionEvent.Disconnect event) {
+        this.playerLeaving(event.getTargetEntity().getUniqueId());
     }
 
     @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event){
-        Player player = event.getTargetEntity();
-        Set<String> listenChannel = new HashSet<>(Arrays.asList("global", config.rabbitmq.servername));
-        String currenChannel = "global";
-        for(String channel: config.channels.keySet()){
-            if(player.hasPermission("aurionchat.joinchannel." + channel)){
-                listenChannel.add(channel);
-                currenChannel = channel;
-            }
-            if(player.hasPermission("aurionchat.listenchannel." + channel)){
-                listenChannel.add(channel);
-            }
-        }
-        AurionChatPlayer aurionChatPlayer = new AurionChatPlayer(listenChannel, currenChannel);
-        this.aurionChatPlayers.putIfAbsent(event.getTargetEntity().getUniqueId(), aurionChatPlayer);
-    }
-
-    private void playerLeaving(Player player){
-        this.aurionChatPlayers.remove(player.getUniqueId());
+    public void onPlayerJoin(ClientConnectionEvent.Join event) {
+        aurionChatPlayers.putIfAbsent(
+                event.getTargetEntity().getUniqueId(),
+                new AurionChatPlayer(event.getTargetEntity(), config.channels.keySet())
+        );
     }
 }

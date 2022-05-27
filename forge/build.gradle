@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+
 apply plugin: 'net.minecraftforge.gradle'
 
 compileJava.options.encoding = 'UTF-8'
@@ -125,17 +125,6 @@ dependencies {
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-}
-shadowJar {
-    minimize()
-    dependencies {
-        include(dependency('com.rabbitmq:amqp-client:5.14.2'))
-        // If issue with class not found log4j @see https://github.com/SpongePowered/SpongeForge/issues/3275#issuecomment-992235134
-
-        include(dependency {
-            it.moduleGroup == 'org.slf4j' || it.moduleGroup == 'com.rabbitmq' || it.moduleGroup == 'com.mineaurion'
-        })
-    }
 }
 
 

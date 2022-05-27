@@ -1,9 +1,8 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
+import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
 import com.mineaurion.aurionchat.bukkit.Config;
-import com.mineaurion.aurionchat.bukkit.Utils;
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -45,7 +44,7 @@ public class CommandListener implements CommandExecutor, Listener {
                     return;
                 }
                 aurionChatPlayer.addChannel(channel);
-                String sendFormat = Utils.processMessage(channel,message, player);
+                String sendFormat = AurionChat.utils.processMessage(this.config.getFormatChannel(channel), message, aurionChatPlayer);
 
                 try{
                     this.plugin.getChatService().send(channel,sendFormat);

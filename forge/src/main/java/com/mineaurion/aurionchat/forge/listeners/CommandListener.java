@@ -1,8 +1,7 @@
-package com.mineaurion.aurionchat.listeners;
+package com.mineaurion.aurionchat.forge.listeners;
 
-import com.mineaurion.aurionchat.AurionChat;
-import com.mineaurion.aurionchat.AurionChatPlayer;
-import com.mineaurion.aurionchat.Utils;
+import com.mineaurion.aurionchat.forge.AurionChat;
+import com.mineaurion.aurionchat.forge.AurionChatPlayer;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.CommandEvent;
@@ -15,7 +14,7 @@ import java.io.IOException;
 
 public class CommandListener {
 
-    private AurionChat plugin;
+    private final AurionChat plugin;
     public CommandListener(AurionChat plugin)
     {
         this.plugin = plugin;
@@ -36,7 +35,7 @@ public class CommandListener {
                     event.setResult(Event.Result.DENY);
                 }
                 aurionChatPlayer.addChannel(name);
-                String messageFormat = Utils.processMessage(name, message, player);
+                String messageFormat = AurionChat.utils.processMessage(AurionChat.config.getChannels().get(name).format, message, aurionChatPlayer);
                 try {
                     this.plugin.getChatService().send(name, messageFormat);
                 } catch (IOException e) {

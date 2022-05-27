@@ -1,14 +1,12 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.sponge.AurionChat;
-import com.mineaurion.aurionchat.sponge.Utils;
+import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Tristate;
 
 public class ChatListener {
@@ -30,9 +28,12 @@ public class ChatListener {
         }
         AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
-        Text evMessage = event.getRawMessage();
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = Utils.processMessage(currentChannel, evMessage, player);
+        String messageFormat = AurionChat.utils.processMessage(
+                AurionChat.config.channels.get(currentChannel).format,
+                event.getRawMessage().toPlain(),
+                aurionChatPlayer
+        );
 
         try{
             plugin.getChatService().send(currentChannel, messageFormat);

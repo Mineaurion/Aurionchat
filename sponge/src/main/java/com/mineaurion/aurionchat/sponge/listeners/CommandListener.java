@@ -1,9 +1,8 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.sponge.AurionChat;
+import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
 import com.mineaurion.aurionchat.sponge.Config;
-import com.mineaurion.aurionchat.sponge.Utils;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.SendCommandEvent;
@@ -40,7 +39,7 @@ public class CommandListener {
                     return;
                 }
                 aurionChatPlayer.addChannel(channel);
-                String sendFormat = Utils.processMessage(channel, TextSerializers.FORMATTING_CODE.deserialize(message), player);
+                String sendFormat = AurionChat.utils.processMessage(channel, message, aurionChatPlayer);
 
                 try{
                     plugin.getChatService().send(channel, sendFormat);

@@ -1,8 +1,7 @@
-package com.mineaurion.aurionchat.listeners;
+package com.mineaurion.aurionchat.forge.listeners;
 
-import com.mineaurion.aurionchat.AurionChat;
-import com.mineaurion.aurionchat.AurionChatPlayer;
-import com.mineaurion.aurionchat.Utils;
+import com.mineaurion.aurionchat.forge.AurionChat;
+import com.mineaurion.aurionchat.forge.AurionChatPlayer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,7 +22,7 @@ public class ChatListener {
 
         AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(event.getPlayer().getUUID());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = Utils.processMessage(currentChannel, event.getMessage(), event.getPlayer());
+        String messageFormat = AurionChat.utils.processMessage(AurionChat.config.getChannels().get(currentChannel).format, event.getMessage(), aurionChatPlayer);
         try {
             this.plugin.getChatService().send(currentChannel, messageFormat);
         } catch (IOException e) {

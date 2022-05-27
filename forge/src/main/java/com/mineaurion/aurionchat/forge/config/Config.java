@@ -1,4 +1,4 @@
-package com.mineaurion.aurionchat.config;
+package com.mineaurion.aurionchat.forge.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 

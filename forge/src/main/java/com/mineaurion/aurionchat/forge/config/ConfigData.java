@@ -1,4 +1,4 @@
-package com.mineaurion.aurionchat.config;
+package com.mineaurion.aurionchat.forge.config;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

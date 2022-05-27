@@ -1,8 +1,7 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
-import com.mineaurion.aurionchat.bukkit.Utils;
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
+import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +29,7 @@ public class ChatListener implements Listener {
         AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = Utils.processMessage(currentChannel, event.getMessage(), player);
+        String messageFormat = AurionChat.utils.processMessage(currentChannel, event.getMessage(), aurionChatPlayer);
 
         try{
             this.plugin.getChatService().send(currentChannel,messageFormat);

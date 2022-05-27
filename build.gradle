@@ -15,18 +15,30 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     dependencies {
         implementation 'com.rabbitmq:amqp-client:5.14.2'
-        compileOnly 'net.luckperms:api:5.1'
+        compileOnly 'net.luckperms:api:5.4'
         implementation 'com.google.code.gson:gson:2.8.5'
     }
+
+    compileJava.options.encoding = 'UTF-8'
     group = project.pluginGroup
     version = project.pluginVersion
 
     repositories {
         mavenCentral()
     }
+    jar{
+        archivesBaseName = project.jarName + "-" + project.name
+    }
     shadowJar {
+        minimize()
         dependencies {
-            include(dependency('com.rabbitmq:amqp-client:5.9.0'))
+            include(dependency(':common'))
+            include(dependency('com.rabbitmq:amqp-client:5.14.2'))
+            // If issue with class not found log4j @see https://github.com/SpongePowered/SpongeForge/issues/3275#issuecomment-992235134
+
+            include(dependency {
+                it.moduleGroup == 'org.slf4j' || it.moduleGroup == 'com.rabbitmq' || it.moduleGroup == 'com.mineaurion'
+            })
         }
     }
 }

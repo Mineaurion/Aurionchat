@@ -14,7 +14,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
 
-public abstract class ChatService {
+public abstract class ChatServiceCommon {
     public Connection getConnection() {
         return connection;
     }
@@ -45,9 +45,9 @@ public abstract class ChatService {
 
     private String queueName;
 
-    private static String EXCHANGE_NAME = "aurion.chat";
+    private static final String EXCHANGE_NAME = "aurion.chat";
 
-    public ChatService(String uri, String queueName) throws IOException, TimeoutException {
+    public ChatServiceCommon(String uri, String queueName) throws IOException, TimeoutException {
         this.setQueueName(queueName);
         ConnectionFactory factory = new ConnectionFactory();
         try{

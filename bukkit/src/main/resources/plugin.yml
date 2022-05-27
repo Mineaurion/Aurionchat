@@ -3,6 +3,8 @@ version: ${version}
 main: com.mineaurion.aurionchat.bukkit.AurionChat
 authors: [Yann151924]
 website: https://mineaurion.com
+depend:
+  - luckperms
 commands:
   chat:
     aliases: [ch]
