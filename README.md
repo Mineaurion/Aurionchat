@@ -14,8 +14,8 @@ When you send the message if other people listen to the same channel as you type
 
 - Chat channel
 - Formating chat
-- Bukkit and Sponge support
-- Automessage WIP
+- Bukkit 1.7 to 1.12 - Sponge 7 - Forge 1.16 support
+- Automessage
 
 ### Commands
 
@@ -41,6 +41,10 @@ When you send the message if other people listen to the same channel as you type
 You need a rabbitmq server for the plugin to make it work. Just replace the uri with you user and pass and the host.
 You can have more info about the uri here : https://www.rabbitmq.com/uri-spec.html
 
+⚠️ By default, player who join will listen to the channel "global" and will have his current channel set to the serverName in the configuration
+
+The plugin/mod assume that a global channel is always defined and player who join the server will listen to the channel and the channel of the server by default
+
 This an example to declare a channel :
 ```
 channels:
@@ -60,7 +64,28 @@ At this time you can use only this token :
 
 You can put any color code beetwen the token or any characters if you want.
 ```
+## Forge 1.16
 
+The mod need FTBRanks to be working with a minimal version of 1605.1.5. 
+
+You need to have a file named aurionchat-channels.json next to aurionchat.toml. The purpose of this file is to contain the channels configuration:
+
+```JSON
+{
+  "global": {
+    "format": "[&aGlobal&f] {prefix}{display_name} : &f{message}",
+    "alias": "g"
+  },
+  "infinity": {
+    "format": "[&6I&f] {prefix}{display_name} : &f{message}",
+    "alias": "inf"
+  },
+  "<name of the channel>": {
+    "format": "Format of the channel, check above for more info",
+    "alias": "justanaliasforthecommand" 
+  }
+}
+```
 
 ## Automessage
 
