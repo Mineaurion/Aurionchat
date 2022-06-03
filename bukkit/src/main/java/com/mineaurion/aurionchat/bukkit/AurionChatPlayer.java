@@ -12,7 +12,7 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
     private static final LuckPermsUtils luckPermsUtils = AurionChat.luckPermsUtils;
 
     public AurionChatPlayer(Player player, Set<String> channels){
-        super(player, channels);
+        super(player, AurionChat.config.rabbitmq.serverName, channels);
     }
     @Override
     public boolean hasPermission(String permission) {
@@ -31,12 +31,12 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
 
     @Override
     public String getPrefix() {
-        return luckPermsUtils.getPlayerPrefix(this.getUniqueId());
+        return luckPermsUtils.getPlayerPrefix(this.getUniqueId()).orElse("");
     }
 
     @Override
     public String getSuffix() {
-        return luckPermsUtils.getPlayerSuffix(this.getUniqueId());
+        return luckPermsUtils.getPlayerSuffix(this.getUniqueId()).orElse("");
     }
 
     @Override
@@ -46,6 +46,6 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
 
     @Override
     public void notifyPlayer(){
-        this.player.playSound(player.getLocation(), AurionChat.config.getPingSound(), 1, 1);
+        this.player.playSound(player.getLocation(), AurionChat.config.options.sound, 1, 1);
     }
 }

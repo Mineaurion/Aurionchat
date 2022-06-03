@@ -57,16 +57,6 @@ public class AurionChat {
 
     private ChatListener chatListener;
 
-    public CommandListener getCommandListener() {
-        return commandListener;
-    }
-
-    public void setCommandListener(CommandListener commandListener) {
-        this.commandListener = commandListener;
-    }
-
-    private CommandListener commandListener;
-
     public boolean isErrorRabbitmq() {
         return errorRabbitmq;
     }
@@ -89,13 +79,11 @@ public class AurionChat {
 
         // Listener
         this.setChatListener(new ChatListener(this));
-        this.setCommandListener(new CommandListener(this));
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new LoginListener());
         MinecraftForge.EVENT_BUS.register(this.getChatListener());
-        MinecraftForge.EVENT_BUS.register(this.getCommandListener());
     }
 
     @SubscribeEvent
@@ -111,9 +99,9 @@ public class AurionChat {
         try {
             this.setChatService(new ChatService(config.rabbitmq.uri.get(), config.rabbitmq.serverName.get()));
             LOGGER.info("AurionChat Connected to Rabbitmq");
+            MinecraftForge.EVENT_BUS.register(new CommandListener(this));
         } catch (IOException|TimeoutException e) {
             MinecraftForge.EVENT_BUS.unregister(this.getChatListener());
-            MinecraftForge.EVENT_BUS.unregister(this.getCommandListener());
             this.setErrorRabbitmq(true);
             LOGGER.error("Aurionchat can't connect to rabbitmq, fallback to standard chat");
             LOGGER.error(e.getMessage());

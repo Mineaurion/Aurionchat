@@ -9,15 +9,7 @@ buildscript {
     }
 }
 
-
 apply plugin: 'net.minecraftforge.gradle'
-
-compileJava.options.encoding = 'UTF-8'
-
-java {
-    archivesBaseName = project.jarName + "-" + project.name
-    toolchain.languageVersion = JavaLanguageVersion.of(8)
-}
 
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
@@ -38,7 +30,6 @@ minecraft {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
-
         server {
             workingDirectory project.file('run')
 
@@ -53,7 +44,6 @@ minecraft {
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
-
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
@@ -102,9 +92,6 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     implementation project(':common')
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
-
-
-
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
@@ -131,7 +118,6 @@ dependencies {
 reobf {
     shadowJar {} // Reobfuscate the shadowed JAR
 }
-build.dependsOn shadowJar
 // Example for how to get properties into the manifest for reading at runtime.
 jar {
     manifest {

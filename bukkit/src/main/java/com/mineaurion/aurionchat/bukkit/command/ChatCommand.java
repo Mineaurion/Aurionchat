@@ -7,19 +7,34 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> implements CommandExecutor {
     public ChatCommand() {
-        super(AurionChat.config.getAllChannel());
+        super(AurionChat.config.channels.keySet());
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(Bukkit.getPlayer(sender.getName()).getUniqueId());
         if(cmd.getName().equalsIgnoreCase("chat") || cmd.getName().equalsIgnoreCase("ch")){
-            String command = (args.length < 1) ? "Default" : args[0];
-            String channel = args.length == 2 ? args[1] : "";
-            return this.execute(aurionChatPlayer, channel, Action.valueOf(command.toUpperCase()));
+            if(!(sender instanceof Player)){
+                return false;
+            }
+            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(Bukkit.getPlayer(sender.getName()).getUniqueId());
+            String channel = (args.length < 1) ? "" : args[0];
+            String command = args.length == 2 ? args[1] : "DEFAULT";
+            try {
+                Action action;
+                if(channel.equalsIgnoreCase("alllisten")){
+                    action = Action.ALLLISTEN;
+                } else {
+                    action = Action.valueOf(command.toUpperCase());
+                }
+                return this.execute(aurionChatPlayer, channel, action);
+            } catch (IllegalArgumentException e){
+                aurionChatPlayer.sendMessage("&6This command doesn't exist");
+                return false;
+            }
         }
         return false;
     }

@@ -26,6 +26,7 @@ import org.spongepowered.api.scheduler.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -54,7 +55,7 @@ public class AurionChat {
     Game game;
 
     public static Config config;
-    public static Map<UUID, AurionChatPlayer> aurionChatPlayers;
+    public static Map<UUID, AurionChatPlayer> aurionChatPlayers = new HashMap<>();
     @Inject
     public static Logger logger;
     public static final Utils utils = new Utils();
@@ -94,12 +95,6 @@ public class AurionChat {
         }
         config = loader.load().getValue(Config.type);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
-        EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListeners(this, new LoginListener());
-        eventManager.registerListeners(this, new ChatListener(this));
-        eventManager.registerListeners(this, new CommandListener(this));
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
-
         try{
             this.setChatService(new ChatService(config.rabbitmq.uri, config.rabbitmq.servername));
             sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
@@ -113,6 +108,11 @@ public class AurionChat {
             sendConsoleMessage("&8[&eAurionChat&8]&e - &ccan't connect to rabbitmq, disabling.");
             logger.error(e.getMessage());
         }
+        EventManager eventManager = Sponge.getEventManager();
+        eventManager.registerListeners(this, new LoginListener());
+        eventManager.registerListeners(this, new ChatListener(this));
+        eventManager.registerListeners(this, new CommandListener(this));
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
     }
 
     @Listener

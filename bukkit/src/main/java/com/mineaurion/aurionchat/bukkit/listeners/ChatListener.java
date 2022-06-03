@@ -29,7 +29,7 @@ public class ChatListener implements Listener {
         AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = AurionChat.utils.processMessage(currentChannel, event.getMessage(), aurionChatPlayer);
+        String messageFormat = AurionChat.utils.processMessage(AurionChat.config.channels.get(currentChannel).format, event.getMessage(), aurionChatPlayer);
 
         try{
             this.plugin.getChatService().send(currentChannel,messageFormat);

@@ -35,7 +35,7 @@ public class LoginListener extends LoginListenerCommon<AurionChatPlayer> impleme
     public void onPlayerJoin(PlayerJoinEvent event){
         aurionChatPlayers.putIfAbsent(
                 event.getPlayer().getUniqueId(),
-                new AurionChatPlayer(event.getPlayer(), AurionChat.config.getAllChannel())
+                new AurionChatPlayer(event.getPlayer(), AurionChat.config.channels.keySet())
         );
     }
 }

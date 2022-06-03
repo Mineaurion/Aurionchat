@@ -15,14 +15,14 @@ public class ChatService extends ChatServiceCommon {
     @Override
     public void sendMessage(String channel, String message){
         AurionChat.utils.sendMessageToPlayer(channel, message);
-        if(AurionChat.config.getConsoleSpy()){
+        if(AurionChat.config.options.spy){
             Bukkit.getConsoleSender().sendMessage(message);
         }
     }
 
     @Override
     public void sendAutoMessage(String channel, String message) {
-        if(AurionChat.config.getAutomessageEnable()){
+        if(AurionChat.config.options.autoMessage){
             AurionChat.utils.broadcastToPlayer(channel, message);
         }
     }

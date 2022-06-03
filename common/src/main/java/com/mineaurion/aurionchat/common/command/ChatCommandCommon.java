@@ -52,12 +52,12 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
     }
 
     private void checkChannelExist(String channel) throws ChannelNotFoundException {
-        if(this.channels.contains(channel)){
+        if(!this.channels.contains(channel)){
             throw new ChannelNotFoundException("&6This channel doesn't exist");
         }
     }
 
-    private void defaultCommand(T aurionChatPlayer){
+    public void defaultCommand(T aurionChatPlayer){
         StringBuilder message = new StringBuilder();
         StringBuilder channels = new StringBuilder();
 

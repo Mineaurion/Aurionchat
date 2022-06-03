@@ -10,6 +10,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.StringTextComponent;
 
 public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
     public ChatCommand(CommandDispatcher<CommandSource> dispatcher){
@@ -34,8 +36,20 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
         );
     }
 
-    private int execute(CommandContext<CommandSource> ctx, Action action) throws CommandSyntaxException {
-        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(ctx.getSource().getPlayerOrException().getUUID());
-        return this.execute(aurionChatPlayer, StringArgumentType.getString(ctx, "channel"), action) ? 1 : 0;
+    private int execute(CommandContext<CommandSource> ctx, Action action) {
+        try {
+            ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUUID());
+            String channel;
+            try{
+                channel = StringArgumentType.getString(ctx, "channel");
+            } catch (IllegalArgumentException e){
+                channel = "";
+            }
+            return this.execute(aurionChatPlayer, channel , action) ? 1 : 0;
+        } catch (CommandSyntaxException e){
+            ctx.getSource().sendFailure(new StringTextComponent("You need to be a player to do this"));
+            return 0;
+        }
     }
 }

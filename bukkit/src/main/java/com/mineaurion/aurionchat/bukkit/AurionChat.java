@@ -54,18 +54,18 @@ public class AurionChat extends JavaPlugin {
         }
         config = new Config(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
-        setupListener(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Connecting to RabbitMQ");
 
         try {
-            this.setChatService(new ChatService(config.getUri(), config.getServername()));
+            this.setChatService(new ChatService(config.rabbitmq.uri, config.rabbitmq.serverName));
         } catch (IOException | TimeoutException e){
             Bukkit.getPluginManager().disablePlugin(this);
             this.setErrorRabbitmq(true);
             sendConsoleMessage("&8[&eAurionChat&8]&e - &ccan't connect to rabbitmq, disabling.");
             getLogger().warning(e.getMessage());
         }
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
+        setupListener(this);
         this.getCommand("chat").setExecutor(new ChatCommand());
     }
 
@@ -80,7 +80,9 @@ public class AurionChat extends JavaPlugin {
     public void onDisable() {
         if(!this.isErrorRabbitmq()){
             try{
-                this.getChatService().close();
+                if(this.getChatService() != null){
+                    this.getChatService().close();
+                }
             }
             catch(IOException|TimeoutException e){
                 sendConsoleMessage("&8[&eAurionChat&8]&e - Error when communication closed");

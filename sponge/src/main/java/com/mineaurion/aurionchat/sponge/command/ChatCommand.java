@@ -40,7 +40,7 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
                     .permission("aurionchat.command.channel")
                     .description(Text.of("AurionChat's command to manage chat channels"))
                     .arguments(GenericArguments.optional(GenericArguments.string(Text.of("channel"))))
-                    .executor(((src, args) -> this.execute(src, args, Action.LEAVE)))
+                    .executor(((src, args) -> this.execute(src, args, Action.SPY)))
                     .build();
 
         CommandSpec cmdAllListenChat = CommandSpec.builder()
