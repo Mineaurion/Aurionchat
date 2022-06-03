@@ -1,15 +1,13 @@
 package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
 import com.mineaurion.aurionchat.sponge.channel.ChatService;
-import com.mineaurion.aurionchat.sponge.command.CommandManager;
-import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
+import com.mineaurion.aurionchat.sponge.command.ChatCommand;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.CommandListener;
+import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
 import net.luckperms.api.LuckPerms;
-import net.luckperms.api.LuckPermsProvider;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -20,21 +18,20 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.service.ProviderRegistration;
-import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.scheduler.Task;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+
+import static com.mineaurion.aurionchat.sponge.Utils.sendConsoleMessage;
 
 @Plugin(
         id = "aurionchat",
@@ -44,105 +41,89 @@ import java.util.concurrent.TimeoutException;
         authors = {
                 "Yann151924"
         },
+        version = "@projectVersion@",
         dependencies = {
-            @Dependency(id= "luckperms", optional = true)
+            @Dependency(id= "luckperms")
         }
 )
 public class AurionChat {
-
     @Inject @DefaultConfig(sharedRoot = true)
     public Path path;
-
     @Inject @DefaultConfig(sharedRoot = true)
     ConfigurationLoader<CommentedConfigurationNode> loader;
-
     @Inject
     Game game;
 
+    public static Config config;
+    public static Map<UUID, AurionChatPlayer> aurionChatPlayers = new HashMap<>();
     @Inject
-    private Logger logger;
+    public static Logger logger;
+    public static final Utils utils = new Utils();
+    public static LuckPermsUtils luckPermsUtils = null;
 
-    private Config config;
-    private AurionChatPlayers aurionChatPlayers;
-    private Utils utils;
+    public ChatService getChatService() {
+        return chatService;
+    }
+    public void setChatService(ChatService chatService) {
+        this.chatService = chatService;
+    }
     private ChatService chatService;
-    private LuckPermsUtils luckPermsUtils;
+
+    public boolean isErrorRabbitmq() {
+        return errorRabbitmq;
+    }
+    public void setErrorRabbitmq(boolean errorRabbitmq) {
+        this.errorRabbitmq = errorRabbitmq;
+    }
+    private boolean errorRabbitmq = false;
+
 
     @Listener
     public void Init(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
         sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
-        Optional<ProviderRegistration<LuckPerms>> provider = Sponge.getServiceManager().getRegistration(LuckPerms.class);
-        provider.ifPresent(luckPermsProviderRegistration -> luckPermsUtils = new LuckPermsUtils(luckPermsProviderRegistration.getProvider()));
+        Sponge.getServiceManager()
+                .getRegistration(LuckPerms.class)
+                .ifPresent(luckPermsProviderRegistration -> luckPermsUtils = new LuckPermsUtils(luckPermsProviderRegistration.getProvider()));
         if(!Files.exists(path)){
-            game.getAssetManager().getAsset(this,"config.conf").get().copyToFile(path);
+            game.getAssetManager().getAsset(this, "config.conf").ifPresent(asset -> {
+                try {
+                    asset.copyToFile(path);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
         config = loader.load().getValue(Config.type);
-        aurionChatPlayers = new AurionChatPlayers();
-        utils = new Utils(this);
         sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
-        setupListeners();
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
-        chatService = new ChatService(config.rabbitmq.uri, this);
         try{
-            chatService.join(config.rabbitmq.servername);
+            this.setChatService(new ChatService(config.rabbitmq.uri, config.rabbitmq.servername));
+            sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
+            Sponge.getCommandManager().register(this, new ChatCommand().cmdChat, "channel", "ch");
+            sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
+        } catch (IOException|TimeoutException e){
+            Sponge.getEventManager().unregisterListeners(this);
+            Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
+            Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
+            this.setErrorRabbitmq(true);
+            sendConsoleMessage("&8[&eAurionChat&8]&e - &ccan't connect to rabbitmq, disabling.");
+            logger.error(e.getMessage());
         }
-        catch (IOException e){
-            getLogger().error(e.getMessage());
-        }
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
-        loadCommands(this);
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
-    }
-
-    @Listener
-    public void onServerStart(GameStartedServerEvent event){
-        getLogger().info("Successfully running AurionChat");
-    }
-
-    @Listener
-    public void onServerStop(GameStoppingEvent event) throws IOException, TimeoutException {
-        chatService.leave(config.rabbitmq.servername);
-        chatService.close();
-    }
-
-
-    public void setupListeners(){
         EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListeners(this, new LoginListener(this));
+        eventManager.registerListeners(this, new LoginListener());
         eventManager.registerListeners(this, new ChatListener(this));
         eventManager.registerListeners(this, new CommandListener(this));
+        sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
     }
 
-
-    public void loadCommands(AurionChat plugin){
-        CommandManager commandManager = new CommandManager(plugin);
-        Sponge.getCommandManager().register(plugin, commandManager.cmdChat, "channel", "ch");
+    @Listener
+    public void onServerStop(GameStoppingEvent event){
+        if(!this.isErrorRabbitmq()){
+            try {
+                this.getChatService().close();
+            } catch (TimeoutException|IOException e) {
+                sendConsoleMessage("&8[&eAurionChat&8]&e - Error when communication closed");
+                logger.error(e.getMessage());
+            }
+        }
     }
-
-    public void sendConsoleMessage(String message){
-        Sponge.getGame().getServer().getConsole().sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
-    }
-
-    public ChatService getChatService(){
-        return  this.chatService;
-    }
-
-    public Logger getLogger(){
-        return logger;
-    }
-
-    public Config getConfig(){
-        return this.config;
-    }
-
-    public Utils getUtils(){
-        return this.utils;
-    }
-
-    public Optional<LuckPermsUtils> getLuckPermsUtils() { return Optional.ofNullable(this.luckPermsUtils); }
-
-    public AurionChatPlayers getAurionChatPlayers(){
-        return this.aurionChatPlayers;
-    }
-
 }

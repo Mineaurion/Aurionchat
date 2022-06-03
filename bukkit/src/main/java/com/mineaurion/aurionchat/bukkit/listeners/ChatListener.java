@@ -1,9 +1,7 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
-
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
+import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,40 +12,32 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.io.IOException;
 
 public class ChatListener implements Listener {
-    private AurionChat plugin;
-    private AurionChatPlayers aurionChatPlayers;
+    private final AurionChat plugin;
 
     public ChatListener(AurionChat plugin){
         this.plugin = plugin;
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event){
-        if( event.isCancelled()) {
-            return;
-        }
         Player player = event.getPlayer();
 
         if(!player.hasPermission("aurionchat.chat.speak")){
             event.setCancelled(true);
             return;
         }
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
-        String evMessage = event.getMessage();
-        String evChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = plugin.getUtils().processMessage(evChannel, evMessage, player);
+        String currentChannel = aurionChatPlayer.getCurrentChannel();
+        String messageFormat = AurionChat.utils.processMessage(AurionChat.config.channels.get(currentChannel).format, event.getMessage(), aurionChatPlayer);
 
         try{
-            plugin.getChatService().send(evChannel,messageFormat);
+            this.plugin.getChatService().send(currentChannel,messageFormat);
         }
         catch(IOException e){
             Bukkit.getConsoleSender().sendMessage(e.getMessage());
         }
 
-        event.setCancelled(true);
-        return;
-
+        event.setCancelled(true); // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.
     }
 }

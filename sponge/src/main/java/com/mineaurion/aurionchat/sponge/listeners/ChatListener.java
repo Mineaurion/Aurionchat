@@ -1,26 +1,20 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.AurionChatPlayers;
 import com.mineaurion.aurionchat.sponge.AurionChat;
+import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.Tristate;
-
-import java.util.UUID;
 
 public class ChatListener {
 
-    private AurionChat plugin;
-    private AurionChatPlayers aurionChatPlayers;
+    private final AurionChat plugin;
 
     public ChatListener(AurionChat plugin){
         this.plugin = plugin;
-        this.aurionChatPlayers = plugin.getAurionChatPlayers();
     }
 
     @Listener @IsCancelled(Tristate.UNDEFINED)
@@ -32,18 +26,21 @@ public class ChatListener {
             event.setCancelled(true);
             return;
         }
-        AurionChatPlayer aurionChatPlayer = aurionChatPlayers.getAurionChatPlayer(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
 
-        Text evMessage = event.getRawMessage();
-        String evChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = plugin.getUtils().processMessage(evChannel, evMessage, player);
+        String currentChannel = aurionChatPlayer.getCurrentChannel();
+        String messageFormat = AurionChat.utils.processMessage(
+                AurionChat.config.channels.get(currentChannel).format,
+                event.getRawMessage().toPlain(),
+                aurionChatPlayer
+        );
 
         try{
-            plugin.getChatService().send(evChannel, messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         }
         catch (Exception e){
-            plugin.getLogger().error(e.getMessage());
+           AurionChat.logger.error(e.getMessage());
         }
-        event.setCancelled(true);
+        event.setCancelled(true);  // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.
     }
 }

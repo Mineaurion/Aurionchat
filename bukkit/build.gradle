@@ -7,32 +7,17 @@ repositories {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
-    maven {
-        name = 'vault-repo'
-        url  = 'https://jitpack.io'
-    }
 }
 
 dependencies {
-    compileOnly project(':common')
+    implementation project(':common')
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     //compile files('libs/spigot-1.7.10-SNAPSHOT-b1657.jar')
-    compileOnly  'com.github.MilkBowl:VaultAPI:1.7'
 }
 
 processResources {
     duplicatesStrategy = 'include'
     from(sourceSets.main.resources.srcDirs) {
         expand 'version': project.version
-    }
-}
-
-jar{
-    archivesBaseName = project.jarName + "-" + project.name
-}
-
-shadowJar {
-    dependencies {
-        include(dependency(':common'))
     }
 }

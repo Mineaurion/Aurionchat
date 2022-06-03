@@ -3,9 +3,11 @@ version: ${version}
 main: com.mineaurion.aurionchat.bukkit.AurionChat
 authors: [Yann151924]
 website: https://mineaurion.com
+depend:
+  - LuckPerms
 commands:
   chat:
-    aliases: [ch]
+    aliases: [ch, channel]
     description: "AurionChat's command to manage chat channels"
 
 permissions:

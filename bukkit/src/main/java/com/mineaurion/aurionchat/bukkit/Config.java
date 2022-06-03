@@ -1,50 +1,59 @@
 package com.mineaurion.aurionchat.bukkit;
 
+import com.mineaurion.aurionchat.common.config.Channel;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
-import java.util.Set;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class Config {
-    public FileConfiguration config;
+    private final FileConfiguration config;
+    public Rabbitmq rabbitmq = new Rabbitmq();
+    public Options options = new Options();
+    public Map<String, Channel> channels = new HashMap<>();
 
     public Config(AurionChat plugin){
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveDefaultConfig();
         config = plugin.getConfig();
+        this.setChannels();
+        this.rabbitmq.uri = config.getString("rabbitmq.uri");
+        this.rabbitmq.serverName = config.getString("rabbitmq.servername");
+        this.options.sound = Sound.valueOf(config.getString("options.sound"));
+        this.options.spy = config.getBoolean("options.spy");
+        this.options.autoMessage = config.getBoolean("options.automessage");
     }
 
-    public String getUri(){
-        return config.getString("rabbitmq.uri");
+    public static class Rabbitmq {
+        public String serverName;
+        public String uri;
     }
 
-    public String getServername(){
-        return config.getString("rabbitmq.servername");
+    public static final class Options {
+        public boolean spy;
+        public boolean autoMessage;
+        public Sound sound;
     }
 
-    public String getFormatChannel(String channelName){
-        return config.getString("channels."+ channelName + ".format");
+    private void setChannels(){
+        for (String channel: config.getConfigurationSection("channels").getKeys(false)){
+            this.channels.putIfAbsent(
+                    channel,
+                    new Channel(config.getString("channels." + channel + ".format"), config.getString("channels." + channel + ".alias"))
+            );
+        }
     }
 
-    public Set<String> getAllChannel(){
-        return config.getConfigurationSection("channels").getKeys(false);
+    public Optional<String> getChannelByNameOrAlias(String search){
+        for(Map.Entry<String, Channel> entry: this.channels.entrySet()){
+            String name = entry.getKey();
+            Channel channel = entry.getValue();
+            if(name.equalsIgnoreCase(search) || channel.alias.equalsIgnoreCase(search)){
+                return Optional.of(name);
+            }
+        }
+        return Optional.empty();
     }
-
-    public String getChannelAlias(String channel){
-        return config.getString("channels."+ channel +".alias");
-    }
-
-    public boolean getConsoleSpy(){
-        return config.getBoolean("options.spy");
-    }
-
-    public boolean getAutomessageEnable(){
-        return config.getBoolean("options.automessage");
-    }
-
-    public Sound getPingSound(){
-        return Sound.valueOf(config.getString("options.sound"));
-    }
-
-
-
 }

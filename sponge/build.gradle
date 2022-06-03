@@ -1,23 +1,54 @@
+import org.spongepowered.gradle.plugin.config.PluginLoaders
+import org.spongepowered.plugin.metadata.model.PluginDependency
+
 plugins {
-    id 'org.spongepowered.plugin' version '0.9.0'
+    id 'org.spongepowered.gradle.plugin' version '2.0.2'
+    id 'net.kyori.blossom' version '1.2.0'
 }
 
-compileJava.options.encoding = 'UTF-8'
+repositories {
+    maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+}
 
+blossom {
+    replaceToken("@pluginVersion@", project.ext['pluginVersion'])
+}
+
+sponge {
+    apiVersion("7.4.0")
+    loader {
+        name(PluginLoaders.JAVA_PLAIN)
+        version(pluginVersion)
+    }
+
+    license("GNU General Public License v3.0")
+
+    plugin(pluginId) {
+        displayName("AurionChat")
+        entrypoint("com.mineaurion.aurionchat.sponge.AurionChat")
+        description("Chat across server with rabbitmq")
+        links {
+            homepage("https://mineaurion.com/")
+            source("https://github.com/Mineaurion/AurionChat")
+            issues("https://github.com/Mineaurion/AurionChat/issues")
+        }
+        contributor("Yann151924") {
+            description("Lead Developer")
+        }
+        dependency("spongeapi") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(false)
+            version("7.4.0")
+        }
+        dependency("luckperms") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(false)
+            version("5.4.25")
+        }
+    }
+}
 
 dependencies {
-    compileOnly project(':common')
+    implementation project(':common')
     compileOnly 'org.spongepowered:spongeapi:7.4.0'
-}
-
-sponge.plugin.id = pluginId
-
-jar{
-    archivesBaseName = project.jarName + "-" + project.name
-}
-
-shadowJar {
-    dependencies {
-        include(dependency(':common'))
-    }
 }
