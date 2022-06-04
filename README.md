@@ -87,6 +87,27 @@ You need to have a file named aurionchat-channels.json next to aurionchat.toml. 
 }
 ```
 
+<details>
+  <summary>Server crash with this error : java.lang.NoClassDefFoundError: org/slf4j/spi/SLF4JServiceProviderg</summary>
+  
+When you start the server with the mod and you have the error below :  
+```
+java.lang.NoClassDefFoundError: org/slf4j/spi/SLF4JServiceProvider
+	at java.lang.ClassLoader.defineClass1(Native Method) ~[?:?] {}
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:1017) ~[?:?] {}
+	at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:174) ~[?:?] {}
+	at jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:800) ~[?:?] {}
+	at jdk.internal.loader.BuiltinClassLoader.findClassOnClassPathOrNull(BuiltinClassLoader.java:698) ~[?:?] {}
+	at jdk.internal.loader.BuiltinClassLoader.loadClassOrNull(BuiltinClassLoader.java:621) ~[?:?] {}
+	at jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:579) ~[?:?] {}
+	at jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:178) ~[?:?] {}
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:576) ~[?:?] {}
+```
+
+You need to delete this folder from your server : `libraries/org/apache/logging/log4j/log4j-slf4j18-impl` and you can start again the server.
+  
+</details>
+
 ## Automessage
 
 For this part to work you need to install this [plugin](https://github.com/Mineaurion/AurionChat-AutoMessage)  on one of our server. 
