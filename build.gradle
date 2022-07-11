@@ -1,21 +1,26 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
         maven { url  = 'https://plugins.gradle.org/m2/' }
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
     }
 }
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'maven-publish'
     apply plugin: 'com.github.johnrengelman.shadow'
+
     dependencies {
-        implementation 'com.google.code.gson:gson:2.8.5'
-        implementation 'com.rabbitmq:amqp-client:5.14.2'
+        api 'com.google.code.gson:gson:2.8.5'
+        api 'com.rabbitmq:amqp-client:5.14.2'
         compileOnly 'net.luckperms:api:5.4'
     }
 
@@ -30,8 +35,10 @@ subprojects {
     }
 
     java {
-        toolchain.languageVersion = JavaLanguageVersion.of(8)
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
+
 
     jar{
         archivesBaseName = project.jarName + "-" + project.name
@@ -39,13 +46,9 @@ subprojects {
     shadowJar {
         minimize()
         dependencies {
-            include(dependency(':common'))
-            include(dependency('com.rabbitmq:amqp-client:5.14.2'))
-            // If issue with class not found log4j @see https://github.com/SpongePowered/SpongeForge/issues/3275#issuecomment-992235134
-
-            include(dependency {
-                it.moduleGroup == 'org.slf4j' || it.moduleGroup == 'com.rabbitmq' || it.moduleGroup == 'com.mineaurion'
-            })
+            include(dependency('com.mineaurion.aurionchat:.*'))
+            include(project(':common'))
+            include(dependency('com.rabbitmq:amqp-client:.*'))
         }
     }
 }

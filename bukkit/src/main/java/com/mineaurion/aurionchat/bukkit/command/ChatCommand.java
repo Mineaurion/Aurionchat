@@ -21,8 +21,10 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> implements 
                 return false;
             }
             AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(Bukkit.getPlayer(sender.getName()).getUniqueId());
-            String channel = (args.length < 1) ? "" : args[0];
-            String command = args.length == 2 ? args[1] : "DEFAULT";
+            String command = args.length < 1 ? "DEFAULT" : args[0];
+            String channel = (args.length == 2) ? args[1] : "";
+
+
             try {
                 Action action;
                 if(channel.equalsIgnoreCase("alllisten")){
