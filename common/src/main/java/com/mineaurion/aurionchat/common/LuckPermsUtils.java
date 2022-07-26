@@ -25,4 +25,8 @@ public class LuckPermsUtils {
     public Optional<String> getPlayerSuffix(UUID uuid) {
         return Optional.ofNullable(this.getUser(uuid).getCachedData().getMetaData().getSuffix());
     }
+
+    public boolean hasPermission(UUID uuid, String permission){
+        return this.getUser(uuid).getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+    }
 }

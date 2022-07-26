@@ -5,9 +5,10 @@ import com.mineaurion.aurionchat.forge.AurionChat;
 import com.mineaurion.aurionchat.forge.AurionChatPlayer;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -20,18 +21,34 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
     }
     public void register(CommandDispatcher<CommandSource> dispatcher)
     {
+        RequiredArgumentBuilder<CommandSource, String> channelArg = Commands.argument("channel", StringArgumentType.string()).suggests(((context, builder) -> {
+            AurionChat.config.getChannels().forEach((name, channel) -> builder.suggest(name));
+            return builder.buildFuture();
+        }));
+
+        LiteralCommandNode<CommandSource> join = Commands.literal("join")
+                .then(channelArg.executes(ctx -> this.execute(ctx, Action.JOIN)))
+                .build();
+
+        LiteralCommandNode<CommandSource> leave = Commands.literal("leave")
+                .then(channelArg.executes(ctx -> this.execute(ctx, Action.LEAVE)))
+                .build();
+
+        LiteralCommandNode<CommandSource> spy = Commands.literal("spy")
+                .then(channelArg.executes(ctx -> this.execute(ctx, Action.SPY)))
+                .build();
+
+        LiteralCommandNode<CommandSource> allListen = Commands.literal("allListen")
+                .executes(ctx -> this.execute(ctx, Action.ALLLISTEN))
+                .build();
+
+
         dispatcher.register(
-                LiteralArgumentBuilder.<CommandSource>literal("channel")
-                        .then(
-                                Commands.argument("channel", StringArgumentType.string()).suggests(((context, builder) -> {
-                                    AurionChat.config.getChannels().forEach((name, channel) -> builder.suggest(name));
-                                    return builder.buildFuture();
-                                }))
-                                .then(Commands.literal("join").executes(ctx -> this.execute(ctx, Action.JOIN)))
-                                .then(Commands.literal("leave").executes(ctx -> this.execute(ctx, Action.LEAVE)))
-                                .then(Commands.literal("spy").executes(ctx -> this.execute(ctx, Action.SPY)))
-                        )
-                        .then(Commands.literal("allListen").executes(ctx -> this.execute(ctx, Action.ALLLISTEN)))
+                Commands.literal("channel")
+                        .then(join)
+                        .then(leave)
+                        .then(spy)
+                        .then(allListen)
                         .executes(ctx -> this.execute(ctx, Action.DEFAULT))
         );
     }

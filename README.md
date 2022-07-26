@@ -21,9 +21,9 @@ When you send the message if other people listen to the same channel as you type
 
 
 - `channel` : List the channel listened
-- `channel <channelName> join` : Listen and Join the desired channel
-- `channel <channelName> leave` : Leave the desired channel
-- `channel <channelName> spy` : Listen the desired channel
+- `channel join <channelName>` : Listen and Join the desired channel
+- `channel leave <channelName>` : Leave the desired channel
+- `channel spy <channelName>` : Listen the desired channel
 - `channel alllisten` : Listen to all available channel
 
 ### Permissions
@@ -107,6 +107,13 @@ java.lang.NoClassDefFoundError: org/slf4j/spi/SLF4JServiceProvider
 You need to delete this folder from your server : `libraries/org/apache/logging/log4j/log4j-slf4j18-impl` and you can start again the server.
   
 </details>
+
+## Forge 1.18
+
+The mod need Luckperms to be working with a minimal version of 5.1.20. Be careful Luckperms need a specific version of forge to be working.
+
+Follow the [1.16](https://github.com/Mineaurion/aurionchat#forge-116) section for futher instructions
+
 
 ## Automessage
 

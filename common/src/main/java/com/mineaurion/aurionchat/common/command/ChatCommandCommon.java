@@ -14,7 +14,7 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
         LEAVE,
         SPY,
         ALLLISTEN,
-        DEFAULT,
+        DEFAULT
     }
 
     public ChatCommandCommon(Set<String> channels){
