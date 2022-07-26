@@ -46,6 +46,9 @@ subprojects {
             include(dependency('com.mineaurion.aurionchat:.*'))
             include(project(':common'))
             include(dependency('com.rabbitmq:amqp-client:.*'))
+            include(dependency {
+                it.moduleGroup == 'org.slf4j'
+            })
         }
     }
 }
