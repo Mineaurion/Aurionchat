@@ -37,7 +37,7 @@ public abstract class UtilsCommon<T extends AurionChatPlayerCommon<?>> {
     public void broadcastToPlayer(String channelName, String message){
         if(this.aurionChatPlayers.size() > 0){
             this.aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
-                if(aurionChatPlayer.hasPermission("auriochat.automessage." + channelName)){
+                if(aurionChatPlayer.hasPermission("aurionchat.automessage." + channelName)){
                     aurionChatPlayer.sendMessage(message);
                 }
             });
