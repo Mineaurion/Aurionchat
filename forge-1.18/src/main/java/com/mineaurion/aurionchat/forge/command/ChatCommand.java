@@ -15,10 +15,14 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 
-public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
-    public ChatCommand(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection selection){
+public class ChatCommand extends ChatCommandCommon {
+
+    private final AurionChat plugin;
+
+    public ChatCommand(AurionChat plugin, CommandDispatcher<CommandSourceStack> dispatcher){
         super(AurionChat.config.getChannels().keySet());
         this.register(dispatcher);
+        this.plugin = plugin;
     }
 
     public void register(CommandDispatcher<CommandSourceStack> dispatcher)
@@ -44,6 +48,11 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
                 .executes(ctx -> this.execute(ctx, Action.ALLLISTEN))
                 .build();
 
+        LiteralCommandNode<CommandSourceStack> reload = Commands.literal("reload")
+                .requires((commandSource) -> commandSource.hasPermission(3))
+                .executes(ctx -> this.execute(ctx, Action.RELOAD))
+                .build();
+
 
         dispatcher.register(
           Commands.literal("channel")
@@ -51,6 +60,7 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
                   .then(leave)
                   .then(spy)
                   .then(allListen)
+                  .then(reload)
                   .executes(ctx -> this.execute(ctx, Action.DEFAULT))
         );
     }
@@ -58,7 +68,7 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
     private int execute(CommandContext<CommandSourceStack> ctx, Action action) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUUID());
+            AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.getUUID());
             String channel;
             try{
                 channel = StringArgumentType.getString(ctx, "channel");

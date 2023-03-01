@@ -7,15 +7,10 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
 
-    private static final Map<UUID, AurionChatPlayer> aurionChatPlayers = AurionChat.aurionChatPlayers;
-
-    public LoginListener(){
-        super(aurionChatPlayers);
+    public LoginListener(AurionChat plugin){
+        super(plugin.getAurionChatPlayers());
     }
 
     @SubscribeEvent

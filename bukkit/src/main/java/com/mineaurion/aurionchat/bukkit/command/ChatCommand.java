@@ -9,9 +9,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> implements CommandExecutor {
-    public ChatCommand() {
+public class ChatCommand extends ChatCommandCommon implements CommandExecutor {
+
+    private final AurionChat aurionChat;
+
+    public ChatCommand(AurionChat aurionChat) {
         super(AurionChat.config.channels.keySet());
+        this.aurionChat = aurionChat;
     }
 
     @Override
@@ -20,7 +24,7 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> implements 
             if(!(sender instanceof Player)){
                 return false;
             }
-            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(Bukkit.getPlayer(sender.getName()).getUniqueId());
+            AurionChatPlayer aurionChatPlayer = this.aurionChat.getAurionChatPlayers().get(Bukkit.getPlayer(sender.getName()).getUniqueId());
             String command = args.length < 1 ? "DEFAULT" : args[0];
             String channel = (args.length == 2) ? args[1] : "";
 
@@ -38,6 +42,8 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> implements 
                 return false;
             }
         }
+
         return false;
+
     }
 }

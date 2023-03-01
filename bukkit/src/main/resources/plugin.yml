@@ -1,6 +1,6 @@
 name: Aurionchat
 version: ${version}
-main: com.mineaurion.aurionchat.bukkit.AurionChat
+main: com.mineaurion.aurionchat.bukkit.PluginLoader
 authors: [Yann151924]
 website: https://mineaurion.com
 depend:
@@ -14,4 +14,7 @@ permissions:
   aurionchat.chat.colors:
     default: false
     description: Chat color
+  aurionchat.reload:
+    default: false
+    description: Relaod connection
 

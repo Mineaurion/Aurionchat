@@ -2,9 +2,6 @@ package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
-import com.mineaurion.aurionchat.bukkit.Config;
-import com.mineaurion.aurionchat.bukkit.Utils;
-import com.mineaurion.aurionchat.bukkit.channel.ChatService;
 import com.mineaurion.aurionchat.common.listeners.CommandListenerCommon;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -15,12 +12,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-public class CommandListener extends CommandListenerCommon<AurionChatPlayer, Utils, ChatService> implements CommandExecutor, Listener {
-    private final Config config;
+public class CommandListener extends CommandListenerCommon<AurionChatPlayer> implements CommandExecutor, Listener {
 
-    public CommandListener(AurionChat plugin){
-        super(AurionChat.utils, plugin.getChatService());
-        this.config = AurionChat.config;
+    private final AurionChat aurionChat;
+
+
+    public CommandListener(AurionChat aurionChat){
+        this.aurionChat = aurionChat;
     }
 
     @EventHandler
@@ -30,8 +28,8 @@ public class CommandListener extends CommandListenerCommon<AurionChatPlayer, Uti
         String message = String.join(" ",  (String[]) ArrayUtils.removeElement(fullCommand, "/" + command));
 
         AurionChat.config.getChannelByNameOrAlias(command).ifPresent(channelName -> {
-            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(event.getPlayer().getUniqueId());
-            this.onCommand(aurionChatPlayer, message, channelName, config.channels.get(channelName).format);
+            AurionChatPlayer aurionChatPlayer = this.aurionChat.getAurionChatPlayers().get(event.getPlayer().getUniqueId());
+            this.onCommand(aurionChatPlayer, message, channelName, AurionChat.config.channels.get(channelName).format);
             event.setCancelled(true);
         });
     }

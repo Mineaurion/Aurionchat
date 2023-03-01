@@ -3,16 +3,11 @@ package com.mineaurion.aurionchat.common;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class UtilsCommon<T extends AurionChatPlayerCommon<?>> {
+public class Utils {
 
-    public Map<UUID, T> aurionChatPlayers;
 
-    public UtilsCommon(Map<UUID, T> aurionChatPlayers){
-        this.aurionChatPlayers = aurionChatPlayers;
-    }
-
-    public String processMessage(String format, String message, T aurionChatPlayer){
-        // TODO: traitement si couleur autorise ou non à faire
+    public static <T extends AurionChatPlayerCommon<?>> String processMessage(String format, String message, T aurionChatPlayer){
+        // TODO: need some condition if player is allowed to used color or not
         //if(aurionChatPlayer.hasPermission("aurionchat.chat.colors"))
         return format
                 .replace("{prefix}", aurionChatPlayer.getPrefix())
@@ -21,9 +16,9 @@ public abstract class UtilsCommon<T extends AurionChatPlayerCommon<?>> {
                 .replace("{message}", message);
     }
 
-    public void sendMessageToPlayer(String channelName, String message){
-        if(this.aurionChatPlayers.size() > 0){
-            this.aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
+    public static <T extends AurionChatPlayerCommon<?>> void sendMessageToPlayer(String channelName, String message, Map<UUID, T> aurionChatPlayers){
+        if(aurionChatPlayers.size() > 0){
+            aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
                 if(aurionChatPlayer.getChannels().contains(channelName)){
                     aurionChatPlayer.sendMessage(message);
                     if(message.contains("@" + aurionChatPlayer.getDisplayName())){
@@ -34,9 +29,9 @@ public abstract class UtilsCommon<T extends AurionChatPlayerCommon<?>> {
         }
     }
 
-    public void broadcastToPlayer(String channelName, String message){
-        if(this.aurionChatPlayers.size() > 0){
-            this.aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
+    public static <T extends AurionChatPlayerCommon<?>> void broadcastToPlayer(String channelName, String message, Map<UUID, T> aurionChatPlayers){
+        if(aurionChatPlayers.size() > 0){
+            aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
                 if(aurionChatPlayer.hasPermission("aurionchat.automessage." + channelName)){
                     aurionChatPlayer.sendMessage(message);
                 }

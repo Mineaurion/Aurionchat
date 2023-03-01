@@ -14,10 +14,14 @@ import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
 
-public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
-    public ChatCommand(CommandDispatcher<CommandSource> dispatcher){
+public class ChatCommand extends ChatCommandCommon {
+
+    private final AurionChat plugin;
+
+    public ChatCommand(AurionChat plugin, CommandDispatcher<CommandSource> dispatcher){
         super(AurionChat.config.getChannels().keySet());
-        this.register(dispatcher);
+        register(dispatcher);
+        this.plugin = plugin;
     }
     public void register(CommandDispatcher<CommandSource> dispatcher)
     {
@@ -27,21 +31,25 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
         }));
 
         LiteralCommandNode<CommandSource> join = Commands.literal("join")
-                .then(channelArg.executes(ctx -> this.execute(ctx, Action.JOIN)))
+                .then(channelArg.executes(ctx -> execute(ctx, Action.JOIN)))
                 .build();
 
         LiteralCommandNode<CommandSource> leave = Commands.literal("leave")
-                .then(channelArg.executes(ctx -> this.execute(ctx, Action.LEAVE)))
+                .then(channelArg.executes(ctx -> execute(ctx, Action.LEAVE)))
                 .build();
 
         LiteralCommandNode<CommandSource> spy = Commands.literal("spy")
-                .then(channelArg.executes(ctx -> this.execute(ctx, Action.SPY)))
+                .then(channelArg.executes(ctx -> execute(ctx, Action.SPY)))
                 .build();
 
         LiteralCommandNode<CommandSource> allListen = Commands.literal("allListen")
-                .executes(ctx -> this.execute(ctx, Action.ALLLISTEN))
+                .executes(ctx -> execute(ctx, Action.ALLLISTEN))
                 .build();
 
+        LiteralCommandNode<CommandSource> reload = Commands.literal("reload")
+                .requires((commandSource) -> commandSource.hasPermission(3))
+                .executes(ctx -> execute(ctx, Action.RELOAD))
+                .build();
 
         dispatcher.register(
                 Commands.literal("channel")
@@ -49,14 +57,15 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
                         .then(leave)
                         .then(spy)
                         .then(allListen)
-                        .executes(ctx -> this.execute(ctx, Action.DEFAULT))
+                        .then(reload)
+                        .executes(ctx -> execute(ctx, Action.DEFAULT))
         );
     }
 
     private int execute(CommandContext<CommandSource> ctx, Action action) {
         try {
             ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
-            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUUID());
+            AurionChatPlayer aurionChatPlayer = plugin.getAurionChatPlayers().get(player.getUUID());
             String channel;
             try{
                 channel = StringArgumentType.getString(ctx, "channel");

@@ -11,12 +11,14 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
+public class ChatCommand extends ChatCommandCommon {
+
+    private final AurionChat plugin;
     public CommandSpec cmdChat;
 
-
-    public ChatCommand(){
+    public ChatCommand(AurionChat plugin){
         super(AurionChat.config.channels.keySet());
+        this.plugin = plugin;
         Init();
     }
 
@@ -49,12 +51,19 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
                     .executor((src, args) -> this.execute(src ,args, Action.ALLLISTEN))
                     .build();
 
+        CommandSpec cmdReload = CommandSpec.builder()
+                .permission("aurionchat.reload")
+                .description(Text.of("Aurionchat reload command"))
+                .executor(((src, args) -> this.execute(src, args, Action.RELOAD)))
+                .build();
+
 
         cmdChat = CommandSpec.builder()
                     .child(cmdJoinChat, "join", "j")
                     .child(cmdLeaveChat, "leave", "l")
                     .child(cmdSpyChat, "spy","s")
                     .child(cmdAllListenChat, "alllisten", "allspy")
+                    .child(cmdReload, "reload")
                     .permission("aurionchat.command.channel")
                     .executor((src, args) -> this.execute(src, args, Action.DEFAULT))
                     .build();
@@ -65,7 +74,7 @@ public class ChatCommand extends ChatCommandCommon<AurionChatPlayer> {
         if(!(src instanceof Player)){
             return CommandResult.empty();
         } else {
-            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(((Player) src).getUniqueId());
+            AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(((Player) src).getUniqueId());
             String channel = args.<String>getOne("channel").orElse("");
             return this.execute(aurionChatPlayer, channel, action) ? CommandResult.success() : CommandResult.empty();
         }

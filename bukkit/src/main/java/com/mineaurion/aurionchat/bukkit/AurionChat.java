@@ -1,97 +1,64 @@
 package com.mineaurion.aurionchat.bukkit;
 
-import com.mineaurion.aurionchat.bukkit.channel.ChatService;
 import com.mineaurion.aurionchat.bukkit.command.ChatCommand;
 import com.mineaurion.aurionchat.bukkit.listeners.ChatListener;
 import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
 import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
-import com.mineaurion.aurionchat.common.LuckPermsUtils;
-import net.luckperms.api.LuckPerms;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.logger.JavaPluginLogger;
+import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
+public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
 
-public class AurionChat extends JavaPlugin {
+    public static final String ID = "aurionchat";
+
     public static Config config;
-    public static Map<UUID, AurionChatPlayer> aurionChatPlayers = new HashMap<>();
-    public static LuckPermsUtils luckPermsUtils = null;
-    public static Utils utils = new Utils();
-    public ChatService getChatService() {
-        return chatService;
+
+    public final JavaPlugin plugin;
+
+    public AurionChat(JavaPlugin plugin){
+        this.plugin = plugin;
     }
 
-    public void setChatService(ChatService chatService) {
-        this.chatService = chatService;
-    }
-    private ChatService chatService;
-
-    public boolean isErrorRabbitmq() {
-        return errorRabbitmq;
-    }
-
-    public void setErrorRabbitmq(boolean errorRabbitmq) {
-        this.errorRabbitmq = errorRabbitmq;
-    }
-
-    private boolean errorRabbitmq = false;
-
-
-    @Override
     public void onEnable(){
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Checking for Vault...");
-        RegisteredServiceProvider<LuckPerms> luckPermsprovider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
-        if(luckPermsprovider != null) {
-            luckPermsUtils = new LuckPermsUtils(luckPermsprovider.getProvider());
-        }
-        config = new Config(this);
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Connecting to RabbitMQ");
-
-        try {
-            this.setChatService(new ChatService(config.rabbitmq.uri, config.rabbitmq.serverName));
-        } catch (IOException | TimeoutException e){
-            Bukkit.getPluginManager().disablePlugin(this);
-            this.setErrorRabbitmq(true);
-            sendConsoleMessage("&8[&eAurionChat&8]&e - &ccan't connect to rabbitmq, disabling.");
-            getLogger().warning(e.getMessage());
-        }
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Registering Listeners");
-        setupListener(this);
-        this.getCommand("chat").setExecutor(new ChatCommand());
+        getlogger().info("AurionChat Initializing");
+        config = new Config(this.plugin);
+        this.enable(
+                config.rabbitmq.uri,
+                config.rabbitmq.serverName,
+                config.options.spy,
+                config.options.autoMessage,
+                true
+        );
     }
 
-    private void setupListener(AurionChat plugin){
-        PluginManager pluginManager = getServer().getPluginManager();
-        pluginManager.registerEvents(new LoginListener(), this);
-        pluginManager.registerEvents(new ChatListener(plugin), this);
-        pluginManager.registerEvents(new CommandListener(plugin), this);
+    public void onDisable() {
+        this.disable();
+    }
+
+
+    @Override
+    protected void registerPlatformListeners() {
+        PluginManager pluginManager = this.plugin.getServer().getPluginManager();
+        pluginManager.registerEvents(new LoginListener(this), this.plugin);
+        pluginManager.registerEvents(new CommandListener(this), this.plugin);
+        pluginManager.registerEvents(new ChatListener(this), this.plugin);
     }
 
     @Override
-    public void onDisable() {
-        if(!this.isErrorRabbitmq()){
-            try{
-                if(this.getChatService() != null){
-                    this.getChatService().close();
-                }
-            }
-            catch(IOException|TimeoutException e){
-                sendConsoleMessage("&8[&eAurionChat&8]&e - Error when communication closed");
-                sendConsoleMessage(e.getMessage());
-            }
-        }
+    protected void registerCommands() {
+        this.plugin.getCommand("chat").setExecutor(new ChatCommand(this));
     }
 
-    public void sendConsoleMessage(String message){
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    @Override
+    protected void disablePlugin() {
+        this.plugin.getServer().getPluginManager().disablePlugin(this.plugin);
+    }
+
+    @Override
+    public PluginLogger getlogger() {
+        return new JavaPluginLogger(this.plugin.getServer().getLogger());
     }
 }

@@ -7,16 +7,12 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import java.util.Map;
-import java.util.UUID;
-
 import static com.mineaurion.aurionchat.sponge.AurionChat.config;
 
 public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
 
-    private static final Map<UUID, AurionChatPlayer> aurionChatPlayers = AurionChat.aurionChatPlayers;
-    public LoginListener(){
-        super(aurionChatPlayers);
+    public LoginListener(AurionChat plugin){
+        super(plugin.getAurionChatPlayers());
     }
 
     @Listener

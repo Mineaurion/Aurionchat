@@ -3,6 +3,7 @@ package com.mineaurion.aurionchat.bukkit;
 import com.mineaurion.aurionchat.common.config.Channel;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class Config {
     public Options options = new Options();
     public Map<String, Channel> channels = new HashMap<>();
 
-    public Config(AurionChat plugin){
+    public Config(JavaPlugin plugin){
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveDefaultConfig();
         config = plugin.getConfig();

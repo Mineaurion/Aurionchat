@@ -3,18 +3,18 @@ package com.mineaurion.aurionchat.sponge.listeners;
 import com.mineaurion.aurionchat.common.listeners.CommandListenerCommon;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
-import com.mineaurion.aurionchat.sponge.Utils;
-import com.mineaurion.aurionchat.sponge.channel.ChatService;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.filter.cause.First;
 
-public class CommandListener extends CommandListenerCommon<AurionChatPlayer, Utils, ChatService> {
+public class CommandListener extends CommandListenerCommon<AurionChatPlayer> {
+
+    private final AurionChat plugin;
 
     public CommandListener(AurionChat plugin){
-        super(AurionChat.utils, plugin.getChatService());
+        this.plugin = plugin;
     }
 
     @Listener
@@ -23,7 +23,7 @@ public class CommandListener extends CommandListenerCommon<AurionChatPlayer, Uti
         String message = event.getArguments();
 
         AurionChat.config.getChannelByNameOrAlias(command).ifPresent(channelname -> {
-            AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
+            AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.getUniqueId());
             this.onCommand(aurionChatPlayer, message, channelname, AurionChat.config.channels.get(channelname).format);
             event.setResult(CommandResult.success());
             event.setCancelled(true);
