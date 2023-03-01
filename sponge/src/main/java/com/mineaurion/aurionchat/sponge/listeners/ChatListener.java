@@ -1,5 +1,7 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
+import com.mineaurion.aurionchat.common.ChatService;
+import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
 import org.spongepowered.api.entity.living.player.Player;
@@ -26,20 +28,20 @@ public class ChatListener {
             event.setCancelled(true);
             return;
         }
-        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.getUniqueId());
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = AurionChat.utils.processMessage(
+        String messageFormat = Utils.processMessage(
                 AurionChat.config.channels.get(currentChannel).format,
                 event.getRawMessage().toPlain(),
                 aurionChatPlayer
         );
 
         try{
-            plugin.getChatService().send(currentChannel, messageFormat);
+            ChatService.getInstance().send(currentChannel, messageFormat);
         }
         catch (Exception e){
-           AurionChat.logger.error(e.getMessage());
+           this.plugin.getlogger().severe(e.getMessage());
         }
         event.setCancelled(true);  // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.
     }

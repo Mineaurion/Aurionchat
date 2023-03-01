@@ -2,16 +2,19 @@ package com.mineaurion.aurionchat.forge;
 
 
 import com.electronwill.nightconfig.core.conversion.ObjectConverter;
-import com.mineaurion.aurionchat.common.LuckPermsUtils;
+import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
+import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.forge.command.ChatCommand;
 import com.mineaurion.aurionchat.forge.config.Config;
 import com.mineaurion.aurionchat.forge.config.ConfigData;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
 import com.mineaurion.aurionchat.forge.listeners.CommandListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
-import net.luckperms.api.LuckPermsProvider;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,49 +23,23 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.network.NetworkConstants;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
+import java.nio.file.Path;
 import java.util.function.Supplier;
 
 @Mod("aurionchat")
-public class AurionChat {
+public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+
+    public static final String ID = "aurionchat";
     public static ConfigData config;
-    public static Map<UUID, AurionChatPlayer> aurionChatPlayers = new HashMap<>();
-    // Directly reference a log4j logger.
-    private static final Logger LOGGER = LogManager.getLogger();
-    public static Utils utils = new Utils();
+    public static Path channelsJsonPath;
 
-    public ChatService getChatService() {
-        return chatService;
-    }
-
-    public void setChatService(ChatService chatService) {
-        this.chatService = chatService;
-    }
-
-    private ChatService chatService;
-
-    public static LuckPermsUtils luckPermsUtils = null;
-
-    public boolean isErrorRabbitmq() {
-        return errorRabbitmq;
-    }
-
-    public void setErrorRabbitmq(boolean error) {
-        this.errorRabbitmq = error;
-    }
-
-    private boolean errorRabbitmq = false;
 
     public AurionChat() {
-        LOGGER.info("AurionChat Initializing");
+        getlogger().info("AurionChat Initializing");
         try {
             ModLoadingContext.class.getDeclaredMethod("registerExtensionPoint", Class.class, Supplier.class)
                     .invoke(
@@ -79,44 +56,58 @@ public class AurionChat {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC, "aurionchat.toml");
         config = (new ObjectConverter().toObject(Config.SPEC.getValues(), ConfigData::new));
 
-
-        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
     }
 
     @SubscribeEvent
+    public void serverAboutToStart(ServerAboutToStartEvent event){
+        channelsJsonPath = ServerLifecycleHooks.getCurrentServer().getWorldPath(new LevelResource("serverconfig/aurionchat-channels.json"));
+        new ChatCommand(this, event.getServer().getCommands().getDispatcher());
+    }
+
+    @SubscribeEvent
     public void onRegisterCommandEvent(RegisterCommandsEvent event){
-        new ChatCommand(event.getDispatcher(), event.getEnvironment());
+        new ChatCommand(this, event.getDispatcher());
     }
 
     @SubscribeEvent
     public void serverStarted(ServerStartedEvent event)
     {
-        // Listener
-        ChatListener chatListener = new ChatListener(this);
-        luckPermsUtils = new LuckPermsUtils(LuckPermsProvider.get());
-        LOGGER.info("AurionChat Starting");
-        try {
-            this.setChatService(new ChatService(config.rabbitmq.uri.get(), config.rabbitmq.serverName.get()));
-            LOGGER.info("AurionChat Connected to Rabbitmq");
-            MinecraftForge.EVENT_BUS.register(new LoginListener());
-            MinecraftForge.EVENT_BUS.register(chatListener);
-            MinecraftForge.EVENT_BUS.register(new CommandListener(this));
-        } catch (IOException|TimeoutException e) {
-            MinecraftForge.EVENT_BUS.unregister(chatListener);
-            this.setErrorRabbitmq(true);
-            LOGGER.error("Aurionchat can't connect to rabbitmq, fallback to standard chat");
-            LOGGER.error(e.getMessage());
-        }
+        this.enable(
+                config.rabbitmq.uri.get(),
+                config.rabbitmq.serverName.get(),
+                config.options.spy.get(),
+                config.options.autoMessage.get(),
+                true
+        );
     }
 
     @SubscribeEvent
-    public void serverStopped(ServerStoppedEvent event) throws IOException, TimeoutException {
-        if(!this.isErrorRabbitmq()){
-            LOGGER.info("AurionChat disconnecting");
-            this.getChatService().close();
-        }
+    public void serverStopped(ServerStoppedEvent event) {
+        this.disable();
     }
 
+    @Override
+    protected void registerPlatformListeners() {
+        MinecraftForge.EVENT_BUS.register(new LoginListener(this));
+        MinecraftForge.EVENT_BUS.register(new ChatListener(this));
+        MinecraftForge.EVENT_BUS.register(new CommandListener(this));
+    }
+
+    @Override
+    protected void registerCommands() {
+        // Nothing to do here for forge
+    }
+
+    @Override
+    protected void disablePlugin() {
+        // TODO: need to be tweaked to remove all listener
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    @Override
+    public PluginLogger getlogger() {
+        return new Log4jPluginLogger(LogManager.getLogger(AurionChat.ID));
+    }
 }

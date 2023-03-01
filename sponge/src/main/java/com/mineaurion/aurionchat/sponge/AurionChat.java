@@ -1,17 +1,17 @@
 package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
-import com.mineaurion.aurionchat.common.LuckPermsUtils;
-import com.mineaurion.aurionchat.sponge.channel.ChatService;
+import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
+import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.sponge.command.ChatCommand;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.CommandListener;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
-import net.luckperms.api.LuckPerms;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.DefaultConfig;
@@ -26,12 +26,6 @@ import org.spongepowered.api.scheduler.Task;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-
-import static com.mineaurion.aurionchat.sponge.Utils.sendConsoleMessage;
 
 @Plugin(
         id = "aurionchat",
@@ -46,7 +40,9 @@ import static com.mineaurion.aurionchat.sponge.Utils.sendConsoleMessage;
             @Dependency(id= "luckperms")
         }
 )
-public class AurionChat {
+public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+
+    public static final String ID = "aurionchat";
     @Inject @DefaultConfig(sharedRoot = true)
     public Path path;
     @Inject @DefaultConfig(sharedRoot = true)
@@ -55,35 +51,10 @@ public class AurionChat {
     Game game;
 
     public static Config config;
-    public static Map<UUID, AurionChatPlayer> aurionChatPlayers = new HashMap<>();
-    @Inject
-    public static Logger logger;
-    public static final Utils utils = new Utils();
-    public static LuckPermsUtils luckPermsUtils = null;
-
-    public ChatService getChatService() {
-        return chatService;
-    }
-    public void setChatService(ChatService chatService) {
-        this.chatService = chatService;
-    }
-    private ChatService chatService;
-
-    public boolean isErrorRabbitmq() {
-        return errorRabbitmq;
-    }
-    public void setErrorRabbitmq(boolean errorRabbitmq) {
-        this.errorRabbitmq = errorRabbitmq;
-    }
-    private boolean errorRabbitmq = false;
-
 
     @Listener
     public void Init(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Initializing...");
-        Sponge.getServiceManager()
-                .getRegistration(LuckPerms.class)
-                .ifPresent(luckPermsProviderRegistration -> luckPermsUtils = new LuckPermsUtils(luckPermsProviderRegistration.getProvider()));
+        getlogger().info("AurionChat Initializing");
         if(!Files.exists(path)){
             game.getAssetManager().getAsset(this, "config.conf").ifPresent(asset -> {
                 try {
@@ -94,36 +65,43 @@ public class AurionChat {
             });
         }
         config = loader.load().getValue(Config.type);
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Config Loaded.");
-        try{
-            this.setChatService(new ChatService(config.rabbitmq.uri, config.rabbitmq.servername));
-            sendConsoleMessage("&8[&eAurionChat&8]&e - Rabbitmq & Channels Loaded.");
-            Sponge.getCommandManager().register(this, new ChatCommand().cmdChat, "channel", "ch");
-            sendConsoleMessage("&8[&eAurionChat&8]&e - Commands Loaded.");
-        } catch (IOException|TimeoutException e){
-            Sponge.getEventManager().unregisterListeners(this);
-            Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
-            Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
-            this.setErrorRabbitmq(true);
-            sendConsoleMessage("&8[&eAurionChat&8]&e - &ccan't connect to rabbitmq, disabling.");
-            logger.error(e.getMessage());
-        }
-        EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListeners(this, new LoginListener());
-        eventManager.registerListeners(this, new ChatListener(this));
-        eventManager.registerListeners(this, new CommandListener(this));
-        sendConsoleMessage("&8[&eAurionChat&8]&e - Listener Loaded.");
+        this.enable(
+                config.rabbitmq.uri,
+                config.rabbitmq.servername,
+                config.options.spy,
+                config.options.automessage,
+                true
+        );
     }
+
 
     @Listener
     public void onServerStop(GameStoppingEvent event){
-        if(!this.isErrorRabbitmq()){
-            try {
-                this.getChatService().close();
-            } catch (TimeoutException|IOException e) {
-                sendConsoleMessage("&8[&eAurionChat&8]&e - Error when communication closed");
-                logger.error(e.getMessage());
-            }
-        }
+        this.disable();
+    }
+
+    @Override
+    protected void registerPlatformListeners() {
+        EventManager eventManager = Sponge.getEventManager();
+        eventManager.registerListeners(this, new LoginListener(this));
+        eventManager.registerListeners(this, new CommandListener(this));
+        eventManager.registerListeners(this, new ChatListener(this));
+    }
+
+    @Override
+    protected void registerCommands() {
+        Sponge.getCommandManager().register(this, new ChatCommand(this).cmdChat, "channel", "ch");
+    }
+
+    @Override
+    protected void disablePlugin() {
+        Sponge.getEventManager().unregisterListeners(this);
+        Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
+        Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
+    }
+
+    @Override
+    public PluginLogger getlogger() {
+        return new Log4jPluginLogger(LogManager.getLogger(AurionChat.ID));
     }
 }

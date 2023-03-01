@@ -2,6 +2,8 @@ package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.ChatService;
+import com.mineaurion.aurionchat.common.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,10 +14,11 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.io.IOException;
 
 public class ChatListener implements Listener {
-    private final AurionChat plugin;
 
-    public ChatListener(AurionChat plugin){
-        this.plugin = plugin;
+    private final AurionChat aurionChat;
+
+    public ChatListener(AurionChat aurionChat){
+        this.aurionChat = aurionChat;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -26,13 +29,13 @@ public class ChatListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        AurionChatPlayer aurionChatPlayer = AurionChat.aurionChatPlayers.get(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = this.aurionChat.getAurionChatPlayers().get(player.getUniqueId());
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = AurionChat.utils.processMessage(AurionChat.config.channels.get(currentChannel).format, event.getMessage(), aurionChatPlayer);
+        String messageFormat = Utils.processMessage(AurionChat.config.channels.get(currentChannel).format, event.getMessage(), aurionChatPlayer);
 
         try{
-            this.plugin.getChatService().send(currentChannel,messageFormat);
+            ChatService.getInstance().send(currentChannel,messageFormat);
         }
         catch(IOException e){
             Bukkit.getConsoleSender().sendMessage(e.getMessage());

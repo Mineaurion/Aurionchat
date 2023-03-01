@@ -1,11 +1,13 @@
 package com.mineaurion.aurionchat.common.command;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
+import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
 
+import java.io.IOException;
 import java.util.Set;
 
-public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
+public class ChatCommandCommon {
 
     private final Set<String> channels;
 
@@ -14,6 +16,7 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
         LEAVE,
         SPY,
         ALLLISTEN,
+        RELOAD,
         DEFAULT
     }
 
@@ -21,26 +24,26 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
         this.channels = channels;
     }
 
-    private void join(T aurionChatPlayer, String channel) throws ChannelNotFoundException {
+    private void join(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.removeChannel(aurionChatPlayer.getCurrentChannel());
         aurionChatPlayer.setCurrentChannel(channel);
         aurionChatPlayer.sendMessage("&6You have joined the " + channel + " channel.");
     }
 
-    private void leave(T aurionChatPlayer, String channel) throws ChannelNotFoundException {
+    private void leave(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.removeChannel(channel);
         aurionChatPlayer.sendMessage("&6You have leaved the " + channel + " channel.");
     }
 
-    private void spy(T aurionChatPlayer, String channel) throws ChannelNotFoundException {
+    private void spy(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.addChannel(channel);
         aurionChatPlayer.sendMessage("&6You have spy the " + channel + " channel.");
     }
 
-    private void allListen(T aurionChatPlayer, Set<String> channels)
+    private void allListen(AurionChatPlayerCommon<?> aurionChatPlayer, Set<String> channels)
     {
         for(String channel: channels){
             try {
@@ -57,7 +60,7 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
         }
     }
 
-    public void defaultCommand(T aurionChatPlayer){
+    public void defaultCommand(AurionChatPlayerCommon<?> aurionChatPlayer){
         StringBuilder message = new StringBuilder();
         StringBuilder channels = new StringBuilder();
 
@@ -70,9 +73,9 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
         aurionChatPlayer.sendMessage(message.toString());
     }
 
-    public boolean execute(T aurionChatPlayer, String channel, Action action) {
-        try{
-            switch (action){
+    public boolean execute(AurionChatPlayerCommon<?> aurionChatPlayer, String channel, Action action) {
+        try {
+            switch (action) {
                 case JOIN:
                     this.join(aurionChatPlayer, channel);
                     break;
@@ -85,12 +88,22 @@ public class ChatCommandCommon<T extends AurionChatPlayerCommon<?>> {
                 case ALLLISTEN:
                     this.allListen(aurionChatPlayer, this.channels);
                     break;
+                case RELOAD:
+                    if (aurionChatPlayer.hasPermission("aurionchat.reload")) {
+                        ChatService.getInstance().reCreateConnection();
+                        aurionChatPlayer.sendMessage("Reconnect successfull");
+                        aurionChatPlayer.sendMessage("For now this command doesn't reload the config");
+                    }
+                    break;
                 default:
                     this.defaultCommand(aurionChatPlayer);
             }
             return true;
         } catch (ChannelNotFoundException e){
             aurionChatPlayer.sendMessage(e.getMessage());
+            return false;
+        } catch (IOException exception){
+            System.out.println(exception.getMessage());
             return false;
         }
     }

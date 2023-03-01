@@ -3,8 +3,8 @@ package com.mineaurion.aurionchat.forge.config;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.mineaurion.aurionchat.common.config.Channel;
+import com.mineaurion.aurionchat.forge.AurionChat;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -29,10 +29,8 @@ public class ConfigData {
     public Map<String, Channel> getChannels() {
         Map<String, Channel> channels = new HashMap<>();
         try {
-            Reader channelsJson = Files.newBufferedReader(FMLPaths.CONFIGDIR.get().resolve("aurionchat-channels.json"));
-            Gson gson = new Gson();
-
-            channels = gson.fromJson(channelsJson, new TypeToken<Map<String,Channel>>() {}.getType());
+            Reader channelsJson = Files.newBufferedReader(AurionChat.channelsJsonPath);
+            channels = new Gson().fromJson(channelsJson, new TypeToken<Map<String,Channel>>() {}.getType());
             channelsJson.close();
         } catch (IOException exception) {
             System.out.println("Error file aurionchat-channels.json not found, see the readme for more info");
