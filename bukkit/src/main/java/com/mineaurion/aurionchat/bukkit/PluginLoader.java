@@ -7,16 +7,16 @@ public class PluginLoader extends JavaPlugin {
     private final AurionChat plugin;
 
     public PluginLoader(){
-        this.plugin = new AurionChat(this);
+        plugin = new AurionChat(this);
     }
 
     @Override
     public void onEnable(){
-        this.plugin.onEnable();
+        plugin.onEnable();
     }
 
     @Override
     public void onDisable(){
-        this.plugin.onDisable();
+        plugin.onDisable();
     }
 }

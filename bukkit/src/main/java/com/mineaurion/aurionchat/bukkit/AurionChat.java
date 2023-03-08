@@ -7,6 +7,7 @@ import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.logger.JavaPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,7 +25,7 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
 
     public void onEnable(){
         getlogger().info("AurionChat Initializing");
-        config = new Config(this.plugin);
+        config = new Config(plugin);
         this.enable(
                 config.rabbitmq.uri,
                 config.rabbitmq.serverName,
@@ -41,24 +42,24 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
 
     @Override
     protected void registerPlatformListeners() {
-        PluginManager pluginManager = this.plugin.getServer().getPluginManager();
-        pluginManager.registerEvents(new LoginListener(this), this.plugin);
-        pluginManager.registerEvents(new CommandListener(this), this.plugin);
-        pluginManager.registerEvents(new ChatListener(this), this.plugin);
+        PluginManager pluginManager = plugin.getServer().getPluginManager();
+        pluginManager.registerEvents(new LoginListener(this), plugin);
+        pluginManager.registerEvents(new CommandListener(this), plugin);
+        pluginManager.registerEvents(new ChatListener(this), plugin);
     }
 
     @Override
     protected void registerCommands() {
-        this.plugin.getCommand("chat").setExecutor(new ChatCommand(this));
+        plugin.getCommand("chat").setExecutor(new ChatCommand(this));
     }
 
     @Override
     protected void disablePlugin() {
-        this.plugin.getServer().getPluginManager().disablePlugin(this.plugin);
+        plugin.getServer().getPluginManager().disablePlugin(plugin);
     }
 
     @Override
     public PluginLogger getlogger() {
-        return new JavaPluginLogger(this.plugin.getServer().getLogger());
+        return new JavaPluginLogger(Bukkit.getLogger());
     }
 }
