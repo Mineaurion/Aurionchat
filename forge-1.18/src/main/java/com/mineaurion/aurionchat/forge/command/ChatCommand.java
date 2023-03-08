@@ -5,12 +5,14 @@ import com.mineaurion.aurionchat.forge.AurionChat;
 import com.mineaurion.aurionchat.forge.AurionChatPlayer;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -21,8 +23,9 @@ public class ChatCommand extends ChatCommandCommon {
 
     public ChatCommand(AurionChat plugin, CommandDispatcher<CommandSourceStack> dispatcher){
         super(AurionChat.config.getChannels().keySet());
-        this.register(dispatcher);
         this.plugin = plugin;
+        register(dispatcher);
+        registerAliasChannels(dispatcher);
     }
 
     public void register(CommandDispatcher<CommandSourceStack> dispatcher)
@@ -63,6 +66,26 @@ public class ChatCommand extends ChatCommandCommon {
                   .then(reload)
                   .executes(ctx -> this.execute(ctx, Action.DEFAULT))
         );
+    }
+
+    public void registerAliasChannels(CommandDispatcher<CommandSourceStack> dispatcher){
+        RequiredArgumentBuilder<CommandSourceStack, MessageArgument.Message> messageArg = Commands.argument("message", MessageArgument.message());
+
+        AurionChat.config.getChannels().forEach((name, channel) -> {
+            ArgumentBuilder<CommandSourceStack, RequiredArgumentBuilder<CommandSourceStack, MessageArgument.Message>> argBuilder = messageArg.executes(ctx -> (onCommand(
+                    this.plugin.getAurionChatPlayers().get(ctx.getSource().getPlayerOrException().getUUID()),
+                    MessageArgument.getMessage(ctx, "message").getString(),
+                    name,
+                    channel.format)) ? 1 : 0
+            );
+
+            dispatcher.register(
+                    Commands.literal(channel.alias).requires(commandSource -> commandSource.getEntity() != null).then(argBuilder)
+            );
+            dispatcher.register(
+                    Commands.literal(name).requires(commandSource -> commandSource.getEntity() != null).then(argBuilder)
+            );
+        });
     }
 
     private int execute(CommandContext<CommandSourceStack> ctx, Action action) {

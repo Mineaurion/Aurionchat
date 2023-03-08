@@ -114,6 +114,9 @@ The mod need Luckperms to be working with a minimal version of 5.1.20. Be carefu
 
 Follow the [1.16](https://github.com/Mineaurion/aurionchat#forge-116) section for futher instructions
 
+## Fabric
+
+The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20 and [CompleteConfig](https://modrinth.com/mod/completeconfig/versions) with a minimal version of 2.1.0 . The config file is the same syntax as the sponge one.
 
 ## Automessage
 

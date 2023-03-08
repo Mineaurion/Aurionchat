@@ -1,0 +1,63 @@
+import net.fabricmc.loom.task.RemapJarTask
+
+repositories {
+    maven { url 'https://jitpack.io' }
+    maven { url "https://maven.terraformersmc.com/" }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.siphalor.de/" }
+    maven { url "https://maven.isxander.dev/releases" }
+}
+
+apply plugin: 'fabric-loom'
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation("com.github.Lortseam.completeconfig:base:2.1.0")
+
+    Set<String> apiModules = [
+            'fabric-api-base',
+            'fabric-command-api-v2',
+            'fabric-lifecycle-events-v1',
+            'fabric-message-api-v1',
+            'fabric-networking-api-v1',
+    ]
+
+    apiModules.forEach {
+        modImplementation(fabricApi.module(it, project.fabric_version))
+    }
+    implementation project(':common')
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+task remappedShadowJar(type: RemapJarTask) {
+    dependsOn tasks.shadowJar
+    input.set(tasks.shadowJar.archiveFile)
+    addNestedDependencies.set(true)
+}
+
+tasks.assemble.dependsOn tasks.remappedShadowJar
+
+java {
+    sourceCompatibility = 17
+    targetCompatibility = 17
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    // withSourcesJar()
+}
+
+shadowJar {
+    archiveFileName = "${project.jarName}${project.name}-dev.jar".toLowerCase()
+}

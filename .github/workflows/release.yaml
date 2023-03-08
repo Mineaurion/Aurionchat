@@ -47,3 +47,4 @@ jobs:
             sponge/build/libs/*-all.jar
             forge-1.16/build/libs/*-all.jar
             forge-1.18/build/libs/*-all.jar
+            fabric/build/libs/Aurionchat-fabric-*.jar

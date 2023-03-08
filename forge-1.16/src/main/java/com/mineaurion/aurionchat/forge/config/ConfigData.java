@@ -11,7 +11,6 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class ConfigData {
     public Rabbitmq rabbitmq;
@@ -38,15 +37,5 @@ public class ConfigData {
         return channels;
     }
 
-    public Optional<String> getChannelByNameOrAlias(String search){
-        for (Map.Entry<String, Channel> entry: this.getChannels().entrySet()) {
-            String name = entry.getKey();
-            Channel channel = entry.getValue();
-            if(name.equalsIgnoreCase(search) || channel.alias.equalsIgnoreCase(search)){
-                return Optional.of(name);
-            }
-        }
-        return Optional.empty();
-    }
 }
 

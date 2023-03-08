@@ -8,7 +8,6 @@ import com.mineaurion.aurionchat.forge.command.ChatCommand;
 import com.mineaurion.aurionchat.forge.config.Config;
 import com.mineaurion.aurionchat.forge.config.ConfigData;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
-import com.mineaurion.aurionchat.forge.listeners.CommandListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
 import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.common.MinecraftForge;
@@ -75,7 +74,6 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     protected void registerPlatformListeners(){
         MinecraftForge.EVENT_BUS.register(new LoginListener(this));
         MinecraftForge.EVENT_BUS.register(new ChatListener(this));
-        MinecraftForge.EVENT_BUS.register(new CommandListener(this));
     }
 
     @Override

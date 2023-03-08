@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "aurionchat",
+  "version": "${version}",
+  "name": "AurionChat",
+  "description": "A cross server chat with rabbitmq",
+  "authors": [
+    {
+      "name": "Yann151924",
+      "contact": {
+          "sources": "https://github.com/Yann151924"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://mineaurion.com",
+    "sources": "https://github.com/mineaurion/aurionchat",
+    "issues": "https://github.com/Mineaurion/AurionChat/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/aurionchat/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.mineaurion.aurionchat.fabric.AurionChat"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.17",
+    "fabric": "*",
+    "minecraft": ">=1.19.2",
+    "luckperms": ">=5.4.30",
+    "completeconfig": ">=2.1.0"
+  }
+}

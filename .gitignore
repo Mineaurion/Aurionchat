@@ -2,14 +2,14 @@
 .idea/
 
 # File-based project format
+*.iml
+*.ipr
 *.iws
 
 # IntelliJ
 out/
-
-*.iml
+.idea_modules/
 modules.xml
-*.ipr
 
 ### Java ###
 # Compiled class file
@@ -29,6 +29,11 @@ modules.xml
 
 # virtual machine crash logs
 hs_err_pid*
+
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
 
 ### Graddle ###
 ### ForgeGradle ###

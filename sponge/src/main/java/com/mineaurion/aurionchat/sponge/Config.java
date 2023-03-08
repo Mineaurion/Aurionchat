@@ -8,25 +8,13 @@ import org.spongepowered.api.effect.sound.SoundType;
 import org.spongepowered.api.effect.sound.SoundTypes;
 
 import java.util.Map;
-import java.util.Optional;
+
 
 @ConfigSerializable
 public class Config{
     public final static TypeToken<Config> type = TypeToken.of(Config.class);
 
     @Setting public Rabbitmq rabbitmq = new Rabbitmq();
-
-    // @Override
-    public Optional<String> getChannelByNameOrAlias(String search) {
-        for(Map.Entry<String, Channel> entry: this.channels.entrySet()){
-            String name = entry.getKey();
-            Channel channel = entry.getValue();
-            if(name.equalsIgnoreCase(search) || channel.alias.equalsIgnoreCase(search)){
-                return Optional.of(name);
-            }
-        }
-        return Optional.empty();
-    }
 
     @ConfigSerializable
     public static class Rabbitmq{

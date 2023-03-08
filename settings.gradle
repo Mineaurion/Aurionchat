@@ -1,3 +1,13 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = 'aurionchat'
 
-include 'common', 'bukkit', 'sponge', 'forge-1.16', 'forge-1.18'
+include 'common', 'bukkit', 'sponge', 'forge-1.16', 'forge-1.18', 'fabric'
