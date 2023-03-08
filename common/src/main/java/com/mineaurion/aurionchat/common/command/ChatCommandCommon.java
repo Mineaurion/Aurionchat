@@ -2,6 +2,7 @@ package com.mineaurion.aurionchat.common.command;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import com.mineaurion.aurionchat.common.ChatService;
+import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
 
 import java.io.IOException;
@@ -106,5 +107,22 @@ public class ChatCommandCommon {
             System.out.println(exception.getMessage());
             return false;
         }
+    }
+
+    public static boolean onCommand(AurionChatPlayerCommon<?> aurionChatPlayers, String message, String channel, String format){
+        if(message.length() == 0){
+            aurionChatPlayers.sendMessage("&4Invalid command : /" + channel + " <message>");
+        } else {
+            aurionChatPlayers.addChannel(channel);
+            String messageFormat = Utils.processMessage(format, message, aurionChatPlayers);
+            try {
+                ChatService.getInstance().send(channel, messageFormat);
+                return true;
+            } catch (IOException e){
+                aurionChatPlayers.sendMessage("&4The server returned an error, your message could not be sent");
+                System.err.println(e.getMessage());
+            }
+        }
+        return false;
     }
 }

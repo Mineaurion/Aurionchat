@@ -6,7 +6,6 @@ import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.sponge.command.ChatCommand;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
-import com.mineaurion.aurionchat.sponge.listeners.CommandListener;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -84,13 +83,12 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     protected void registerPlatformListeners() {
         EventManager eventManager = Sponge.getEventManager();
         eventManager.registerListeners(this, new LoginListener(this));
-        eventManager.registerListeners(this, new CommandListener(this));
         eventManager.registerListeners(this, new ChatListener(this));
     }
 
     @Override
     protected void registerCommands() {
-        Sponge.getCommandManager().register(this, new ChatCommand(this).cmdChat, "channel", "ch");
+        new ChatCommand(this, Sponge.getCommandManager());
     }
 
     @Override

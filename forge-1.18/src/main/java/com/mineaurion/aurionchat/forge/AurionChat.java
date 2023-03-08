@@ -9,11 +9,9 @@ import com.mineaurion.aurionchat.forge.command.ChatCommand;
 import com.mineaurion.aurionchat.forge.config.Config;
 import com.mineaurion.aurionchat.forge.config.ConfigData;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
-import com.mineaurion.aurionchat.forge.listeners.CommandListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -67,11 +65,6 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     }
 
     @SubscribeEvent
-    public void onRegisterCommandEvent(RegisterCommandsEvent event){
-        new ChatCommand(this, event.getDispatcher());
-    }
-
-    @SubscribeEvent
     public void serverStarted(ServerStartedEvent event)
     {
         this.enable(
@@ -92,7 +85,6 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     protected void registerPlatformListeners() {
         MinecraftForge.EVENT_BUS.register(new LoginListener(this));
         MinecraftForge.EVENT_BUS.register(new ChatListener(this));
-        MinecraftForge.EVENT_BUS.register(new CommandListener(this));
     }
 
     @Override
