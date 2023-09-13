@@ -21,14 +21,12 @@ public class Config {
         config = plugin.getConfig();
         this.setChannels();
         this.rabbitmq.uri = config.getString("rabbitmq.uri");
-        this.rabbitmq.serverName = config.getString("rabbitmq.servername");
         this.options.sound = Sound.valueOf(config.getString("options.sound"));
         this.options.spy = config.getBoolean("options.spy");
         this.options.autoMessage = config.getBoolean("options.automessage");
     }
 
     public static class Rabbitmq {
-        public String serverName;
         public String uri;
     }
 

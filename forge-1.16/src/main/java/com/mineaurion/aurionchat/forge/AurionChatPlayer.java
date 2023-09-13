@@ -13,7 +13,7 @@ import java.util.UUID;
 public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity> {
 
     public AurionChatPlayer(ServerPlayerEntity player, Set<String> channels){
-        super(player, AurionChat.config.rabbitmq.serverName.get(), channels);
+        super(player, channels);
     }
     @Override
     public boolean hasPermission(String permission) {

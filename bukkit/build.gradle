@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation project(':common')
+
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     api 'net.kyori:adventure-platform-bukkit:4.3.0'
     //compile files('libs/spigot-1.7.10-SNAPSHOT-b1657.jar')
@@ -21,4 +22,15 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         expand 'version': project.version
     }
+}
+
+artifacts {
+    archives shadowJar
+}
+
+shadowJar {
+    relocate 'com.rabbitmq', 'com.mineaurion.aurionchat.lib.rabbitmq'
+    relocate 'org.slf4j', 'com.mineaurion.aurionchat.lib.slf4j'
+    relocate 'net.kyori.adventure', 'com.mineaurion.aurionchat.lib.adventure'
+    relocate 'net.kyori.event', 'com.mineaurion.aurionchat.lib.eventbus'
 }

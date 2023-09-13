@@ -14,7 +14,7 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayer> {
     private static final LuckPermsUtils luckPermsUtils = AurionChat.luckPermsUtils;
 
     public AurionChatPlayer(ServerPlayer player, Set<String> channels){
-        super(player, AurionChat.config.rabbitmq.serverName.get(), channels);
+        super(player, channels);
     }
     @Override
     public boolean hasPermission(String permission) {

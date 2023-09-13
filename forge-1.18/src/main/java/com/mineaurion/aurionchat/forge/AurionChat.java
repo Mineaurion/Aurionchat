@@ -69,7 +69,6 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     {
         this.enable(
                 config.rabbitmq.uri.get(),
-                config.rabbitmq.serverName.get(),
                 config.options.spy.get(),
                 config.options.autoMessage.get(),
                 true

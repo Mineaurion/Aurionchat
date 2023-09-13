@@ -2,7 +2,7 @@ package com.mineaurion.aurionchat.common;
 
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -13,17 +13,12 @@ public abstract class AurionChatPlayerCommon<T> {
     private String currentChannel;
     private static final String DEFAULT_CHANNEL = "global";  // Player default channel when he is speaking. We assume global is always defined in the config
 
-    private boolean allowedColors = false;
-
-    private boolean speak = true;
-
     private static final LuckPermsUtils luckPermsUtils = AbstractAurionChat.luckPermsUtils;
 
-
-    public AurionChatPlayerCommon(T player, String serverChannel, Set<String> channels){
+    public AurionChatPlayerCommon(T player, Set<String> channels){
         this.player = player;
-        this.setCurrentChannel(serverChannel);
-        this.setChannels(new HashSet<>(Arrays.asList(serverChannel, DEFAULT_CHANNEL)));
+        this.setCurrentChannel(DEFAULT_CHANNEL);
+        this.setChannels(new HashSet<>(Collections.singletonList(DEFAULT_CHANNEL)));
         for(String channel: channels){
             if(this.hasPermission("aurionchat.joinchannel." + channel)){
                 this.addChannel(channel);
@@ -32,20 +27,14 @@ public abstract class AurionChatPlayerCommon<T> {
                 this.addChannel(channel);
             }
         }
-        if(this.hasPermission("aurionchat.chat.colors")){
-            allowedColors = true;
-        }
-        if(!this.hasPermission("aurionchat.chat.speak")){
-            speak = false;
-        }
     }
 
     public boolean isAllowedColors(){
-        return allowedColors;
+        return this.hasPermission("aurionchat.chat.colors");
     }
 
     public boolean canSpeak(){
-        return speak;
+        return this.hasPermission("aurionchat.chat.speak");
     }
 
     public T getPlayer(){

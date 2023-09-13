@@ -1,7 +1,6 @@
 package com.mineaurion.aurionchat.sponge;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
-import com.mineaurion.aurionchat.common.LuckPermsUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -11,9 +10,8 @@ import java.util.UUID;
 
 public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayer> {
 
-    private static final LuckPermsUtils luckPermsUtils = AurionChat.luckPermsUtils;
     public AurionChatPlayer(ServerPlayer player, Set<String> channels){
-        super(player, AurionChat.config.rabbitmq.servername, channels);
+        super(player, channels);
     }
 
     @Override

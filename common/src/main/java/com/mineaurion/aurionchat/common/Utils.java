@@ -1,10 +1,7 @@
 package com.mineaurion.aurionchat.common;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-
-import java.util.Map;
-import java.util.UUID;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
@@ -16,32 +13,19 @@ public class Utils {
             message = message.color(WHITE);
         }
 
-        MiniMessage miniMessage = MiniMessage.miniMessage();
-        Component prefixMessage = miniMessage.deserialize(format
-                .replace("{prefix}", aurionChatPlayer.getPrefix())
-                .replace("{suffix}", aurionChatPlayer.getSuffix())
-                .replace("{display_name}", aurionChatPlayer.getDisplayName()));
+        String[] formatSplit = format.split("\\{message\\}");
 
-        return prefixMessage.append(message);
+        Component beforeMessage = replaceToken(formatSplit[0], aurionChatPlayer);
+        Component afterMessage = replaceToken(formatSplit.length == 2 ? formatSplit[1] : "", aurionChatPlayer);
+
+        return beforeMessage.append(message).append(afterMessage);
     }
 
-    public static <T extends AurionChatPlayerCommon<?>> void sendMessageToPlayer(String channelName, Component message, Map<UUID, T> aurionChatPlayers){
-        if(!aurionChatPlayers.isEmpty()){
-            aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
-                if(aurionChatPlayer.getChannels().contains(channelName)){
-                    aurionChatPlayer.sendMessage(message);
-                }
-            });
-        }
-    }
-
-    public static <T extends AurionChatPlayerCommon<?>> void broadcastToPlayer(String channelName, Component message, Map<UUID, T> aurionChatPlayers){
-        if(!aurionChatPlayers.isEmpty()){
-            aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
-                if(aurionChatPlayer.hasPermission("aurionchat.automessage." + channelName)){
-                    aurionChatPlayer.sendMessage(message);
-                }
-            });
-        }
+    private static Component replaceToken(String text, AurionChatPlayerCommon<?> aurionChatPlayer){
+        return LegacyComponentSerializer.legacy('&').deserialize(
+                text.replace("{prefix}", aurionChatPlayer.getPrefix())
+                        .replace("{suffix}", aurionChatPlayer.getSuffix())
+                        .replace("{display_name}", aurionChatPlayer.getDisplayName())
+        );
     }
 }

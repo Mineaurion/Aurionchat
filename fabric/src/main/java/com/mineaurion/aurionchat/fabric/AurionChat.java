@@ -24,7 +24,6 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> implements 
         config.load();
         ServerLifecycleEvents.SERVER_STARTED.register(server -> this.enable(
                 Config.Rabbitmq.uri,
-                Config.Rabbitmq.servername,
                 Config.Options.spy,
                 Config.Options.automessage,
                 true

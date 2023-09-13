@@ -1,5 +1,6 @@
 package com.mineaurion.aurionchat.common;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.rabbitmq.client.DeliverCallback;
@@ -27,12 +28,11 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
 
     private final PluginLogger logger = getlogger();
 
-    public final void enable(String uri, String serverName, boolean spy, boolean autoMessage, boolean withLuckPerms){
-
+    public final void enable(String uri, boolean spy, boolean autoMessage, boolean withLuckPerms){
         //send message for startup
         try {
             aurionChatPlayers = new HashMap<>();
-            chatService = new ChatService(uri, serverName, consumer(autoMessage, spy));
+            chatService = new ChatService(uri, consumer(autoMessage, spy));
             logger.info("AurionChat Connected to Rabbitmq");
             registerPlatformListeners(); // if no error , init of the "plugin"
             registerCommands();
@@ -59,27 +59,29 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
 
     private DeliverCallback consumer(boolean autoMessage, boolean spy){
         return (consumerTag, delivery) -> {
-            String json = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            String[] routingKeySplit = delivery.getEnvelope().getRoutingKey().split("\\.");
+            JsonObject json = new JsonParser().parse(new String(delivery.getBody(), StandardCharsets.UTF_8)).getAsJsonObject();
 
-            String message = new JsonParser().parse(json).getAsJsonObject().get("message").getAsString();
+            String channel = json.get("channel").getAsString();
+            String message = json.get("message").getAsString();
+            String type = json.get("type").getAsString();
             Component messageDeserialize = MiniMessage.miniMessage().deserialize(message);
-            String type = routingKeySplit[1];
-            String channel = routingKeySplit[2].toLowerCase();
 
-            if(type.equalsIgnoreCase("automessage")){
-                if(autoMessage){
-                  Utils.broadcastToPlayer(channel, messageDeserialize, getAurionChatPlayers());
+            getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
+                if(type.equalsIgnoreCase("automessage") && autoMessage){
+                    if(aurionChatPlayers.hasPermission("aurionchat.automessage." + channel)){
+                        aurionChatPlayers.sendMessage(messageDeserialize);
+                    }
+                } else if (type.equalsIgnoreCase("chat")) {
+                    if(spy){
+                        logger.info(message);
+                    }
+                    if(aurionChatPlayers.getChannels().contains(channel)){
+                        aurionChatPlayers.sendMessage(messageDeserialize);
+                    }
+                } else {
+                    logger.warn("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
                 }
-            } else if(type.equalsIgnoreCase("chat")) {
-                if(spy){
-                    logger.info(message); // TODO: need to be rework for better log
-                }
-                Utils.sendMessageToPlayer(channel, messageDeserialize, getAurionChatPlayers());
-            } else {
-                logger.warn("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
-            }
+            });
         };
-
     }
 }

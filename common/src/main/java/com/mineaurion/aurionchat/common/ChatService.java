@@ -20,8 +20,6 @@ public class ChatService {
     private Connection connection;
     private Channel channel;
 
-    private final String queueName;
-
     private final String uri;
     protected boolean connected = false;
 
@@ -35,9 +33,8 @@ public class ChatService {
         return INSTANCE;
     }
 
-    public ChatService(String uri, String queueName, DeliverCallback consumer) throws IOException {
+    public ChatService(String uri, DeliverCallback consumer) throws IOException {
         this.uri = uri;
-        this.queueName = queueName;
         this.consumer = consumer;
         this.createConnection(uri);
         INSTANCE = this;
@@ -55,7 +52,7 @@ public class ChatService {
 
             connection = factory.newConnection();
             channel = connection.createChannel();
-            join(queueName);
+            join();
             connected = true;
         } catch (KeyManagementException|URISyntaxException|NoSuchAlgorithmException UriKeyException){
             System.out.println("Uri Syntax Exception, please check the config or the documentation of rabbitmq");
@@ -72,27 +69,26 @@ public class ChatService {
         this.createConnection(this.uri);
     }
 
-    private void join(String queueName) throws IOException{
-        channel.exchangeDeclare(EXCHANGE_NAME, "topic");
-        channel.queueDeclare(queueName, false, false, false, null);
-        // channel can be : aurion.chat.<server> and/or aurion.automessage.<server>
-        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.chat.*");
-        channel.queueBind(queueName, EXCHANGE_NAME, "aurion.automessage.*");
+    private void join() throws IOException{
+        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
 
-        channel.basicConsume(queueName, true, consumer, consumerTag -> {});
+        String queue = channel.queueDeclare().getQueue();
+        channel.queueBind(queue, EXCHANGE_NAME, "");
+        channel.basicConsume(queue, true, consumer, consumerTag -> {});
     }
 
     public void send(String channelName, Component message) throws IOException {
         String serializedMessage = miniMessage.serialize(message);
 
         JsonObject json = new JsonObject();
+        json.addProperty("channel", channelName);
+        json.addProperty("type", "chat");
         json.addProperty("message", serializedMessage);
 
-        channel.basicPublish(EXCHANGE_NAME,"aurion.chat." + channelName, null, json.toString().getBytes());
+        channel.basicPublish(EXCHANGE_NAME, "", null, json.toString().getBytes());
     }
     public void close(){
         try {
-            channel.queueDelete(this.queueName);
             channel.close();
             connection.close();
         } catch (IOException|TimeoutException e){

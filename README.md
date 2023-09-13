@@ -14,7 +14,7 @@ When you send the message if other people listen to the same channel as you type
 
 - Chat channel
 - Formating chat
-- Bukkit 1.7 to 1.20.1 - Sponge 7 - Fabric 5.1.20 - Forge 1.16 and 1.18 support 
+- Bukkit 1.7 to 1.20.1 - Sponge 8 - Fabric 5.1.20 - Forge 1.16 and 1.18 support 
 - Automessage
 
 ### Commands
@@ -137,3 +137,8 @@ Permission of every automessage channel is : `aurionchat.automessage.<channelNam
 ### Discord
 
 If you need support regarding our plugin, come on our [discord](https://discord.gg/Zn4ZbP9)
+
+
+### Development
+
+For debugging purpose and test, there is a docker-compose.yaml available to setup a simple rabbitmq

@@ -19,9 +19,6 @@ public class Config{
     public static class Rabbitmq{
         @Setting
         public String uri = "amqp://guest:guest@localhost:5672/";
-        @Setting()
-        @Comment("Must Be unique beetwen all of your servers")
-        public String servername = "ServerName";
     }
 
     @Setting public Options options = new Options();

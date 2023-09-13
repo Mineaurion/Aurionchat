@@ -21,9 +21,6 @@ public class Config extends me.lortseam.completeconfig.data.Config {
 
         @ConfigEntry(requiresRestart = true)
         public static String uri = "amqp://guest:guest@localhost:5672/";
-        @ConfigEntry(requiresRestart = true, comment = "Must Be unique beetwen all of your servers")
-        public static String servername = "ServerName";
-
     }
 
     @Transitive

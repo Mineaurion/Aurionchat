@@ -13,8 +13,6 @@ jacocoTestReport {
 
 dependencies {
 
-    compileOnly 'com.mojang:brigadier:1.0.18'
-
     api('net.kyori:adventure-api:4.11.0') {
         exclude(module: 'adventure-bom')
         exclude(module: 'checker-qual')
@@ -46,8 +44,4 @@ dependencies {
         exclude(module: 'checker-qual')
         exclude(module: 'guava')
     }
-}
-
-shadowJar{
-    relocate 'com.google', 'com.mineaurion.aurioneconomy.lib.google'
 }

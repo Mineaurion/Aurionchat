@@ -8,7 +8,6 @@ public final class Config {
 
     static {
         builder.comment("Config for Aurionchat").push("rabbitmq");
-        builder.comment("Must Be unique between all of your servers").define("serverName", "ServerName");
         builder.define("uri", "amqp://guest:guest@localhost:5672/");
         builder.pop();
 
