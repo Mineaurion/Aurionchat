@@ -1,5 +1,7 @@
 package com.mineaurion.aurionchat.common;
 
+import net.kyori.adventure.text.Component;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +12,13 @@ public abstract class AurionChatPlayerCommon<T> {
     private Set<String> channels = new HashSet<>();
     private String currentChannel;
     private static final String DEFAULT_CHANNEL = "global";  // Player default channel when he is speaking. We assume global is always defined in the config
+
+    private boolean allowedColors = false;
+
+    private boolean speak = true;
+
+    private static final LuckPermsUtils luckPermsUtils = AbstractAurionChat.luckPermsUtils;
+
 
     public AurionChatPlayerCommon(T player, String serverChannel, Set<String> channels){
         this.player = player;
@@ -23,6 +32,20 @@ public abstract class AurionChatPlayerCommon<T> {
                 this.addChannel(channel);
             }
         }
+        if(this.hasPermission("aurionchat.chat.colors")){
+            allowedColors = true;
+        }
+        if(!this.hasPermission("aurionchat.chat.speak")){
+            speak = false;
+        }
+    }
+
+    public boolean isAllowedColors(){
+        return allowedColors;
+    }
+
+    public boolean canSpeak(){
+        return speak;
     }
 
     public T getPlayer(){
@@ -62,17 +85,19 @@ public abstract class AurionChatPlayerCommon<T> {
     }
 
     public abstract boolean hasPermission(String permission);
-    public abstract void sendMessage(String message);
+    public abstract void sendMessage(Component message);
 
     public abstract UUID getUniqueId();
 
-    public abstract String getPrefix();
+    public String getPrefix(){
+        return luckPermsUtils.getPlayerPrefix(getUniqueId()).orElse("");
+    };
 
-    public abstract String getSuffix();
+    public String getSuffix(){
+        return luckPermsUtils.getPlayerSuffix(getUniqueId()).orElse("");
+    };
 
     public abstract String getDisplayName();
-
-    public abstract void notifyPlayer();
 
     @Override
     public String toString()

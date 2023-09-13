@@ -2,17 +2,17 @@ package com.mineaurion.aurionchat.sponge;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.serializer.TextSerializers;
-import org.spongepowered.api.text.title.Title;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 import java.util.Set;
 import java.util.UUID;
 
-public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
+public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayer> {
 
     private static final LuckPermsUtils luckPermsUtils = AurionChat.luckPermsUtils;
-    public AurionChatPlayer(Player player, Set<String> channels){
+    public AurionChatPlayer(ServerPlayer player, Set<String> channels){
         super(player, AurionChat.config.rabbitmq.servername, channels);
     }
 
@@ -22,33 +22,18 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
     }
 
     @Override
-    public void sendMessage(String message) {
-        this.player.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(message));
+    public void sendMessage(Component message) {
+        this.player.sendMessage(message);
     }
 
     @Override
     public UUID getUniqueId() {
-        return this.player.getUniqueId();
-    }
-
-    @Override
-    public String getPrefix() {
-        return luckPermsUtils.getPlayerPrefix(this.getUniqueId()).orElse("");
-    }
-
-    @Override
-    public String getSuffix() {
-        return luckPermsUtils.getPlayerSuffix(this.getUniqueId()).orElse("");
+        return this.player.uniqueId();
     }
 
     @Override
     public String getDisplayName() {
-        return TextSerializers.FORMATTING_CODE.serialize(player.getDisplayNameData().displayName().get());
+        return PlainTextComponentSerializer.plainText().serialize(player.displayName().get());
     }
 
-    @Override
-    public void notifyPlayer(){
-        this.player.playSound( AurionChat.config.options.sound, this.player.getLocation().getPosition(), 10.0);
-        this.player.sendTitle(Title.builder().subtitle(TextSerializers.FORMATTING_CODE.deserialize("Mention")).fadeIn(20).fadeOut(20).stay(40).build());
-    }
 }

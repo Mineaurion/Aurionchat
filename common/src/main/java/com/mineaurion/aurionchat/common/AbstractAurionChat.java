@@ -3,6 +3,8 @@ package com.mineaurion.aurionchat.common;
 import com.google.gson.JsonParser;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.rabbitmq.client.DeliverCallback;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.luckperms.api.LuckPermsProvider;
 
 import java.io.IOException;
@@ -61,18 +63,19 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
             String[] routingKeySplit = delivery.getEnvelope().getRoutingKey().split("\\.");
 
             String message = new JsonParser().parse(json).getAsJsonObject().get("message").getAsString();
+            Component messageDeserialize = MiniMessage.miniMessage().deserialize(message);
             String type = routingKeySplit[1];
             String channel = routingKeySplit[2].toLowerCase();
 
             if(type.equalsIgnoreCase("automessage")){
                 if(autoMessage){
-                  Utils.broadcastToPlayer(channel, message, getAurionChatPlayers());
+                  Utils.broadcastToPlayer(channel, messageDeserialize, getAurionChatPlayers());
                 }
             } else if(type.equalsIgnoreCase("chat")) {
                 if(spy){
                     logger.info(message); // TODO: need to be rework for better log
                 }
-                Utils.sendMessageToPlayer(channel, message, getAurionChatPlayers());
+                Utils.sendMessageToPlayer(channel, messageDeserialize, getAurionChatPlayers());
             } else {
                 logger.warn("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
             }

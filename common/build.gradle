@@ -1,0 +1,53 @@
+plugins {
+    id("java-library")
+    id("jacoco")
+}
+
+test {
+    useJUnitPlatform {}
+}
+
+jacocoTestReport {
+    dependsOn test
+}
+
+dependencies {
+
+    compileOnly 'com.mojang:brigadier:1.0.18'
+
+    api('net.kyori:adventure-api:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'checker-qual')
+        exclude(module: 'annotations')
+    }
+
+    api('net.kyori:adventure-text-serializer-gson:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+        exclude(module: 'gson')
+    }
+
+    api('net.kyori:adventure-text-serializer-legacy:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api('net.kyori:adventure-text-serializer-plain:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api("net.kyori:adventure-text-minimessage:4.11.0") {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api('net.kyori:event-api:3.0.0') {
+        exclude(module: 'checker-qual')
+        exclude(module: 'guava')
+    }
+}
+
+shadowJar{
+    relocate 'com.google', 'com.mineaurion.aurioneconomy.lib.google'
+}

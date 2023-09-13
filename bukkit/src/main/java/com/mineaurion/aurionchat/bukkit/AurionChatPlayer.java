@@ -2,7 +2,7 @@ package com.mineaurion.aurionchat.bukkit;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
@@ -20,8 +20,8 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
     }
 
     @Override
-    public void sendMessage(String message) {
-        this.player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    public void sendMessage(Component message) {
+        AurionChat.audiences.player(player).sendMessage(message);
     }
 
     @Override
@@ -30,22 +30,8 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<Player> {
     }
 
     @Override
-    public String getPrefix() {
-        return luckPermsUtils.getPlayerPrefix(this.getUniqueId()).orElse("");
-    }
-
-    @Override
-    public String getSuffix() {
-        return luckPermsUtils.getPlayerSuffix(this.getUniqueId()).orElse("");
-    }
-
-    @Override
     public String getDisplayName() {
         return this.player.getDisplayName();
     }
 
-    @Override
-    public void notifyPlayer(){
-        this.player.playSound(player.getLocation(), AurionChat.config.options.sound, 1, 1);
-    }
 }

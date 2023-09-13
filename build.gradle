@@ -54,5 +54,7 @@ subprojects {
         }
         relocate 'com.rabbitmq', 'com.mineaurion.aurionchat.lib.rabbitmq'
         relocate 'org.slf4j', 'com.mineaurion.aurionchat.lib.slf4j'
+        relocate 'net.kyori.adventure', 'com.mineaurion.aurioneconomy.lib.adventure'
+        relocate 'net.kyori.event', 'com.mineaurion.aurioneconomy.lib.eventbus'
     }
 }

@@ -4,11 +4,12 @@ import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
-import org.spongepowered.api.entity.living.player.Player;
+import net.kyori.adventure.text.Component;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.util.Tristate;
 
 public class ChatListener {
@@ -20,7 +21,7 @@ public class ChatListener {
     }
 
     @Listener @IsCancelled(Tristate.UNDEFINED)
-    public void onPlayerChat(MessageChannelEvent.Chat event, @First Player player){
+    public void onPlayerChat(PlayerChatEvent event, @First ServerPlayer player){
         if(event.isCancelled()) {
             return;
         }
@@ -28,12 +29,12 @@ public class ChatListener {
             event.setCancelled(true);
             return;
         }
-        AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.uniqueId());
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = Utils.processMessage(
+        Component messageFormat = Utils.processMessage(
                 AurionChat.config.channels.get(currentChannel).format,
-                event.getRawMessage().toPlain(),
+                event.message(),
                 aurionChatPlayer
         );
 

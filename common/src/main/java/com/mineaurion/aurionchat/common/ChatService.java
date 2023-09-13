@@ -5,6 +5,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -27,6 +29,8 @@ public class ChatService {
 
     private static ChatService INSTANCE = null;
 
+    private final MiniMessage miniMessage;
+
     public static ChatService getInstance(){
         return INSTANCE;
     }
@@ -37,6 +41,7 @@ public class ChatService {
         this.consumer = consumer;
         this.createConnection(uri);
         INSTANCE = this;
+        miniMessage = MiniMessage.miniMessage();
     }
 
     private void createConnection(String uri) throws IOException {
@@ -77,9 +82,11 @@ public class ChatService {
         channel.basicConsume(queueName, true, consumer, consumerTag -> {});
     }
 
-    public void send(String channelName,String message) throws IOException {
+    public void send(String channelName, Component message) throws IOException {
+        String serializedMessage = miniMessage.serialize(message);
+
         JsonObject json = new JsonObject();
-        json.addProperty("message", message);
+        json.addProperty("message", serializedMessage);
 
         channel.basicPublish(EXCHANGE_NAME,"aurion.chat." + channelName, null, json.toString().getBytes());
     }

@@ -2,9 +2,8 @@ package com.mineaurion.aurionchat.fabric;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
+import net.kyori.adventure.text.Component;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 
 import java.util.Set;
 import java.util.UUID;
@@ -23,8 +22,8 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity>
     }
 
     @Override
-    public void sendMessage(String message) {
-        this.player.sendMessage(Text.of(message.replace("&", "§")));
+    public void sendMessage(Component message) {
+        this.player.sendMessage(message);
     }
 
     @Override
@@ -33,22 +32,8 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity>
     }
 
     @Override
-    public String getPrefix() {
-        return luckPermsUtils.getPlayerPrefix(getUniqueId()).orElse("");
-    }
-
-    @Override
-    public String getSuffix() {
-        return luckPermsUtils.getPlayerSuffix(getUniqueId()).orElse("");
-    }
-
-    @Override
     public String getDisplayName() {
         return this.player.getDisplayName().getString();
     }
 
-    @Override
-    public void notifyPlayer() {
-        this.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
-    }
 }

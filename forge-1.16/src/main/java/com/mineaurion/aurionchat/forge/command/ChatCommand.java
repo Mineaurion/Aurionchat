@@ -10,10 +10,12 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.MessageArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
 public class ChatCommand extends ChatCommandCommon {
@@ -71,7 +73,7 @@ public class ChatCommand extends ChatCommandCommon {
         AurionChat.config.getChannels().forEach((name, channel) -> {
             ArgumentBuilder<CommandSource, RequiredArgumentBuilder<CommandSource, MessageArgument.Message>> argBuilder = messageArg.executes(ctx -> (onCommand(
                     this.plugin.getAurionChatPlayers().get(ctx.getSource().getPlayerOrException().getUUID()),
-                    MessageArgument.getMessage(ctx, "message").getString(),
+                    GsonComponentSerializer.gson().deserialize(ITextComponent.Serializer.toJson(MessageArgument.getMessage(ctx, "message"))),
                     name,
                     channel.format)) ? 1 : 0
             );

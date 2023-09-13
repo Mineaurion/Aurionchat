@@ -4,9 +4,13 @@ import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
+import net.kyori.adventure.text.Component;
 
 import java.io.IOException;
 import java.util.Set;
+
+import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public class ChatCommandCommon {
 
@@ -29,19 +33,19 @@ public class ChatCommandCommon {
         this.checkChannelExist(channel);
         aurionChatPlayer.removeChannel(aurionChatPlayer.getCurrentChannel());
         aurionChatPlayer.setCurrentChannel(channel);
-        aurionChatPlayer.sendMessage("&6You have joined the " + channel + " channel.");
+        aurionChatPlayer.sendMessage(text("You have joined the " + channel + " channel.").color(GOLD));
     }
 
     private void leave(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.removeChannel(channel);
-        aurionChatPlayer.sendMessage("&6You have leaved the " + channel + " channel.");
+        aurionChatPlayer.sendMessage(text("You have leave the " + channel + " channel.").color(GOLD));
     }
 
     private void spy(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.addChannel(channel);
-        aurionChatPlayer.sendMessage("&6You have spy the " + channel + " channel.");
+        aurionChatPlayer.sendMessage(text("You have spy the " + channel + " channel.").color(GOLD));
     }
 
     private void allListen(AurionChatPlayerCommon<?> aurionChatPlayer, Set<String> channels)
@@ -62,16 +66,22 @@ public class ChatCommandCommon {
     }
 
     public void defaultCommand(AurionChatPlayerCommon<?> aurionChatPlayer){
-        StringBuilder message = new StringBuilder();
         StringBuilder channels = new StringBuilder();
 
         aurionChatPlayer.getChannels().forEach(channel -> {
             channels.append(channel).append(" ");
         });
 
-        message.append("&7Your current channel:&f ").append(aurionChatPlayer.getCurrentChannel()).append("\n")
-                .append("&7Spying on channels:&f ").append(channels);
-        aurionChatPlayer.sendMessage(message.toString());
+        Component message = text("Your current channel:").color(GRAY)
+                .append(space())
+                .append(text(aurionChatPlayer.getCurrentChannel()).color(WHITE))
+                .append(newline())
+                .append(text("Spying on channel:").color(GRAY))
+                .append(space())
+                .append(text(channels.toString()).color(WHITE))
+                ;
+
+        aurionChatPlayer.sendMessage(message);
     }
 
     public boolean execute(AurionChatPlayerCommon<?> aurionChatPlayer, String channel, Action action) {
@@ -92,8 +102,11 @@ public class ChatCommandCommon {
                 case RELOAD:
                     if (aurionChatPlayer.hasPermission("aurionchat.reload")) {
                         ChatService.getInstance().reCreateConnection();
-                        aurionChatPlayer.sendMessage("Reconnect successfull");
-                        aurionChatPlayer.sendMessage("For now this command doesn't reload the config");
+                        aurionChatPlayer.sendMessage(
+                                text("Reconnect successfull").color(GREEN)
+                                        .append(newline())
+                                        .append(text("For now this command doesn't reload the config").color(WHITE))
+                        );
                     }
                     break;
                 default:
@@ -101,7 +114,7 @@ public class ChatCommandCommon {
             }
             return true;
         } catch (ChannelNotFoundException e){
-            aurionChatPlayer.sendMessage(e.getMessage());
+            aurionChatPlayer.sendMessage(text(e.getMessage()).color(RED));
             return false;
         } catch (IOException exception){
             System.out.println(exception.getMessage());
@@ -109,19 +122,15 @@ public class ChatCommandCommon {
         }
     }
 
-    public static boolean onCommand(AurionChatPlayerCommon<?> aurionChatPlayers, String message, String channel, String format){
-        if(message.length() == 0){
-            aurionChatPlayers.sendMessage("&4Invalid command : /" + channel + " <message>");
-        } else {
-            aurionChatPlayers.addChannel(channel);
-            String messageFormat = Utils.processMessage(format, message, aurionChatPlayers);
-            try {
-                ChatService.getInstance().send(channel, messageFormat);
-                return true;
-            } catch (IOException e){
-                aurionChatPlayers.sendMessage("&4The server returned an error, your message could not be sent");
-                System.err.println(e.getMessage());
-            }
+    public static boolean onCommand(AurionChatPlayerCommon<?> aurionChatPlayers, Component message, String channel, String format){
+        aurionChatPlayers.addChannel(channel);
+        Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers);
+        try {
+            ChatService.getInstance().send(channel, messageFormat);
+            return true;
+        } catch (IOException e){
+            aurionChatPlayers.sendMessage(text("The server returned an error, your message could not be sent").color(DARK_RED));
+            System.err.println(e.getMessage());
         }
         return false;
     }

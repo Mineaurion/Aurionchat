@@ -87,7 +87,7 @@ public class ChatCommand extends ChatCommandCommon {
         AurionChat.config.channels.forEach((name, channel) -> {
             ArgumentBuilder<ServerCommandSource, RequiredArgumentBuilder<ServerCommandSource, MessageArgumentType.MessageFormat>> argBuilder = messageArg.executes(ctx -> (onCommand(
                     this.plugin.getAurionChatPlayers().get(ctx.getSource().getPlayer().getUuid()),
-                    MessageArgumentType.getMessage(ctx, "message").getString(),
+                    MessageArgumentType.getMessage(ctx, "message").asComponent(),
                     name,
                     channel.format)) ? 1 : 0
             );

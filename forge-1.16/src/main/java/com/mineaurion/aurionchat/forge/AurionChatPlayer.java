@@ -2,10 +2,10 @@ package com.mineaurion.aurionchat.forge;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import dev.ftb.mods.ftbranks.api.FTBRanksAPI;
+import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 import java.util.Set;
 import java.util.UUID;
@@ -21,8 +21,9 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity>
     }
 
     @Override
-    public void sendMessage(String message) {
-        this.player.sendMessage(new StringTextComponent(message.replace("&", "§")), Util.NIL_UUID);
+    public void sendMessage(Component message) {
+        //TODO: need test for casting. If ok cast when needed
+        this.player.sendMessage((ITextComponent) message, Util.NIL_UUID);
     }
 
     @Override
@@ -64,8 +65,4 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity>
         return this.player.getDisplayName().getString();
     }
 
-    @Override
-    public void notifyPlayer(){
-        this.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 10, 1);
-    }
 }

@@ -15,7 +15,7 @@ blossom {
 }
 
 sponge {
-    apiVersion("7.4.0")
+    apiVersion("8.1.0")
     loader {
         name(PluginLoaders.JAVA_PLAIN)
         version(pluginVersion)
@@ -38,7 +38,6 @@ sponge {
         dependency("spongeapi") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
             optional(false)
-            version("7.4.0")
         }
         dependency("luckperms") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
@@ -50,5 +49,5 @@ sponge {
 
 dependencies {
     implementation project(':common')
-    compileOnly 'org.spongepowered:spongeapi:7.4.0'
+    compileOnly 'org.spongepowered:spongeapi:8.1.0'
 }

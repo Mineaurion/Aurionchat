@@ -3,6 +3,8 @@ package com.mineaurion.aurionchat.bukkit.command;
 import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.command.ChatCommandCommon;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -38,7 +40,7 @@ public class ChatCommand extends ChatCommandCommon implements CommandExecutor {
                 }
                 return this.execute(aurionChatPlayer, channel, action);
             } catch (IllegalArgumentException e){
-                aurionChatPlayer.sendMessage("&6This command doesn't exist");
+                aurionChatPlayer.sendMessage(Component.text("This command doesn't exist").color(NamedTextColor.GOLD));
                 return false;
             }
         }
