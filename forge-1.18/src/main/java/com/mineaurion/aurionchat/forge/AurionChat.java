@@ -8,6 +8,8 @@ import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.forge.command.ChatCommand;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -25,7 +27,9 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 
 @Mod(AbstractAurionChat.ID)
-public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+public class AurionChat extends AbstractAurionChat {
+
+    private PlayerFactory playerFactory;
 
     public AurionChat() {
         getlogger().info("AurionChat Initializing");
@@ -69,6 +73,11 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     }
 
     @Override
+    protected void setupPlayerFactory() {
+        this.playerFactory = new PlayerFactory();
+    }
+
+    @Override
     protected void registerCommands() {
         // Nothing to do here for forge
     }
@@ -85,6 +94,11 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     }
 
     @Override
+    public PlayerFactory getPlayerFactory() {
+        return playerFactory;
+    }
+
+    @Override
     protected Path getConfigDirectory() {
         return FMLPaths.CONFIGDIR.get().resolve(AbstractAurionChat.ID).toAbsolutePath();
     }
@@ -92,5 +106,9 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     @Override
     public PluginLogger getlogger() {
         return new Log4jPluginLogger(LogManager.getLogger(AurionChat.ID));
+    }
+
+    public static net.minecraft.network.chat.Component toNativeText(Component component){
+        return net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serialize(component));
     }
 }

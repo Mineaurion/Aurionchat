@@ -2,6 +2,7 @@ package com.mineaurion.aurionchat.common;
 
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
+import com.mineaurion.aurionchat.common.player.PlayerFactory;
 import net.luckperms.api.LuckPermsProvider;
 
 import java.io.IOException;
@@ -12,15 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> implements AurionChatPlugin {
+public abstract class AbstractAurionChat implements AurionChatPlugin {
 
     public static final String ID = "aurionchat";
 
-    public Map<UUID,T> getAurionChatPlayers() {
+    public Map<UUID,AurionChatPlayer> getAurionChatPlayers() {
         return aurionChatPlayers;
     }
 
-    private Map<UUID, T> aurionChatPlayers;
+    private Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
     private ChatService chatService;
 
@@ -34,6 +35,7 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
             aurionChatPlayers = new HashMap<>();
             chatService = new ChatService(this);
             logger.info("AurionChat Connected to Rabbitmq");
+            setupPlayerFactory();
             registerPlatformListeners(); // if no error , init of the "plugin"
             registerCommands();
             if(withLuckPerms){
@@ -72,11 +74,16 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
     }
 
     protected abstract void registerPlatformListeners();
+
+    protected abstract void setupPlayerFactory();
+
     protected abstract void registerCommands();
 
     protected abstract void disablePlugin();
 
     public abstract ConfigurationAdapter getConfigurationAdapter();
+
+    public abstract PlayerFactory<?> getPlayerFactory();
 
     /**
      * Gets the plugins main data storage directory

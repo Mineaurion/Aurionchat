@@ -1,9 +1,9 @@
 package com.mineaurion.aurionchat.fabric.listeners;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.fabric.AurionChat;
-import com.mineaurion.aurionchat.fabric.AurionChatPlayer;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;

@@ -1,6 +1,6 @@
 package com.mineaurion.aurionchat.common.command;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
@@ -29,26 +29,26 @@ public class ChatCommandCommon {
         this.channels = channels;
     }
 
-    private void join(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
+    private void join(AurionChatPlayer aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.removeChannel(aurionChatPlayer.getCurrentChannel());
         aurionChatPlayer.setCurrentChannel(channel);
         aurionChatPlayer.sendMessage(text("You have joined the " + channel + " channel.").color(GOLD));
     }
 
-    private void leave(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
+    private void leave(AurionChatPlayer aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.removeChannel(channel);
         aurionChatPlayer.sendMessage(text("You have leave the " + channel + " channel.").color(GOLD));
     }
 
-    private void spy(AurionChatPlayerCommon<?> aurionChatPlayer, String channel) throws ChannelNotFoundException {
+    private void spy(AurionChatPlayer aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
         aurionChatPlayer.addChannel(channel);
         aurionChatPlayer.sendMessage(text("You have spy the " + channel + " channel.").color(GOLD));
     }
 
-    private void allListen(AurionChatPlayerCommon<?> aurionChatPlayer, Set<String> channels)
+    private void allListen(AurionChatPlayer aurionChatPlayer, Set<String> channels)
     {
         for(String channel: channels){
             try {
@@ -65,7 +65,7 @@ public class ChatCommandCommon {
         }
     }
 
-    public void defaultCommand(AurionChatPlayerCommon<?> aurionChatPlayer){
+    public void defaultCommand(AurionChatPlayer aurionChatPlayer){
         StringBuilder channels = new StringBuilder();
 
         aurionChatPlayer.getChannels().forEach(channel -> {
@@ -84,7 +84,7 @@ public class ChatCommandCommon {
         aurionChatPlayer.sendMessage(message);
     }
 
-    public boolean execute(AurionChatPlayerCommon<?> aurionChatPlayer, String channel, Action action) {
+    public boolean execute(AurionChatPlayer aurionChatPlayer, String channel, Action action) {
         try {
             switch (action) {
                 case JOIN:
@@ -122,7 +122,7 @@ public class ChatCommandCommon {
         }
     }
 
-    public static boolean onCommand(AurionChatPlayerCommon<?> aurionChatPlayers, Component message, String channel, String format){
+    public static boolean onCommand(AurionChatPlayer aurionChatPlayers, Component message, String channel, String format){
         aurionChatPlayers.addChannel(channel);
         Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers);
         try {

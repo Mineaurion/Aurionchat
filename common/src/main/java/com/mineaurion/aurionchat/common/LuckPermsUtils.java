@@ -18,7 +18,7 @@ public class LuckPermsUtils {
         return luckPerms.getUserManager().getUser(uuid);
     }
 
-    public Optional<String> getPlayerPrefix(UUID uuid){
+    public Optional<String> getPlayerPreffix(UUID uuid){
         return Optional.ofNullable(this.getUser(uuid).getCachedData().getMetaData().getPrefix());
     }
 

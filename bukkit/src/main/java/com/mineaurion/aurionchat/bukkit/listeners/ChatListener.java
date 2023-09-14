@@ -1,7 +1,7 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
-import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import net.kyori.adventure.text.Component;

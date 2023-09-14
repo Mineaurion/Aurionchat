@@ -1,8 +1,8 @@
 package com.mineaurion.aurionchat.sponge.command;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.command.ChatCommandCommon;
 import com.mineaurion.aurionchat.sponge.AurionChat;
-import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
@@ -18,7 +18,7 @@ public class ChatCommand extends ChatCommandCommon {
     Parameter.Value<String> channel = Parameter.string().key("channel").build();
 
     public ChatCommand(AurionChat plugin, RegisterCommandEvent<Command.Parameterized> commandManager){
-        super(AurionChat.config.channels.keySet());
+        super(plugin.getConfigurationAdapter().getChannels().keySet());
         this.plugin = plugin;
         register(commandManager);
         registerAliasChannels(commandManager);
@@ -73,7 +73,7 @@ public class ChatCommand extends ChatCommandCommon {
 
     private void registerAliasChannels(RegisterCommandEvent<Command.Parameterized> commandManager){
         Parameter.Value<String> messageParameter = Parameter.remainingJoinedStrings().optional().key("message").build();
-        AurionChat.config.channels.forEach((name, channel) -> {
+        plugin.getConfigurationAdapter().getChannels().forEach((name, channel) -> {
             Command.Parameterized aliasCmd = Command.builder()
                     .shortDescription(Component.text("AurionChat's command to send message on specific channel"))
                     .addParameter(Parameter.remainingJoinedStrings().optional().key("message").build())

@@ -1,9 +1,9 @@
 package com.mineaurion.aurionchat.forge.listeners;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.forge.AurionChat;
-import com.mineaurion.aurionchat.forge.AurionChatPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.util.text.ITextComponent;

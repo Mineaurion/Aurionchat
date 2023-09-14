@@ -1,7 +1,7 @@
 package com.mineaurion.aurionchat.bukkit.command;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
-import com.mineaurion.aurionchat.bukkit.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.command.ChatCommandCommon;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

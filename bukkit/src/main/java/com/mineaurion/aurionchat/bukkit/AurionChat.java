@@ -15,11 +15,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
 
-public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+public class AurionChat extends AbstractAurionChat {
 
     public final JavaPlugin plugin;
 
-    public static BukkitAudiences audiences;
+    public BukkitAudiences audiences;
+
+    private PlayerFactory playerFactory;
 
     public AurionChat(JavaPlugin plugin){
         this.plugin = plugin;
@@ -66,5 +68,19 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     @Override
     public PluginLogger getlogger() {
         return new JavaPluginLogger(Bukkit.getLogger());
+    }
+
+    public BukkitAudiences getAudiences(){
+        return audiences;
+    }
+
+    @Override
+    protected void setupPlayerFactory() {
+        this.playerFactory = new PlayerFactory(this);
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return playerFactory;
     }
 }

@@ -8,7 +8,7 @@ import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 public class Utils {
 
 
-    public static <T extends AurionChatPlayerCommon<?>> Component processMessage(String format, Component message, T aurionChatPlayer){
+    public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer){
         if(!aurionChatPlayer.isAllowedColors()){
             message = message.color(WHITE);
         }
@@ -21,11 +21,11 @@ public class Utils {
         return beforeMessage.append(message).append(afterMessage);
     }
 
-    private static Component replaceToken(String text, AurionChatPlayerCommon<?> aurionChatPlayer){
+    private static Component replaceToken(String text, AurionChatPlayer aurionChatPlayer){
         return LegacyComponentSerializer.legacy('&').deserialize(
-                text.replace("{prefix}", aurionChatPlayer.getPrefix())
-                        .replace("{suffix}", aurionChatPlayer.getSuffix())
-                        .replace("{display_name}", aurionChatPlayer.getDisplayName())
+                text.replace("{prefix}", aurionChatPlayer.getPlayer().getPreffix())
+                        .replace("{suffix}", aurionChatPlayer.getPlayer().getSuffix())
+                        .replace("{display_name}", aurionChatPlayer.getPlayer().getDisplayName())
         );
     }
 }

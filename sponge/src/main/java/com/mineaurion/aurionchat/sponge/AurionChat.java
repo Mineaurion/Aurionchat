@@ -28,7 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Plugin("aurionchat")
-public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+public class AurionChat extends AbstractAurionChat {
+
+    private PlayerFactory playerFactory;
 
     @Inject
     public PluginContainer container;
@@ -56,6 +58,11 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     }
 
     @Override
+    protected void setupPlayerFactory() {
+        this.playerFactory = new PlayerFactory();
+    }
+
+    @Override
     protected void registerCommands() {
         // look #onCommandRegister
     }
@@ -73,6 +80,11 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     @Override
     public ConfigurationAdapter getConfigurationAdapter() {
         return new SpongeConfigAdapter(this, resolveConfig());
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return playerFactory;
     }
 
     private Path resolveConfig() {

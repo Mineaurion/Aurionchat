@@ -1,8 +1,8 @@
 package com.mineaurion.aurionchat.fabric.command;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.command.ChatCommandCommon;
 import com.mineaurion.aurionchat.fabric.AurionChat;
-import com.mineaurion.aurionchat.fabric.AurionChatPlayer;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
