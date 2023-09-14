@@ -79,7 +79,7 @@ public class AurionChat extends AbstractAurionChat {
 
     @Override
     public ConfigurationAdapter getConfigurationAdapter() {
-        return new SpongeConfigAdapter(this, resolveConfig());
+        return new SpongeConfigAdapter(resolveConfig());
     }
 
     @Override

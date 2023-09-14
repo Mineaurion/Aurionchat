@@ -13,14 +13,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class ConfigurateConfigAdapter implements ConfigurationAdapter {
-
-    private final AbstractAurionChat<?> plugin;
-
     private final Path path;
     private ConfigurationNode root;
 
-    public ConfigurateConfigAdapter(AbstractAurionChat<?> plugin, Path path){
-        this.plugin = plugin;
+    public ConfigurateConfigAdapter(Path path){
         this.path = path;
         reload();
     }
@@ -47,11 +43,6 @@ public abstract class ConfigurateConfigAdapter implements ConfigurationAdapter {
     @Override
     public String getString(String path, String def) {
         return resolvePath(path).getString(def);
-    }
-
-    @Override
-    public int getInteger(String path, int def) {
-        return resolvePath(path).getInt(def);
     }
 
     @Override
@@ -84,10 +75,5 @@ public abstract class ConfigurateConfigAdapter implements ConfigurationAdapter {
             }
         }
         return Optional.empty();
-    }
-
-    @Override
-    public AbstractAurionChat<?> getPlugin() {
-        return this.plugin;
     }
 }

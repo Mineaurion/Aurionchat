@@ -32,7 +32,7 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
                 aurionChatPlayer
         );
         try {
-            ChatService.getInstance().send(currentChannel, messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         } catch (IOException e){
             this.plugin.getlogger().severe(e.getMessage());
         }

@@ -7,13 +7,10 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 
-public class LoginListener extends LoginListenerCommon {
-
-    private final AurionChat plugin;
+public class LoginListener extends LoginListenerCommon<AurionChat> {
 
     public LoginListener(AurionChat plugin){
         super(plugin);
-        this.plugin = plugin;
     }
 
     @SubscribeEvent

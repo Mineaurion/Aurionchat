@@ -32,11 +32,6 @@ public class BukkitConfigurationAdapter implements ConfigurationAdapter {
     }
 
     @Override
-    public int getInteger(String path, int def) {
-        return this.configuration.getInt(path, def);
-    }
-
-    @Override
     public boolean getBoolean(String path, boolean def) {
         return this.configuration.getBoolean(path, def);
     }
@@ -58,10 +53,5 @@ public class BukkitConfigurationAdapter implements ConfigurationAdapter {
             );
         }
         return map;
-    }
-
-    @Override
-    public AurionChat getPlugin() {
-        return this.plugin;
     }
 }

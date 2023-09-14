@@ -9,8 +9,8 @@ import java.nio.file.Path;
 
 public class FabricConfigAdapter extends ConfigurateConfigAdapter {
 
-    public FabricConfigAdapter(AurionChat plugin, Path path){
-        super(plugin, path);
+    public FabricConfigAdapter(Path path){
+        super(path);
     }
 
     @Override

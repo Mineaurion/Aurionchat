@@ -13,11 +13,8 @@ import org.bukkit.entity.Player;
 
 public class ChatCommand extends ChatCommandCommon implements CommandExecutor {
 
-    private final AurionChat plugin;
-
     public ChatCommand(AurionChat plugin) {
-        super(plugin.getConfigurationAdapter().getChannels().keySet());
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @Override
@@ -26,7 +23,7 @@ public class ChatCommand extends ChatCommandCommon implements CommandExecutor {
             if(!(sender instanceof Player)){
                 return false;
             }
-            AurionChatPlayer aurionChatPlayer = plugin.getAurionChatPlayers().get(Bukkit.getPlayer(sender.getName()).getUniqueId());
+            AurionChatPlayer aurionChatPlayer = getPlugin().getAurionChatPlayers().get(Bukkit.getPlayer(sender.getName()).getUniqueId());
             String command = args.length < 1 ? "DEFAULT" : args[0];
             String channel = (args.length == 2) ? args[1] : "";
 
@@ -43,8 +40,6 @@ public class ChatCommand extends ChatCommandCommon implements CommandExecutor {
                 return false;
             }
         }
-
         return false;
-
     }
 }

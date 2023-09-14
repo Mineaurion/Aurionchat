@@ -19,14 +19,14 @@ public class LuckPermsUtils {
     }
 
     public Optional<String> getPlayerPreffix(UUID uuid){
-        return Optional.ofNullable(this.getUser(uuid).getCachedData().getMetaData().getPrefix());
+        return Optional.ofNullable(getUser(uuid).getCachedData().getMetaData().getPrefix());
     }
 
     public Optional<String> getPlayerSuffix(UUID uuid) {
-        return Optional.ofNullable(this.getUser(uuid).getCachedData().getMetaData().getSuffix());
+        return Optional.ofNullable(getUser(uuid).getCachedData().getMetaData().getSuffix());
     }
 
     public boolean hasPermission(UUID uuid, String permission){
-        return this.getUser(uuid).getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+        return getUser(uuid).getCachedData().getPermissionData().checkPermission(permission).asBoolean();
     }
 }

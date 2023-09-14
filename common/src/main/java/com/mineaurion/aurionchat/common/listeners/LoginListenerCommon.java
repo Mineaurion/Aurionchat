@@ -4,10 +4,10 @@ import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.player.Player;
 
-public abstract class LoginListenerCommon {
-    public AbstractAurionChat plugin;
+public abstract class LoginListenerCommon<T extends AbstractAurionChat> {
+    public T plugin;
 
-    public LoginListenerCommon(AbstractAurionChat plugin){
+    public LoginListenerCommon(T plugin){
         this.plugin = plugin;
     }
 
@@ -20,5 +20,9 @@ public abstract class LoginListenerCommon {
             player.getUUID(),
             new AurionChatPlayer(player, plugin)
         );
+    }
+
+    public T getPlugin(){
+        return this.plugin;
     }
 }

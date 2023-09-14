@@ -9,13 +9,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class LoginListener extends LoginListenerCommon implements Listener {
-
-    private final AurionChat plugin;
+public class LoginListener extends LoginListenerCommon<AurionChat> implements Listener {
 
     public LoginListener(AurionChat plugin){
         super(plugin);
-        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOW)

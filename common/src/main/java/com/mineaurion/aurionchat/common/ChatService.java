@@ -22,32 +22,26 @@ public class ChatService {
 
     private Connection connection;
     private Channel channel;
-
-    private final String uri;
     protected boolean connected = false;
 
-    private AbstractAurionChat<?> plugin;
-
-    private static ChatService INSTANCE = null;
-
+    private final AbstractAurionChat plugin;
     private final ConfigurationAdapter config;
 
-    public static ChatService getInstance(){
-        return INSTANCE;
-    }
 
-    public ChatService(AbstractAurionChat<?> plugin) throws IOException {
+    public ChatService(AbstractAurionChat plugin) throws IOException {
         this.plugin = plugin;
         this.config = this.plugin.getConfigurationAdapter();
-        this.uri = this.config.getString("rabbitmq.uri", "amqp://guest:guest@localhost:5672/");
-        this.createConnection(uri);
-        INSTANCE = this;
+        this.createConnection(getUri());
+    }
+
+    public String getUri() {
+        return config.getString("rabbitmq.uri", "amqp://guest:guest@localhost:5672/");
     }
 
     private void createConnection(String uri) throws IOException {
         ConnectionFactory factory = new ConnectionFactory();
         try{
-            factory.setUri(uri);
+            factory.setUri(getUri());
             factory.setAutomaticRecoveryEnabled(true);
             factory.setTopologyRecoveryEnabled(true);
             factory.setNetworkRecoveryInterval(10000);
@@ -69,7 +63,7 @@ public class ChatService {
 
     public void reCreateConnection() throws IOException {
         this.close();
-        this.createConnection(this.uri);
+        this.createConnection(getUri());
     }
 
     private void join() throws IOException{

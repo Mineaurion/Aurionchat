@@ -7,13 +7,11 @@ import java.util.Optional;
 
 public interface ConfigurationAdapter {
 
-    AbstractAurionChat<?> getPlugin();
-
     void reload();
 
     String getString(String path, String def);
 
-    int getInteger(String path, int def);
+    // int getInteger(String path, int def);
 
     boolean getBoolean(String path, boolean def);
 //

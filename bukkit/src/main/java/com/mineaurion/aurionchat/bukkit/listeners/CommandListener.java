@@ -14,12 +14,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public class CommandListener implements CommandExecutor, Listener {
+public class CommandListener extends ChatCommandCommon implements CommandExecutor, Listener {
 
-    private final AurionChat aurionChat;
-
-    public CommandListener(AurionChat aurionChat){
-        this.aurionChat = aurionChat;
+    public CommandListener(AurionChat plugin){
+        super(plugin);
     }
 
     @EventHandler
@@ -29,12 +27,12 @@ public class CommandListener implements CommandExecutor, Listener {
         String message = String.join(" ",  (String[]) ArrayUtils.removeElement(fullCommand, "/" + command));
         Component messageComponent = LegacyComponentSerializer.legacy('&').deserialize(message);
 
-        aurionChat.getConfigurationAdapter().getChannelByNameOrAlias(command).ifPresent(channelName -> {
-            ChatCommandCommon.onCommand(
-                    aurionChat.getAurionChatPlayers().get(event.getPlayer().getUniqueId()),
+        getPlugin().getConfigurationAdapter().getChannelByNameOrAlias(command).ifPresent(channelName -> {
+            onCommand(
+                    getPlugin().getAurionChatPlayers().get(event.getPlayer().getUniqueId()),
                     messageComponent,
                     channelName,
-                    aurionChat.getConfigurationAdapter().getChannels().get(channelName).format
+                    getPlugin().getConfigurationAdapter().getChannels().get(channelName).format
             );
             event.setCancelled(true);
         });

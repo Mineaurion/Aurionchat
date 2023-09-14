@@ -9,8 +9,8 @@ import java.nio.file.Path;
 
 public class ForgeConfigAdapter extends ConfigurateConfigAdapter {
 
-    public ForgeConfigAdapter(AurionChat plugin, Path path){
-        super(plugin, path);
+    public ForgeConfigAdapter(Path path){
+        super(path);
     }
 
     @Override

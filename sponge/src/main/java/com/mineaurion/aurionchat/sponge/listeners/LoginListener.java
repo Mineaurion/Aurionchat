@@ -7,13 +7,10 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.living.player.KickPlayerEvent;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
-public class LoginListener extends LoginListenerCommon {
-
-    private final AurionChat plugin;
+public class LoginListener extends LoginListenerCommon<AurionChat> {
 
     public LoginListener(AurionChat plugin){
         super(plugin);
-        this.plugin = plugin;
     }
 
     @Listener
@@ -23,9 +20,7 @@ public class LoginListener extends LoginListenerCommon {
 
     @Listener
     public void onPlayerQuit(ServerSideConnectionEvent.Login event) {
-        Sponge.server().player(event.profile().uniqueId()).ifPresent(serverPlayer -> {
-            playerLeaving(plugin.getPlayerFactory().wrap(serverPlayer));
-        });
+        Sponge.server().player(event.profile().uniqueId()).ifPresent(serverPlayer -> playerLeaving(plugin.getPlayerFactory().wrap(serverPlayer)));
     }
 
     @Listener

@@ -6,22 +6,18 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class LoginListener extends LoginListenerCommon {
-
-    private final AurionChat plugin;
-
+public class LoginListener extends LoginListenerCommon<AurionChat> {
     public LoginListener(AurionChat plugin){
         super(plugin);
-        this.plugin = plugin;
     }
 
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        playerJoin(this.plugin.getPlayerFactory().wrap((ServerPlayerEntity) event.getPlayer()));
+        playerJoin(plugin.getPlayerFactory().wrap((ServerPlayerEntity) event.getPlayer()));
     }
 
     @SubscribeEvent
     public void onPlayerQuit(PlayerEvent.PlayerLoggedOutEvent event){
-        playerLeaving(this.plugin.getPlayerFactory().wrap((ServerPlayerEntity) event.getPlayer()));
+        playerLeaving(plugin.getPlayerFactory().wrap((ServerPlayerEntity) event.getPlayer()));
     }
 }

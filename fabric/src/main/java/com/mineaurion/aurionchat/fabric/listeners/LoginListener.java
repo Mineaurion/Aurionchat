@@ -4,13 +4,9 @@ import com.mineaurion.aurionchat.common.listeners.LoginListenerCommon;
 import com.mineaurion.aurionchat.fabric.AurionChat;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class LoginListener extends LoginListenerCommon {
-
-    private final AurionChat plugin;
-
+public class LoginListener extends LoginListenerCommon<AurionChat> {
     public LoginListener(AurionChat plugin){
         super(plugin);
-        this.plugin = plugin;
     }
 
     public void onPlayerJoin(ServerPlayerEntity player){

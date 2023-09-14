@@ -31,7 +31,7 @@ public class ChatListener {
                 aurionChatPlayer
         );
         try {
-            ChatService.getInstance().send(currentChannel, messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         } catch (IOException e) {
             LogManager.getLogger().error(e.getMessage());
         }

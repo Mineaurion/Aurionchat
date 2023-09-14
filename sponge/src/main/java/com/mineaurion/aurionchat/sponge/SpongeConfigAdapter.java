@@ -10,8 +10,8 @@ import java.nio.file.Path;
 
 public class SpongeConfigAdapter extends ConfigurateConfigAdapter implements ConfigurationAdapter {
 
-    public SpongeConfigAdapter(AurionChat plugin, Path path){
-        super(plugin, path);
+    public SpongeConfigAdapter(Path path){
+        super(path);
     }
 
     @Override

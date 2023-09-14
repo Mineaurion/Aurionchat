@@ -39,7 +39,7 @@ public class ChatListener {
         );
 
         try{
-            ChatService.getInstance().send(currentChannel, messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         }
         catch (Exception e){
            this.plugin.getlogger().severe(e.getMessage());

@@ -17,17 +17,17 @@ import java.io.IOException;
 
 public class ChatListener implements Listener {
 
-    private final AurionChat aurionChat;
+    private final AurionChat plugin;
 
-    public ChatListener(AurionChat aurionChat){
-        this.aurionChat = aurionChat;
+    public ChatListener(AurionChat plugin){
+        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event){
         Player player = event.getPlayer();
 
-        AurionChatPlayer aurionChatPlayer = this.aurionChat.getAurionChatPlayers().get(player.getUniqueId());
+        AurionChatPlayer aurionChatPlayer = plugin.getAurionChatPlayers().get(player.getUniqueId());
         if(!aurionChatPlayer.canSpeak()){
             event.setCancelled(true);
             return;
@@ -35,13 +35,13 @@ public class ChatListener implements Listener {
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
         Component messageFormat = Utils.processMessage(
-                aurionChat.getConfigurationAdapter().getChannels().get(currentChannel).format,
+                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 LegacyComponentSerializer.legacy('&').deserialize(event.getMessage()).asComponent(),
                 aurionChatPlayer
         );
 
         try{
-            ChatService.getInstance().send(currentChannel,messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         }
         catch(IOException e){
             Bukkit.getConsoleSender().sendMessage(e.getMessage());

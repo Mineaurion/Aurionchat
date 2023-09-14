@@ -58,7 +58,7 @@ public class AurionChat extends AbstractAurionChat implements DedicatedServerMod
 
     @Override
     public ConfigurationAdapter getConfigurationAdapter() {
-        return new FabricConfigAdapter(this, resolveConfig(AbstractAurionChat.ID + ".conf"));
+        return new FabricConfigAdapter(resolveConfig(AbstractAurionChat.ID + ".conf"));
     }
 
     @Override

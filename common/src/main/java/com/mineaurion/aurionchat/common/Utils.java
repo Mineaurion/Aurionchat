@@ -6,8 +6,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 public class Utils {
-
-
     public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer){
         if(!aurionChatPlayer.isAllowedColors()){
             message = message.color(WHITE);

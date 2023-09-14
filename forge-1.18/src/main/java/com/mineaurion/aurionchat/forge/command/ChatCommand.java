@@ -20,12 +20,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 
 public class ChatCommand extends ChatCommandCommon {
-
-    private final AurionChat plugin;
-
     public ChatCommand(AurionChat plugin, CommandDispatcher<CommandSourceStack> dispatcher){
-        super(plugin.getConfigurationAdapter().getChannels().keySet());
-        this.plugin = plugin;
+        super(plugin);
         register(dispatcher);
         registerAliasChannels(dispatcher);
     }
@@ -33,7 +29,7 @@ public class ChatCommand extends ChatCommandCommon {
     public void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         RequiredArgumentBuilder<CommandSourceStack, String> channelArg = Commands.argument("channel", StringArgumentType.string()).suggests(((context, builder) -> {
-            plugin.getConfigurationAdapter().getChannels().forEach((name, channel) -> builder.suggest(name));
+            getPlugin().getConfigurationAdapter().getChannels().forEach((name, channel) -> builder.suggest(name));
             return builder.buildFuture();
         }));
 
@@ -73,9 +69,9 @@ public class ChatCommand extends ChatCommandCommon {
     public void registerAliasChannels(CommandDispatcher<CommandSourceStack> dispatcher){
         RequiredArgumentBuilder<CommandSourceStack, MessageArgument.Message> messageArg = Commands.argument("message", MessageArgument.message());
 
-        plugin.getConfigurationAdapter().getChannels().forEach((name, channel) -> {
+        getPlugin().getConfigurationAdapter().getChannels().forEach((name, channel) -> {
             ArgumentBuilder<CommandSourceStack, RequiredArgumentBuilder<CommandSourceStack, MessageArgument.Message>> argBuilder = messageArg.executes(ctx -> (onCommand(
-                    this.plugin.getAurionChatPlayers().get(ctx.getSource().getPlayerOrException().getUUID()),
+                    getPlugin().getAurionChatPlayers().get(ctx.getSource().getPlayerOrException().getUUID()),
                     GsonComponentSerializer.gson().deserialize(Component.Serializer.toJson(MessageArgument.getMessage(ctx, "message"))),
                     name,
                     channel.format)) ? 1 : 0
@@ -93,7 +89,7 @@ public class ChatCommand extends ChatCommandCommon {
     private int execute(CommandContext<CommandSourceStack> ctx, Action action) {
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
-            AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.getUUID());
+            AurionChatPlayer aurionChatPlayer = getPlugin().getAurionChatPlayers().get(player.getUUID());
             String channel;
             try{
                 channel = StringArgumentType.getString(ctx, "channel");

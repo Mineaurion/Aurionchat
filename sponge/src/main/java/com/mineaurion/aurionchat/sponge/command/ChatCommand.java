@@ -10,23 +10,18 @@ import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.plugin.PluginContainer;
 
 public class ChatCommand extends ChatCommandCommon {
-
-    private final AurionChat plugin;
-
     Parameter.Value<String> channel = Parameter.string().key("channel").build();
 
     public ChatCommand(AurionChat plugin, RegisterCommandEvent<Command.Parameterized> commandManager){
-        super(plugin.getConfigurationAdapter().getChannels().keySet());
-        this.plugin = plugin;
-        register(commandManager);
-        registerAliasChannels(commandManager);
+        super(plugin);
+        commandManager.register(plugin.container, register(), "channel", "ch");
+        registerAliasChannels(commandManager, plugin.container);
     }
 
-    private void register(RegisterCommandEvent<Command.Parameterized> commandManager){
-
-
+    private Command.Parameterized register(){
         Command.Parameterized join = Command.builder()
                 .permission("aurionchat.command.channel")
                 .addParameter(channel)
@@ -56,7 +51,7 @@ public class ChatCommand extends ChatCommandCommon {
                 .executor(ctx -> this.execute(ctx, Action.RELOAD))
                 .build();
 
-        Command.Parameterized cmdChat = Command.builder()
+        return Command.builder()
                 .shortDescription(Component.text("AurionChat's command to manage chat channels"))
                 .executionRequirements(context -> context.cause().root() instanceof ServerPlayer)
                 .addChild(join, "join")
@@ -66,14 +61,11 @@ public class ChatCommand extends ChatCommandCommon {
                 .addChild(reload, "reload")
                 .executor(ctx -> this.execute(ctx, Action.DEFAULT))
                 .build();
-
-
-        commandManager.register(this.plugin.container, cmdChat,"channel", "ch");
     }
 
-    private void registerAliasChannels(RegisterCommandEvent<Command.Parameterized> commandManager){
+    private void registerAliasChannels(RegisterCommandEvent<Command.Parameterized> commandManager, PluginContainer container){
         Parameter.Value<String> messageParameter = Parameter.remainingJoinedStrings().optional().key("message").build();
-        plugin.getConfigurationAdapter().getChannels().forEach((name, channel) -> {
+        getPlugin().getConfigurationAdapter().getChannels().forEach((name, channel) -> {
             Command.Parameterized aliasCmd = Command.builder()
                     .shortDescription(Component.text("AurionChat's command to send message on specific channel"))
                     .addParameter(Parameter.remainingJoinedStrings().optional().key("message").build())
@@ -81,20 +73,20 @@ public class ChatCommand extends ChatCommandCommon {
                     .executor(ctx -> {
                         ServerPlayer player = (ServerPlayer) ctx.cause().root();
                         return onCommand(
-                                this.plugin.getAurionChatPlayers().get(player.uniqueId()),
+                                getPlugin().getAurionChatPlayers().get(player.uniqueId()),
                                 Component.text(ctx.requireOne(messageParameter)),
                                 name,
                                 channel.format
                         ) ? CommandResult.success() :CommandResult.error(Component.text("Error when executing the command"));
                     }).build();
-            commandManager.register(this.plugin.container, aliasCmd, channel.alias, name);
+            commandManager.register(container, aliasCmd, channel.alias, name);
         });
     }
 
     public CommandResult execute(CommandContext context, Action action) {
         String channel  = context.requireOne(this.channel);
         ServerPlayer player = (ServerPlayer) context.cause().root();
-        AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.uniqueId());
+        AurionChatPlayer aurionChatPlayer = getPlugin().getAurionChatPlayers().get(player.uniqueId());
         return this.execute(aurionChatPlayer, channel, action) ? CommandResult.success() : CommandResult.error(Component.text("Error when executing the command"));
     }
 }

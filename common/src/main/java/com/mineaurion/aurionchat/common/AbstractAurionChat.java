@@ -17,10 +17,6 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
 
     public static final String ID = "aurionchat";
 
-    public Map<UUID,AurionChatPlayer> getAurionChatPlayers() {
-        return aurionChatPlayers;
-    }
-
     private Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
     private ChatService chatService;
@@ -71,6 +67,14 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
             }
         }
         return configFile;
+    }
+
+    public ChatService getChatService(){
+        return chatService;
+    }
+
+    public Map<UUID,AurionChatPlayer> getAurionChatPlayers() {
+        return aurionChatPlayers;
     }
 
     protected abstract void registerPlatformListeners();

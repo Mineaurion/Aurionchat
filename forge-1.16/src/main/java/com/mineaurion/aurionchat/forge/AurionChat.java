@@ -80,7 +80,7 @@ public class AurionChat extends AbstractAurionChat {
 
     @Override
     public ConfigurationAdapter getConfigurationAdapter() {
-        return new ForgeConfigAdapter(this, resolveConfig(AbstractAurionChat.ID + ".conf"));
+        return new ForgeConfigAdapter(resolveConfig(AbstractAurionChat.ID + ".conf"));
     }
 
     @Override
