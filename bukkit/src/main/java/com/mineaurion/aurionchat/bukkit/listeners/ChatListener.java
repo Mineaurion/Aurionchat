@@ -35,7 +35,7 @@ public class ChatListener implements Listener {
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
         Component messageFormat = Utils.processMessage(
-                AurionChat.config.channels.get(currentChannel).format,
+                aurionChat.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 LegacyComponentSerializer.legacy('&').deserialize(event.getMessage()).asComponent(),
                 aurionChatPlayer
         );

@@ -7,14 +7,17 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
 
+    private final AurionChat plugin;
+
     public LoginListener(AurionChat plugin){
         super(plugin.getAurionChatPlayers());
+        this.plugin = plugin;
     }
 
     public void onPlayerJoin(ServerPlayerEntity player){
         aurionChatPlayers.putIfAbsent(
                 player.getUuid(),
-                new AurionChatPlayer(player, AurionChat.config.channels.keySet())
+                new AurionChatPlayer(player, plugin.getConfigurationAdapter().getChannels().keySet())
         );
     }
 

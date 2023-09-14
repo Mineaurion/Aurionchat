@@ -1,6 +1,7 @@
 package com.mineaurion.aurionchat.fabric;
 
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.common.logger.Slf4jPluginLogger;
 import com.mineaurion.aurionchat.fabric.command.ChatCommand;
@@ -11,23 +12,18 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
 
 public class AurionChat extends AbstractAurionChat<AurionChatPlayer> implements DedicatedServerModInitializer {
     public static final String ID = "aurionchat";
-    public static Config config;
 
     @Override
     public void onInitializeServer() {
         getlogger().info("AurionChat Initializing");
-        config = new Config();
-        config.load();
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.enable(
-                Config.Rabbitmq.uri,
-                Config.Options.spy,
-                Config.Options.automessage,
-                true
-        ));
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.enable(true));
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> new ChatCommand(this, dispatcher));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> this.disable());
@@ -50,6 +46,16 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> implements 
 
     @Override
     protected void disablePlugin() {}
+
+    @Override
+    public ConfigurationAdapter getConfigurationAdapter() {
+        return new FabricConfigAdapter(this, resolveConfig(AbstractAurionChat.ID + ".conf"));
+    }
+
+    @Override
+    protected Path getConfigDirectory() {
+        return FabricLoader.getInstance().getGameDir().resolve("mods").resolve(AbstractAurionChat.ID);
+    }
 
     @Override
     public PluginLogger getlogger() {

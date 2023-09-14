@@ -1,15 +1,18 @@
 package com.mineaurion.aurionchat.common;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
@@ -23,22 +26,22 @@ public class ChatService {
     private final String uri;
     protected boolean connected = false;
 
-    private final DeliverCallback consumer;
+    private AbstractAurionChat<?> plugin;
 
     private static ChatService INSTANCE = null;
 
-    private final MiniMessage miniMessage;
+    private final ConfigurationAdapter config;
 
     public static ChatService getInstance(){
         return INSTANCE;
     }
 
-    public ChatService(String uri, DeliverCallback consumer) throws IOException {
-        this.uri = uri;
-        this.consumer = consumer;
+    public ChatService(AbstractAurionChat<?> plugin) throws IOException {
+        this.plugin = plugin;
+        this.config = this.plugin.getConfigurationAdapter();
+        this.uri = this.config.getString("rabbitmq.uri", "amqp://guest:guest@localhost:5672/");
         this.createConnection(uri);
         INSTANCE = this;
-        miniMessage = MiniMessage.miniMessage();
     }
 
     private void createConnection(String uri) throws IOException {
@@ -74,11 +77,39 @@ public class ChatService {
 
         String queue = channel.queueDeclare().getQueue();
         channel.queueBind(queue, EXCHANGE_NAME, "");
-        channel.basicConsume(queue, true, consumer, consumerTag -> {});
+        channel.basicConsume(queue, true, consumer(), consumerTag -> {});
+    }
+
+    private DeliverCallback consumer(){
+        return (consumerTag, delivery) -> {
+            JsonObject json = new JsonParser().parse(new String(delivery.getBody(), StandardCharsets.UTF_8)).getAsJsonObject();
+
+            String channel = json.get("channel").getAsString();
+            String message = json.get("message").getAsString();
+            String type = json.get("type").getAsString();
+            Component messageDeserialize = GsonComponentSerializer.gson().deserialize(message);
+
+            plugin.getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
+                if(type.equalsIgnoreCase("automessage") && this.config.getBoolean("options.automessage", false)){
+                    if(aurionChatPlayers.hasPermission("aurionchat.automessage." + channel)){
+                        aurionChatPlayers.sendMessage(messageDeserialize);
+                    }
+                } else if (type.equalsIgnoreCase("chat")) {
+                    if(this.config.getBoolean("options.spy", false)){
+                        plugin.getlogger().info(message);
+                    }
+                    if(aurionChatPlayers.getChannels().contains(channel)){
+                        aurionChatPlayers.sendMessage(messageDeserialize);
+                    }
+                } else {
+                    plugin.getlogger().warn("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
+                }
+            });
+        };
     }
 
     public void send(String channelName, Component message) throws IOException {
-        String serializedMessage = miniMessage.serialize(message);
+        String serializedMessage = GsonComponentSerializer.gson().serialize(message);
 
         JsonObject json = new JsonObject();
         json.addProperty("channel", channelName);

@@ -2,69 +2,45 @@ package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.sponge.command.ChatCommand;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
 import org.apache.logging.log4j.LogManager;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
-import org.spongepowered.configurate.loader.ConfigurationLoader;
-import org.spongepowered.configurate.reference.ConfigurationReference;
-import org.spongepowered.configurate.reference.ValueReference;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Plugin("aurionchat")
 public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
 
-    public static final String ID = "aurionchat";
-
     @Inject
     public PluginContainer container;
-    @Inject @DefaultConfig(sharedRoot = true)
-    public Path path;
-    @Inject
-    ConfigurationLoader<CommentedConfigurationNode> loader;
-    @Inject
-    Game game;
 
-    public static Config config;
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    private Path configDirectory;
 
     @Listener
-    public void Init(ConstructPluginEvent event) throws IOException {
+    public void Init(ConstructPluginEvent event) {
         getlogger().info("AurionChat Initializing");
-        ConfigurationReference<CommentedConfigurationNode> configurationReference = HoconConfigurationLoader.builder().path(path).build().loadToReference();
-        ValueReference<Config, CommentedConfigurationNode> configRef = configurationReference.referenceTo(Config.class);
-
-        if(!Files.exists(path)) {
-            configurationReference.save();
-        } else {
-            configurationReference.load();
-        }
-        config = configRef.get();
-
-        this.enable(
-                config.rabbitmq.uri,
-                config.options.spy,
-                config.options.automessage,
-                true
-        );
+        this.enable(true);
     }
 
     @Listener
@@ -92,6 +68,43 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     @Override
     protected void disablePlugin() {
         Sponge.eventManager().unregisterListeners(this);
+    }
+
+    @Override
+    public ConfigurationAdapter getConfigurationAdapter() {
+        return new SpongeConfigAdapter(this, resolveConfig());
+    }
+
+    private Path resolveConfig() {
+        Path path = getConfigDirectory().resolve(AurionChat.ID + ".conf");
+        if (!Files.exists(path)) {
+            try {
+                createDirectoriesIfNotExists(getConfigDirectory());
+                try (InputStream is = getClass().getClassLoader().getResourceAsStream(AurionChat.ID + ".conf")) {
+                    Files.copy(is, path);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return path;
+    }
+
+    public static void createDirectoriesIfNotExists(Path path) throws IOException {
+        if (Files.exists(path) && (Files.isDirectory(path) || Files.isSymbolicLink(path))) {
+            return;
+        }
+
+        try {
+            Files.createDirectories(path);
+        } catch (FileAlreadyExistsException e) {
+            // ignore
+        }
+    }
+
+    @Override
+    protected Path getConfigDirectory() {
+        return configDirectory;
     }
 
     @Override

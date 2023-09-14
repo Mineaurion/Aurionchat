@@ -26,7 +26,7 @@ public class ChatListener {
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(event.getPlayer().getUUID());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
         Component messageFormat = Utils.processMessage(
-                AurionChat.config.getChannels().get(currentChannel).format,
+                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 GsonComponentSerializer.gson().deserialize(ITextComponent.Serializer.toJson(event.getComponent())),
                 aurionChatPlayer
         );

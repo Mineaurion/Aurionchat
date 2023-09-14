@@ -1,20 +1,20 @@
 package com.mineaurion.aurionchat.common;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
-import com.rabbitmq.client.DeliverCallback;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.luckperms.api.LuckPermsProvider;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> implements AurionChatPlugin {
+
+    public static final String ID = "aurionchat";
 
     public Map<UUID,T> getAurionChatPlayers() {
         return aurionChatPlayers;
@@ -28,11 +28,11 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
 
     private final PluginLogger logger = getlogger();
 
-    public final void enable(String uri, boolean spy, boolean autoMessage, boolean withLuckPerms){
+    public final void enable(boolean withLuckPerms){
         //send message for startup
         try {
             aurionChatPlayers = new HashMap<>();
-            chatService = new ChatService(uri, consumer(autoMessage, spy));
+            chatService = new ChatService(this);
             logger.info("AurionChat Connected to Rabbitmq");
             registerPlatformListeners(); // if no error , init of the "plugin"
             registerCommands();
@@ -52,36 +52,46 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
         }
     }
 
+    protected Path resolveConfig(String filename){
+        Path configFile = getConfigDirectory().resolve(filename);
+
+        if(!Files.exists(configFile)){
+            try {
+                Files.createDirectories(configFile.getParent());
+            } catch (IOException e){
+                //ignore
+            }
+
+            try(InputStream is = getRessourceStream(filename)){
+                Files.copy(is, configFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return configFile;
+    }
+
     protected abstract void registerPlatformListeners();
     protected abstract void registerCommands();
 
     protected abstract void disablePlugin();
 
-    private DeliverCallback consumer(boolean autoMessage, boolean spy){
-        return (consumerTag, delivery) -> {
-            JsonObject json = new JsonParser().parse(new String(delivery.getBody(), StandardCharsets.UTF_8)).getAsJsonObject();
+    public abstract ConfigurationAdapter getConfigurationAdapter();
 
-            String channel = json.get("channel").getAsString();
-            String message = json.get("message").getAsString();
-            String type = json.get("type").getAsString();
-            Component messageDeserialize = MiniMessage.miniMessage().deserialize(message);
+    /**
+     * Gets the plugins main data storage directory
+     *
+     * <p>Bukkit: ./plugins/Economy</p>
+     * <p>Sponge: ./Economy/</p>
+     * <p>Fabric: ./mods/Economy</p>
+     * <p>Forge: ./config/Economy</p>
+     *
+     * @return the platforms data folder
+     */
+    protected abstract Path getConfigDirectory();
 
-            getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
-                if(type.equalsIgnoreCase("automessage") && autoMessage){
-                    if(aurionChatPlayers.hasPermission("aurionchat.automessage." + channel)){
-                        aurionChatPlayers.sendMessage(messageDeserialize);
-                    }
-                } else if (type.equalsIgnoreCase("chat")) {
-                    if(spy){
-                        logger.info(message);
-                    }
-                    if(aurionChatPlayers.getChannels().contains(channel)){
-                        aurionChatPlayers.sendMessage(messageDeserialize);
-                    }
-                } else {
-                    logger.warn("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
-                }
-            });
-        };
+    private InputStream getRessourceStream(String path){
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
+
 }

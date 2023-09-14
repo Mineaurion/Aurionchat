@@ -21,7 +21,7 @@ public class ChatCommand extends ChatCommandCommon {
 
     private final AurionChat plugin;
     public ChatCommand(AurionChat plugin, CommandDispatcher<ServerCommandSource> dispatcher) {
-        super(AurionChat.config.channels.keySet());
+        super(plugin.getConfigurationAdapter().getChannels().keySet());
         this.plugin = plugin;
         register(dispatcher);
         registerAliasChannels(dispatcher);
@@ -29,7 +29,7 @@ public class ChatCommand extends ChatCommandCommon {
 
     public void register(CommandDispatcher<ServerCommandSource> dispatcher){
         RequiredArgumentBuilder<ServerCommandSource, String> channelArg = CommandManager.argument("channel", StringArgumentType.string()).suggests((context, builder) -> {
-            AurionChat.config.channels.forEach((name, channel) -> builder.suggest(name));
+            plugin.getConfigurationAdapter().getChannels().forEach((name, chanel) -> builder.suggest(name));
             return builder.buildFuture();
         });
 
@@ -84,8 +84,7 @@ public class ChatCommand extends ChatCommandCommon {
 
     private void registerAliasChannels(CommandDispatcher<ServerCommandSource> dispatcher){
         RequiredArgumentBuilder<ServerCommandSource, MessageArgumentType.MessageFormat> messageArg = CommandManager.argument("message", MessageArgumentType.message());
-
-        AurionChat.config.channels.forEach((name, channel) -> {
+        plugin.getConfigurationAdapter().getChannels().forEach((name, channel) -> {
             ArgumentBuilder<ServerCommandSource, RequiredArgumentBuilder<ServerCommandSource, MessageArgumentType.MessageFormat>> argBuilder = messageArg.executes(ctx -> (onCommand(
                     this.plugin.getAurionChatPlayers().get(ctx.getSource().getPlayer().getUuid()),
                     GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(MessageArgumentType.getMessage(ctx, "message"))),

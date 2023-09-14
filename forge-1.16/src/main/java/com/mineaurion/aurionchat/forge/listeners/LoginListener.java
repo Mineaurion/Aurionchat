@@ -9,8 +9,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
 
+    private final AurionChat plugin;
+
     public LoginListener(AurionChat plugin){
         super(plugin.getAurionChatPlayers());
+        this.plugin = plugin;
     }
 
     @SubscribeEvent
@@ -18,7 +21,7 @@ public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
     {
         aurionChatPlayers.putIfAbsent(
                 event.getPlayer().getUUID(),
-                new AurionChatPlayer((ServerPlayerEntity) event.getPlayer(), AurionChat.config.getChannels().keySet())
+                new AurionChatPlayer((ServerPlayerEntity) event.getPlayer(), plugin.getConfigurationAdapter().getChannels().keySet())
         );
     }
 

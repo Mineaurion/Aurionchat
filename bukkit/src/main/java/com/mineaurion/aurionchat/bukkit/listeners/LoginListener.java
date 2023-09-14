@@ -12,8 +12,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class LoginListener extends LoginListenerCommon<AurionChatPlayer> implements Listener {
 
-    public LoginListener(AurionChat aurionChat){
-        super(aurionChat.getAurionChatPlayers());
+    private final AurionChat plugin;
+
+    public LoginListener(AurionChat plugin){
+        super(plugin.getAurionChatPlayers());
+        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -30,7 +33,7 @@ public class LoginListener extends LoginListenerCommon<AurionChatPlayer> impleme
     public void onPlayerJoin(PlayerJoinEvent event){
         aurionChatPlayers.putIfAbsent(
                 event.getPlayer().getUniqueId(),
-                new AurionChatPlayer(event.getPlayer(), AurionChat.config.channels.keySet())
+                new AurionChatPlayer(event.getPlayer(), plugin.getConfigurationAdapter().getChannels().keySet())
         );
     }
 }

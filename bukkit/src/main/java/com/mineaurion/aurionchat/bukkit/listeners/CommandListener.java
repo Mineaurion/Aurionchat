@@ -29,12 +29,13 @@ public class CommandListener implements CommandExecutor, Listener {
         String message = String.join(" ",  (String[]) ArrayUtils.removeElement(fullCommand, "/" + command));
         Component messageComponent = LegacyComponentSerializer.legacy('&').deserialize(message);
 
-        AurionChat.config.getChannelByNameOrAlias(command).ifPresent(channelName -> {
+        aurionChat.getConfigurationAdapter().getChannelByNameOrAlias(command).ifPresent(channelName -> {
             ChatCommandCommon.onCommand(
-                    this.aurionChat.getAurionChatPlayers().get(event.getPlayer().getUniqueId()),
+                    aurionChat.getAurionChatPlayers().get(event.getPlayer().getUniqueId()),
                     messageComponent,
                     channelName,
-                    AurionChat.config.channels.get(channelName).format);
+                    aurionChat.getConfigurationAdapter().getChannels().get(channelName).format
+            );
             event.setCancelled(true);
         });
     }

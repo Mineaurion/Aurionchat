@@ -1,25 +1,21 @@
 package com.mineaurion.aurionchat.forge;
 
-import com.electronwill.nightconfig.core.conversion.ObjectConverter;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.forge.command.ChatCommand;
-import com.mineaurion.aurionchat.forge.config.Config;
-import com.mineaurion.aurionchat.forge.config.ConfigData;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
-import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 
@@ -30,38 +26,24 @@ import static net.minecraftforge.fml.ExtensionPoint.DISPLAYTEST;
 @Mod("aurionchat")
 public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
 
-    public static final String ID = "aurionchat";
-    public static ConfigData config;
-    public static Path channelsJsonPath;
-
-
     public AurionChat() {
         getlogger().info("AurionChat Initializing");
         ModLoadingContext.get().registerExtensionPoint(DISPLAYTEST, () -> Pair.of(
                 () -> FMLNetworkConstants.IGNORESERVERONLY, // ignore me, I'm a server only mod
                 (s,b) -> true // I accept anything from the server or the save, if I'm asked
         ));
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SPEC, "aurionchat.toml");
-        config = (new ObjectConverter().toObject(Config.SPEC.getValues(), ConfigData::new));
-
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void serverAboutToStart(FMLServerAboutToStartEvent event){
-        channelsJsonPath = ServerLifecycleHooks.getCurrentServer().getWorldPath(new FolderName("serverconfig/aurionchat-channels.json"));
         new ChatCommand(this, event.getServer().getCommands().getDispatcher());
     }
 
     @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
-        this.enable(
-                config.rabbitmq.uri.get(),
-                config.options.spy.get(),
-                config.options.autoMessage.get(),
-                false
-        );
+        this.enable(false);
     }
 
     @SubscribeEvent
@@ -84,6 +66,16 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     protected void disablePlugin() {
         // TODO: need to be tweaked to remove all listener
         MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    @Override
+    public ConfigurationAdapter getConfigurationAdapter() {
+        return new ForgeConfigAdapter(this, resolveConfig(AbstractAurionChat.ID + ".conf"));
+    }
+
+    @Override
+    protected Path getConfigDirectory() {
+        return FMLPaths.CONFIGDIR.get().resolve(AbstractAurionChat.ID).toAbsolutePath();
     }
 
     @Override

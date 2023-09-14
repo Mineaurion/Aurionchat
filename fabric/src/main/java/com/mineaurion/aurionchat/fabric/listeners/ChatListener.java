@@ -27,7 +27,7 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(sender.getUuid());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
         Component messageFormat = Utils.processMessage(
-                AurionChat.config.channels.get(currentChannel).format,
+                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(message.getContent())),
                 aurionChatPlayer
         );
