@@ -68,24 +68,7 @@ You can put any color code beetwen the token or any characters if you want.
 
 The mod need FTBRanks to be working with a minimal version of 1605.1.5. 
 
-You need to have a file named aurionchat-channels.json next to aurionchat.toml. The purpose of this file is to contain the channels configuration:
-
-```JSON
-{
-  "global": {
-    "format": "[&aGlobal&f] {prefix}{display_name} : &f{message}",
-    "alias": "g"
-  },
-  "infinity": {
-    "format": "[&6I&f] {prefix}{display_name} : &f{message}",
-    "alias": "inf"
-  },
-  "<name of the channel>": {
-    "format": "Format of the channel, check above for more info",
-    "alias": "justanaliasforthecommand" 
-  }
-}
-```
+The config file is the same syntax as the sponge one.
 
 <details>
   <summary>Server crash with this error : java.lang.NoClassDefFoundError: org/slf4j/spi/SLF4JServiceProviderg</summary>
@@ -116,7 +99,7 @@ Follow the [1.16](https://github.com/Mineaurion/aurionchat#forge-116) section fo
 
 ## Fabric
 
-The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20 and [CompleteConfig](https://modrinth.com/mod/completeconfig/versions) with a minimal version of 2.1.0 . The config file is the same syntax as the sponge one.
+The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20. The config file is the same syntax as the sponge one.
 
 ## Automessage
 
