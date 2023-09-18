@@ -1,9 +1,12 @@
 package com.mineaurion.aurionchat.forge.listeners;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.forge.AurionChat;
-import com.mineaurion.aurionchat.forge.AurionChatPlayer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -22,9 +25,13 @@ public class ChatListener {
 
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(event.getPlayer().getUUID());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = Utils.processMessage(AurionChat.config.getChannels().get(currentChannel).format, event.getMessage(), aurionChatPlayer);
+        Component messageFormat = Utils.processMessage(
+                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
+                GsonComponentSerializer.gson().deserialize(ITextComponent.Serializer.toJson(event.getComponent())),
+                aurionChatPlayer
+        );
         try {
-            ChatService.getInstance().send(currentChannel, messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         } catch (IOException e) {
             LogManager.getLogger().error(e.getMessage());
         }

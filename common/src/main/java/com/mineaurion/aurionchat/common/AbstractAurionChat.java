@@ -1,23 +1,23 @@
 package com.mineaurion.aurionchat.common;
 
-import com.google.gson.JsonParser;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
-import com.rabbitmq.client.DeliverCallback;
+import com.mineaurion.aurionchat.common.player.PlayerFactory;
 import net.luckperms.api.LuckPermsProvider;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> implements AurionChatPlugin {
+public abstract class AbstractAurionChat implements AurionChatPlugin {
 
-    public Map<UUID,T> getAurionChatPlayers() {
-        return aurionChatPlayers;
-    }
+    public static final String ID = "aurionchat";
 
-    private Map<UUID, T> aurionChatPlayers;
+    private Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
     private ChatService chatService;
 
@@ -25,18 +25,15 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
 
     private final PluginLogger logger = getlogger();
 
-    public final void enable(String uri, String serverName, boolean spy, boolean autoMessage, boolean withLuckPerms){
-
+    public final void enable(){
         //send message for startup
         try {
             aurionChatPlayers = new HashMap<>();
-            chatService = new ChatService(uri, serverName, consumer(autoMessage, spy));
+            chatService = new ChatService(this);
             logger.info("AurionChat Connected to Rabbitmq");
+            setupPlayerFactory();
             registerPlatformListeners(); // if no error , init of the "plugin"
             registerCommands();
-            if(withLuckPerms){
-                luckPermsUtils = new LuckPermsUtils(LuckPermsProvider.get());
-            }
         } catch (IOException e) {
             // perform action in case of error
             disablePlugin();
@@ -50,33 +47,59 @@ public abstract class AbstractAurionChat<T extends AurionChatPlayerCommon<?>> im
         }
     }
 
+    protected Path resolveConfig(String filename){
+        Path configFile = getConfigDirectory().resolve(filename);
+
+        if(!Files.exists(configFile)){
+            try {
+                Files.createDirectories(configFile.getParent());
+            } catch (IOException e){
+                //ignore
+            }
+
+            try(InputStream is = getRessourceStream(filename)){
+                Files.copy(is, configFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return configFile;
+    }
+
+    public ChatService getChatService(){
+        return chatService;
+    }
+
+    public Map<UUID,AurionChatPlayer> getAurionChatPlayers() {
+        return aurionChatPlayers;
+    }
+
     protected abstract void registerPlatformListeners();
+
+    protected abstract void setupPlayerFactory();
+
     protected abstract void registerCommands();
 
     protected abstract void disablePlugin();
 
-    private DeliverCallback consumer(boolean autoMessage, boolean spy){
-        return (consumerTag, delivery) -> {
-            String json = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            String[] routingKeySplit = delivery.getEnvelope().getRoutingKey().split("\\.");
+    public abstract ConfigurationAdapter getConfigurationAdapter();
 
-            String message = new JsonParser().parse(json).getAsJsonObject().get("message").getAsString();
-            String type = routingKeySplit[1];
-            String channel = routingKeySplit[2].toLowerCase();
+    public abstract PlayerFactory<?> getPlayerFactory();
 
-            if(type.equalsIgnoreCase("automessage")){
-                if(autoMessage){
-                  Utils.broadcastToPlayer(channel, message, getAurionChatPlayers());
-                }
-            } else if(type.equalsIgnoreCase("chat")) {
-                if(spy){
-                    logger.info(message); // TODO: need to be rework for better log
-                }
-                Utils.sendMessageToPlayer(channel, message, getAurionChatPlayers());
-            } else {
-                logger.warn("Received message with the type " + type + " and the message was " + message + ". It won't be processed");
-            }
-        };
+    /**
+     * Gets the plugins main data storage directory
+     *
+     * <p>Bukkit: ./plugins/Economy</p>
+     * <p>Sponge: ./Economy/</p>
+     * <p>Fabric: ./mods/Economy</p>
+     * <p>Forge: ./config/Economy</p>
+     *
+     * @return the platforms data folder
+     */
+    protected abstract Path getConfigDirectory();
 
+    private InputStream getRessourceStream(String path){
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
+
 }

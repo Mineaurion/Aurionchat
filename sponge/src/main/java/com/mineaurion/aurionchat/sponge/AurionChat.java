@@ -2,100 +2,121 @@ package com.mineaurion.aurionchat.sponge;
 
 import com.google.inject.Inject;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.sponge.command.ChatCommand;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.apache.logging.log4j.LogManager;
-import org.spongepowered.api.Game;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStoppingEvent;
-import org.spongepowered.api.plugin.Dependency;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Plugin(
-        id = "aurionchat",
-        name = "Aurionchat",
-        url = "https://mineaurion.com",
-        description = "Chat across server with rabbitmq",
-        authors = {
-                "Yann151924"
-        },
-        version = "@projectVersion@",
-        dependencies = {
-            @Dependency(id= "luckperms")
-        }
-)
-public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+@Plugin("aurionchat")
+public class AurionChat extends AbstractAurionChat {
 
-    public static final String ID = "aurionchat";
-    @Inject @DefaultConfig(sharedRoot = true)
-    public Path path;
-    @Inject @DefaultConfig(sharedRoot = true)
-    ConfigurationLoader<CommentedConfigurationNode> loader;
+    private PlayerFactory playerFactory;
+
     @Inject
-    Game game;
+    public PluginContainer container;
 
-    public static Config config;
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    private Path configDirectory;
 
     @Listener
-    public void Init(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
+    public void Init(ConstructPluginEvent event) {
         getlogger().info("AurionChat Initializing");
-        if(!Files.exists(path)){
-            game.getAssetManager().getAsset(this, "config.conf").ifPresent(asset -> {
-                try {
-                    asset.copyToFile(path);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-        config = loader.load().getValue(Config.type);
-        this.enable(
-                config.rabbitmq.uri,
-                config.rabbitmq.servername,
-                config.options.spy,
-                config.options.automessage,
-                true
-        );
+        this.enable();
     }
 
-
     @Listener
-    public void onServerStop(GameStoppingEvent event){
+    public void onServerStop(StoppingEngineEvent<Server> event){
         this.disable();
     }
 
     @Override
     protected void registerPlatformListeners() {
-        EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListeners(this, new LoginListener(this));
-        eventManager.registerListeners(this, new ChatListener(this));
+        EventManager eventManager = Sponge.eventManager();
+        eventManager.registerListeners(this.container, new LoginListener(this));
+        eventManager.registerListeners(this.container, new ChatListener(this));
+    }
+
+    @Override
+    protected void setupPlayerFactory() {
+        this.playerFactory = new PlayerFactory();
     }
 
     @Override
     protected void registerCommands() {
-        new ChatCommand(this, Sponge.getCommandManager());
+        // look #onCommandRegister
+    }
+
+    @Listener
+    public void onCommandRegister(RegisterCommandEvent<Command.Parameterized> event){
+        new ChatCommand(this, event);
     }
 
     @Override
     protected void disablePlugin() {
-        Sponge.getEventManager().unregisterListeners(this);
-        Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
-        Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
+        Sponge.eventManager().unregisterListeners(this);
+    }
+
+    @Override
+    public ConfigurationAdapter getConfigurationAdapter() {
+        return new SpongeConfigAdapter(resolveConfig());
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return playerFactory;
+    }
+
+    private Path resolveConfig() {
+        Path path = getConfigDirectory().resolve(AurionChat.ID + ".conf");
+        if (!Files.exists(path)) {
+            try {
+                createDirectoriesIfNotExists(getConfigDirectory());
+                try (InputStream is = getClass().getClassLoader().getResourceAsStream(AurionChat.ID + ".conf")) {
+                    Files.copy(is, path);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return path;
+    }
+
+    public static void createDirectoriesIfNotExists(Path path) throws IOException {
+        if (Files.exists(path) && (Files.isDirectory(path) || Files.isSymbolicLink(path))) {
+            return;
+        }
+
+        try {
+            Files.createDirectories(path);
+        } catch (FileAlreadyExistsException e) {
+            // ignore
+        }
+    }
+
+    @Override
+    protected Path getConfigDirectory() {
+        return configDirectory;
     }
 
     @Override

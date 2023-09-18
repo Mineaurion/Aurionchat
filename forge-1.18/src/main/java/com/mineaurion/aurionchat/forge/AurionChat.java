@@ -1,16 +1,15 @@
 package com.mineaurion.aurionchat.forge;
 
 
-import com.electronwill.nightconfig.core.conversion.ObjectConverter;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.forge.command.ChatCommand;
-import com.mineaurion.aurionchat.forge.config.Config;
-import com.mineaurion.aurionchat.forge.config.ConfigData;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
-import net.minecraft.world.level.storage.LevelResource;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -19,22 +18,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkConstants;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
-@Mod("aurionchat")
-public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+@Mod(AbstractAurionChat.ID)
+public class AurionChat extends AbstractAurionChat {
 
-    public static final String ID = "aurionchat";
-    public static ConfigData config;
-    public static Path channelsJsonPath;
-
+    private PlayerFactory playerFactory;
 
     public AurionChat() {
         getlogger().info("AurionChat Initializing");
@@ -51,29 +46,19 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC, "aurionchat.toml");
-        config = (new ObjectConverter().toObject(Config.SPEC.getValues(), ConfigData::new));
-
         MinecraftForge.EVENT_BUS.register(this);
 
     }
 
     @SubscribeEvent
     public void serverAboutToStart(ServerAboutToStartEvent event){
-        channelsJsonPath = ServerLifecycleHooks.getCurrentServer().getWorldPath(new LevelResource("serverconfig/aurionchat-channels.json"));
         new ChatCommand(this, event.getServer().getCommands().getDispatcher());
     }
 
     @SubscribeEvent
     public void serverStarted(ServerStartedEvent event)
     {
-        this.enable(
-                config.rabbitmq.uri.get(),
-                config.rabbitmq.serverName.get(),
-                config.options.spy.get(),
-                config.options.autoMessage.get(),
-                true
-        );
+        this.enable();
     }
 
     @SubscribeEvent
@@ -88,6 +73,11 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     }
 
     @Override
+    protected void setupPlayerFactory() {
+        this.playerFactory = new PlayerFactory();
+    }
+
+    @Override
     protected void registerCommands() {
         // Nothing to do here for forge
     }
@@ -99,7 +89,26 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     }
 
     @Override
+    public ConfigurationAdapter getConfigurationAdapter() {
+        return new ForgeConfigAdapter(resolveConfig(AbstractAurionChat.ID + ".conf"));
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return playerFactory;
+    }
+
+    @Override
+    protected Path getConfigDirectory() {
+        return FMLPaths.CONFIGDIR.get().resolve(AbstractAurionChat.ID).toAbsolutePath();
+    }
+
+    @Override
     public PluginLogger getlogger() {
         return new Log4jPluginLogger(LogManager.getLogger(AurionChat.ID));
+    }
+
+    public static net.minecraft.network.chat.Component toNativeText(Component component){
+        return net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serialize(component));
     }
 }

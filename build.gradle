@@ -12,7 +12,7 @@ subprojects {
 
     dependencies {
         api 'com.google.code.gson:gson:2.8.5'
-        api 'com.rabbitmq:amqp-client:5.14.2'
+        api 'com.rabbitmq:amqp-client:5.18.0'
         compileOnly 'net.luckperms:api:5.4'
         compileOnly 'org.apache.logging.log4j:log4j-api:2.19.0'
     }
@@ -39,20 +39,5 @@ subprojects {
 
     jar{
         archivesBaseName = project.jarName + "-" + project.name
-    }
-
-    shadowJar {
-        minimize()
-        dependencies {
-            include(dependency('com.mineaurion.aurionchat:.*'))
-            include(project(':common'))
-            include(dependency('com.rabbitmq:amqp-client:.*'))
-            include(dependency {
-                it.moduleGroup == 'org.slf4j'
-            })
-            exclude '/mappings/*'
-        }
-        relocate 'com.rabbitmq', 'com.mineaurion.aurionchat.lib.rabbitmq'
-        relocate 'org.slf4j', 'com.mineaurion.aurionchat.lib.slf4j'
     }
 }

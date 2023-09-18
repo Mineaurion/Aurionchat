@@ -1,0 +1,55 @@
+plugins {
+    id("java-library")
+    id("jacoco")
+}
+
+test {
+    useJUnitPlatform {}
+}
+
+jacocoTestReport {
+    dependsOn test
+}
+
+dependencies {
+
+    compileOnly 'com.google.code.gson:gson:2.7'
+    compileOnly 'com.google.guava:guava:19.0'
+
+    api('net.kyori:adventure-api:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'checker-qual')
+        exclude(module: 'annotations')
+    }
+
+    api('net.kyori:adventure-text-serializer-gson:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+        exclude(module: 'gson')
+    }
+
+    api('net.kyori:adventure-text-serializer-legacy:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api('net.kyori:adventure-text-serializer-plain:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api("net.kyori:adventure-text-minimessage:4.11.0") {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api('net.kyori:event-api:3.0.0') {
+        exclude(module: 'checker-qual')
+        exclude(module: 'guava')
+    }
+
+    api('org.spongepowered:configurate-core:4.1.2')
+    api('org.spongepowered:configurate-yaml:4.1.2')
+    api('org.spongepowered:configurate-gson:4.1.2')
+    api('org.spongepowered:configurate-hocon:4.1.2')
+}

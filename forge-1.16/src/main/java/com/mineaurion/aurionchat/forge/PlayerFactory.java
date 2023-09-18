@@ -1,33 +1,38 @@
 package com.mineaurion.aurionchat.forge;
 
-import com.mineaurion.aurionchat.common.AurionChatPlayerCommon;
 import dev.ftb.mods.ftbranks.api.FTBRanksAPI;
+import net.kyori.adventure.text.Component;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
 
-import java.util.Set;
 import java.util.UUID;
 
-public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity> {
+import static com.mineaurion.aurionchat.forge.AurionChat.toNativeText;
 
-    public AurionChatPlayer(ServerPlayerEntity player, Set<String> channels){
-        super(player, AurionChat.config.rabbitmq.serverName.get(), channels);
-    }
-    @Override
-    public boolean hasPermission(String permission) {
-        return FTBRanksAPI.getPermissionValue(this.player, permission).asBooleanOrFalse();
+public class PlayerFactory extends com.mineaurion.aurionchat.common.player.PlayerFactory<ServerPlayerEntity> {
+
+    public PlayerFactory(){
+        super(false);
     }
 
     @Override
-    public void sendMessage(String message) {
-        this.player.sendMessage(new StringTextComponent(message.replace("&", "§")), Util.NIL_UUID);
+    protected UUID getUUID(ServerPlayerEntity player) {
+        return player.getUUID();
     }
 
     @Override
-    public UUID getUniqueId() {
-        return this.player.getUUID();
+    protected String getName(ServerPlayerEntity player) {
+        return player.getDisplayName().getString();
+    }
+
+    @Override
+    protected void sendMessage(ServerPlayerEntity player, Component message) {
+        player.sendMessage(toNativeText(message), Util.NIL_UUID);
+    }
+
+    @Override
+    protected boolean hasPermission(ServerPlayerEntity player, String permission) {
+        return FTBRanksAPI.getPermissionValue(player, permission).asBooleanOrFalse();
     }
 
     /**
@@ -48,24 +53,14 @@ public class AurionChatPlayer extends AurionChatPlayerCommon<ServerPlayerEntity>
      *    admin: "&4[Administrateur]"
      */
     @Override
-    public String getPrefix() {
+    public String getPreffix(ServerPlayerEntity player) {
         String name_format = FTBRanksAPI.getPermissionValue(player, "ftbranks.name_format").asString().orElse("");
         String[] split = name_format.split(" ");
         return split.length > 1 ? split[0] + " " : "";
     }
 
     @Override
-    public String getSuffix() {
+    public String getSuffix(ServerPlayerEntity player) {
         return "";
-    }
-
-    @Override
-    public String getDisplayName() {
-        return this.player.getDisplayName().getString();
-    }
-
-    @Override
-    public void notifyPlayer(){
-        this.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 10, 1);
     }
 }

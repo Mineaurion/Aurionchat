@@ -15,10 +15,10 @@ blossom {
 }
 
 sponge {
-    apiVersion("7.4.0")
+    apiVersion("8.1.0")
     loader {
         name(PluginLoaders.JAVA_PLAIN)
-        version(pluginVersion)
+        version("1.0")
     }
 
     license("GNU General Public License v3.0")
@@ -38,7 +38,6 @@ sponge {
         dependency("spongeapi") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
             optional(false)
-            version("7.4.0")
         }
         dependency("luckperms") {
             loadOrder(PluginDependency.LoadOrder.AFTER)
@@ -50,5 +49,13 @@ sponge {
 
 dependencies {
     implementation project(':common')
-    compileOnly 'org.spongepowered:spongeapi:7.4.0'
+    compileOnly 'org.spongepowered:spongeapi:8.1.0'
+}
+
+
+shadowJar {
+    relocate 'com.rabbitmq', 'com.mineaurion.aurionchat.lib.rabbitmq'
+    relocate 'org.slf4j', 'com.mineaurion.aurionchat.lib.slf4j'
+    relocate 'net.kyori.adventure', 'com.mineaurion.aurionchat.lib.adventure'
+    relocate 'net.kyori.event', 'com.mineaurion.aurionchat.lib.eventbus'
 }

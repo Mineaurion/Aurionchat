@@ -1,32 +1,42 @@
 package com.mineaurion.aurionchat.common;
 
-import java.util.Arrays;
+import com.mineaurion.aurionchat.common.player.Player;
+import net.kyori.adventure.text.Component;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
-public abstract class AurionChatPlayerCommon<T> {
-    public final T player;
+public class AurionChatPlayer {
+    private final Player player;
     private Set<String> channels = new HashSet<>();
     private String currentChannel;
     private static final String DEFAULT_CHANNEL = "global";  // Player default channel when he is speaking. We assume global is always defined in the config
 
-    public AurionChatPlayerCommon(T player, String serverChannel, Set<String> channels){
+    public AurionChatPlayer(Player player, AbstractAurionChat plugin){
         this.player = player;
-        this.setCurrentChannel(serverChannel);
-        this.setChannels(new HashSet<>(Arrays.asList(serverChannel, DEFAULT_CHANNEL)));
-        for(String channel: channels){
-            if(this.hasPermission("aurionchat.joinchannel." + channel)){
+        this.setCurrentChannel(DEFAULT_CHANNEL);
+        this.setChannels(new HashSet<>(Collections.singletonList(DEFAULT_CHANNEL)));
+        for(String channel: plugin.getConfigurationAdapter().getChannels().keySet()){
+            if(player.hasPermission("aurionchat.joinchannel." + channel)){
                 this.addChannel(channel);
                 this.setCurrentChannel(channel);
-            } else if (this.hasPermission("aurionchat.listenchannel." + channel)) {
+            } else if (player.hasPermission("aurionchat.listenchannel." + channel)) {
                 this.addChannel(channel);
             }
         }
     }
 
-    public T getPlayer(){
-        return this.player;
+    public Player getPlayer(){
+        return player;
+    }
+
+    public void sendMessage(Component message){
+        this.player.sendMessage(message);
+    }
+
+    public boolean hasPermission(String permission){
+        return this.player.hasPermission(permission);
     }
 
     public String getCurrentChannel(){
@@ -61,29 +71,24 @@ public abstract class AurionChatPlayerCommon<T> {
         this.channels.remove(channel);
     }
 
-    public abstract boolean hasPermission(String permission);
-    public abstract void sendMessage(String message);
+    public boolean isAllowedColors(){
+        return player.hasPermission("aurionchat.chat.colors");
+    }
 
-    public abstract UUID getUniqueId();
-
-    public abstract String getPrefix();
-
-    public abstract String getSuffix();
-
-    public abstract String getDisplayName();
-
-    public abstract void notifyPlayer();
+    public boolean canSpeak(){
+        return player.hasPermission("aurionchat.chat.speak");
+    }
 
     @Override
     public String toString()
     {
         return "currentChannel:" + this.currentChannel +
                 ",channels:" + this.channels.toString() +
-                ",uuid:" + this.getUniqueId() +
-                ",prefix:" + this.getPrefix() +
-                ",suffix:" + this.getSuffix() +
-                ",displayName:" + this.getDisplayName() +
-                ",playerClass:" + this.player.getClass().getName();
+                ",uuid:" + this.player.getUUID() +
+                ",prefix:" + this.player.getPreffix() +
+                ",suffix:" + this.player.getSuffix() +
+                ",name:" + this.player.getDisplayName()
+                ;
     }
 
 }

@@ -14,7 +14,7 @@ When you send the message if other people listen to the same channel as you type
 
 - Chat channel
 - Formating chat
-- Bukkit 1.7 to 1.20.1 - Sponge 7 - Fabric 5.1.20 - Forge 1.16 and 1.18 support 
+- Bukkit 1.7 to 1.20.1 - Sponge 8 - Fabric 5.1.20 - Forge 1.16 and 1.18 support 
 - Automessage
 
 ### Commands
@@ -68,24 +68,7 @@ You can put any color code beetwen the token or any characters if you want.
 
 The mod need FTBRanks to be working with a minimal version of 1605.1.5. 
 
-You need to have a file named aurionchat-channels.json next to aurionchat.toml. The purpose of this file is to contain the channels configuration:
-
-```JSON
-{
-  "global": {
-    "format": "[&aGlobal&f] {prefix}{display_name} : &f{message}",
-    "alias": "g"
-  },
-  "infinity": {
-    "format": "[&6I&f] {prefix}{display_name} : &f{message}",
-    "alias": "inf"
-  },
-  "<name of the channel>": {
-    "format": "Format of the channel, check above for more info",
-    "alias": "justanaliasforthecommand" 
-  }
-}
-```
+The config file is the same syntax as the sponge one.
 
 <details>
   <summary>Server crash with this error : java.lang.NoClassDefFoundError: org/slf4j/spi/SLF4JServiceProviderg</summary>
@@ -116,7 +99,7 @@ Follow the [1.16](https://github.com/Mineaurion/aurionchat#forge-116) section fo
 
 ## Fabric
 
-The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20 and [CompleteConfig](https://modrinth.com/mod/completeconfig/versions) with a minimal version of 2.1.0 . The config file is the same syntax as the sponge one.
+The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20. The config file is the same syntax as the sponge one.
 
 ## Automessage
 
@@ -137,3 +120,8 @@ Permission of every automessage channel is : `aurionchat.automessage.<channelNam
 ### Discord
 
 If you need support regarding our plugin, come on our [discord](https://discord.gg/Zn4ZbP9)
+
+
+### Development
+
+For debugging purpose and test, there is a docker-compose.yaml available to setup a simple rabbitmq

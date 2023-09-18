@@ -29,7 +29,6 @@
     "fabricloader": ">=0.14.17",
     "fabric": "*",
     "minecraft": ">=1.19.2",
-    "luckperms": ">=5.4.30",
-    "completeconfig": ">=2.1.0"
+    "luckperms": ">=5.4.30"
   }
 }

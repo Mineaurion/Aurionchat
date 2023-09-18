@@ -5,19 +5,23 @@ import com.mineaurion.aurionchat.bukkit.listeners.ChatListener;
 import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
 import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.JavaPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
+import java.nio.file.Path;
 
-    public static final String ID = "aurionchat";
-
-    public static Config config;
+public class AurionChat extends AbstractAurionChat {
 
     public final JavaPlugin plugin;
+
+    public BukkitAudiences audiences;
+
+    private PlayerFactory playerFactory;
 
     public AurionChat(JavaPlugin plugin){
         this.plugin = plugin;
@@ -25,20 +29,13 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
 
     public void onEnable(){
         getlogger().info("AurionChat Initializing");
-        config = new Config(plugin);
-        this.enable(
-                config.rabbitmq.uri,
-                config.rabbitmq.serverName,
-                config.options.spy,
-                config.options.autoMessage,
-                true
-        );
+        audiences = BukkitAudiences.create(plugin);
+        this.enable();
     }
 
     public void onDisable() {
         this.disable();
     }
-
 
     @Override
     protected void registerPlatformListeners() {
@@ -46,6 +43,16 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
         pluginManager.registerEvents(new LoginListener(this), plugin);
         pluginManager.registerEvents(new CommandListener(this), plugin);
         pluginManager.registerEvents(new ChatListener(this), plugin);
+    }
+
+    @Override
+    public ConfigurationAdapter getConfigurationAdapter() {
+        return new BukkitConfigurationAdapter(this, resolveConfig("config.yml").toFile());
+    }
+
+    @Override
+    protected Path getConfigDirectory() {
+        return this.plugin.getDataFolder().toPath().toAbsolutePath();
     }
 
     @Override
@@ -61,5 +68,19 @@ public class AurionChat extends AbstractAurionChat<AurionChatPlayer> {
     @Override
     public PluginLogger getlogger() {
         return new JavaPluginLogger(Bukkit.getLogger());
+    }
+
+    public BukkitAudiences getAudiences(){
+        return audiences;
+    }
+
+    @Override
+    protected void setupPlayerFactory() {
+        this.playerFactory = new PlayerFactory(this);
+    }
+
+    @Override
+    public PlayerFactory getPlayerFactory() {
+        return playerFactory;
     }
 }

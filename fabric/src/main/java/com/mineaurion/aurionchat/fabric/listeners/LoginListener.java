@@ -2,23 +2,18 @@ package com.mineaurion.aurionchat.fabric.listeners;
 
 import com.mineaurion.aurionchat.common.listeners.LoginListenerCommon;
 import com.mineaurion.aurionchat.fabric.AurionChat;
-import com.mineaurion.aurionchat.fabric.AurionChatPlayer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
-
+public class LoginListener extends LoginListenerCommon<AurionChat> {
     public LoginListener(AurionChat plugin){
-        super(plugin.getAurionChatPlayers());
+        super(plugin);
     }
 
     public void onPlayerJoin(ServerPlayerEntity player){
-        aurionChatPlayers.putIfAbsent(
-                player.getUuid(),
-                new AurionChatPlayer(player, AurionChat.config.channels.keySet())
-        );
+        playerJoin(plugin.getPlayerFactory().wrap(player));
     }
 
     public void onPlayerQuit(ServerPlayerEntity player){
-        this.playerLeaving(player.getUuid());
+        this.playerLeaving(plugin.getPlayerFactory().wrap(player));
     }
 }

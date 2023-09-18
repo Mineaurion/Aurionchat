@@ -89,7 +89,7 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.20'
-    implementation  project(':common')
+    shadow project(':common')
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
     // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}") // Adds the full JEI mod as a runtime dependency
@@ -131,4 +131,16 @@ jar {
 
 jar.finalizedBy('reobfShadowJar')
 
-tasks.register("prepareKotlinBuildScriptModel"){}
+shadowJar {
+    configurations = [project.configurations.shadow]
+
+    dependencies {
+        exclude '/mappings/*'
+        exclude 'net.minecraft.*'
+    }
+
+    relocate 'com.rabbitmq', 'com.mineaurion.aurionchat.lib.rabbitmq'
+    relocate 'org.slf4j', 'com.mineaurion.aurionchat.lib.slf4j'
+    relocate 'net.kyori.adventure', 'com.mineaurion.aurionchat.lib.adventure'
+    relocate 'net.kyori.event', 'com.mineaurion.aurionchat.lib.eventbus'
+}

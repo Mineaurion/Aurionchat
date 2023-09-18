@@ -2,34 +2,29 @@ package com.mineaurion.aurionchat.sponge.listeners;
 
 import com.mineaurion.aurionchat.common.listeners.LoginListenerCommon;
 import com.mineaurion.aurionchat.sponge.AurionChat;
-import com.mineaurion.aurionchat.sponge.AurionChatPlayer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.entity.living.player.KickPlayerEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
-import static com.mineaurion.aurionchat.sponge.AurionChat.config;
-
-public class LoginListener extends LoginListenerCommon<AurionChatPlayer> {
+public class LoginListener extends LoginListenerCommon<AurionChat> {
 
     public LoginListener(AurionChat plugin){
-        super(plugin.getAurionChatPlayers());
+        super(plugin);
     }
 
     @Listener
     public void onPlayerKick(KickPlayerEvent event) {
-        this.playerLeaving(event.getTargetEntity().getUniqueId());
+        playerLeaving(plugin.getPlayerFactory().wrap(event.player()));
     }
 
     @Listener
-    public void onPlayerQuit(ClientConnectionEvent.Disconnect event) {
-        this.playerLeaving(event.getTargetEntity().getUniqueId());
+    public void onPlayerQuit(ServerSideConnectionEvent.Login event) {
+        Sponge.server().player(event.profile().uniqueId()).ifPresent(serverPlayer -> playerLeaving(plugin.getPlayerFactory().wrap(serverPlayer)));
     }
 
     @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        aurionChatPlayers.putIfAbsent(
-                event.getTargetEntity().getUniqueId(),
-                new AurionChatPlayer(event.getTargetEntity(), config.channels.keySet())
-        );
+    public void onPlayerJoin(ServerSideConnectionEvent.Disconnect event) {
+        playerJoin(plugin.getPlayerFactory().wrap(event.player()));
     }
 }

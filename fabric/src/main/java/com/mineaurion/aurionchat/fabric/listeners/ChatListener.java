@@ -1,13 +1,16 @@
 package com.mineaurion.aurionchat.fabric.listeners;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.fabric.AurionChat;
-import com.mineaurion.aurionchat.fabric.AurionChatPlayer;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.message.MessageType.Parameters;
 import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 
 import java.io.IOException;
 
@@ -23,9 +26,13 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
     public boolean allowChatMessage(SignedMessage message, ServerPlayerEntity sender, Parameters params) {
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(sender.getUuid());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
-        String messageFormat = Utils.processMessage(AurionChat.config.channels.get(currentChannel).format,  message.signedBody().content().plain(), aurionChatPlayer);
+        Component messageFormat = Utils.processMessage(
+                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
+                GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(message.getContent())),
+                aurionChatPlayer
+        );
         try {
-            ChatService.getInstance().send(currentChannel, messageFormat);
+            plugin.getChatService().send(currentChannel, messageFormat);
         } catch (IOException e){
             this.plugin.getlogger().severe(e.getMessage());
         }

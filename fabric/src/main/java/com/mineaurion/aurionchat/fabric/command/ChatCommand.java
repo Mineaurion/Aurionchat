@@ -1,8 +1,8 @@
 package com.mineaurion.aurionchat.fabric.command;
 
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.command.ChatCommandCommon;
 import com.mineaurion.aurionchat.fabric.AurionChat;
-import com.mineaurion.aurionchat.fabric.AurionChatPlayer;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -10,6 +10,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.command.argument.MessageArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -17,18 +18,15 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 public class ChatCommand extends ChatCommandCommon {
-
-    private final AurionChat plugin;
     public ChatCommand(AurionChat plugin, CommandDispatcher<ServerCommandSource> dispatcher) {
-        super(AurionChat.config.channels.keySet());
-        this.plugin = plugin;
+        super(plugin);
         register(dispatcher);
         registerAliasChannels(dispatcher);
     }
 
     public void register(CommandDispatcher<ServerCommandSource> dispatcher){
         RequiredArgumentBuilder<ServerCommandSource, String> channelArg = CommandManager.argument("channel", StringArgumentType.string()).suggests((context, builder) -> {
-            AurionChat.config.channels.forEach((name, channel) -> builder.suggest(name));
+            getPlugin().getConfigurationAdapter().getChannels().forEach((name, chanel) -> builder.suggest(name));
             return builder.buildFuture();
         });
 
@@ -67,7 +65,7 @@ public class ChatCommand extends ChatCommandCommon {
     private int execute(CommandContext<ServerCommandSource> ctx, Action action){
         try {
             ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-            AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.getUuid());
+            AurionChatPlayer aurionChatPlayer = getPlugin().getAurionChatPlayers().get(player.getUuid());
             String channel;
             try {
                 channel = StringArgumentType.getString(ctx, "channel");
@@ -83,11 +81,10 @@ public class ChatCommand extends ChatCommandCommon {
 
     private void registerAliasChannels(CommandDispatcher<ServerCommandSource> dispatcher){
         RequiredArgumentBuilder<ServerCommandSource, MessageArgumentType.MessageFormat> messageArg = CommandManager.argument("message", MessageArgumentType.message());
-
-        AurionChat.config.channels.forEach((name, channel) -> {
+        getPlugin().getConfigurationAdapter().getChannels().forEach((name, channel) -> {
             ArgumentBuilder<ServerCommandSource, RequiredArgumentBuilder<ServerCommandSource, MessageArgumentType.MessageFormat>> argBuilder = messageArg.executes(ctx -> (onCommand(
-                    this.plugin.getAurionChatPlayers().get(ctx.getSource().getPlayer().getUuid()),
-                    MessageArgumentType.getMessage(ctx, "message").getString(),
+                    getPlugin().getAurionChatPlayers().get(ctx.getSource().getPlayer().getUuid()),
+                    GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(MessageArgumentType.getMessage(ctx, "message"))),
                     name,
                     channel.format)) ? 1 : 0
             );

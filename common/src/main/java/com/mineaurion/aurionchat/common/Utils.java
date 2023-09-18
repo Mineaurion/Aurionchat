@@ -1,41 +1,58 @@
 package com.mineaurion.aurionchat.common;
 
-import java.util.Map;
-import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 public class Utils {
+    public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer){
+        if(!aurionChatPlayer.isAllowedColors()){
+            Component messageWithoutStyle = Component.text("");
+            if(!message.children().isEmpty()){
+                for (Component component: message.children()) {
+                    messageWithoutStyle = messageWithoutStyle.append(removeAllStyleAndColor(component));
+                }
+            } else {
+                messageWithoutStyle = messageWithoutStyle.append(removeAllStyleAndColor(message));
+            }
+            message = messageWithoutStyle;
+        }
 
+        String[] formatSplit = format.split("\\{message\\}");
 
-    public static <T extends AurionChatPlayerCommon<?>> String processMessage(String format, String message, T aurionChatPlayer){
-        // TODO: need some condition if player is allowed to used color or not
-        //if(aurionChatPlayer.hasPermission("aurionchat.chat.colors"))
-        return format
-                .replace("{prefix}", aurionChatPlayer.getPrefix())
-                .replace("{suffix}", aurionChatPlayer.getSuffix())
-                .replace("{display_name}", aurionChatPlayer.getDisplayName())
-                .replace("{message}", message);
+        Component beforeMessage = replaceToken(formatSplit[0], aurionChatPlayer);
+        Component afterMessage = replaceToken(formatSplit.length == 2 ? formatSplit[1] : "", aurionChatPlayer);
+
+        return beforeMessage.append(message).append(afterMessage);
     }
 
-    public static <T extends AurionChatPlayerCommon<?>> void sendMessageToPlayer(String channelName, String message, Map<UUID, T> aurionChatPlayers){
-        if(aurionChatPlayers.size() > 0){
-            aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
-                if(aurionChatPlayer.getChannels().contains(channelName)){
-                    aurionChatPlayer.sendMessage(message);
-                    if(message.contains("@" + aurionChatPlayer.getDisplayName())){
-                        aurionChatPlayer.notifyPlayer();
-                    }
-                }
-            });
-        }
+    private static Component replaceToken(String text, AurionChatPlayer aurionChatPlayer){
+        return LegacyComponentSerializer.legacy('&').deserialize(
+                text.replace("{prefix}", aurionChatPlayer.getPlayer().getPreffix())
+                        .replace("{suffix}", aurionChatPlayer.getPlayer().getSuffix())
+                        .replace("{display_name}", aurionChatPlayer.getPlayer().getDisplayName())
+        );
     }
 
-    public static <T extends AurionChatPlayerCommon<?>> void broadcastToPlayer(String channelName, String message, Map<UUID, T> aurionChatPlayers){
-        if(aurionChatPlayers.size() > 0){
-            aurionChatPlayers.forEach((uuid, aurionChatPlayer) -> {
-                if(aurionChatPlayer.hasPermission("aurionchat.automessage." + channelName)){
-                    aurionChatPlayer.sendMessage(message);
-                }
-            });
-        }
+    private static Component removeAllStyleAndColor(Component component){
+        return component
+                .style(Style.empty())
+                .decorations(
+                        new HashSet<>(Arrays.asList(
+                                TextDecoration.BOLD,
+                                TextDecoration.ITALIC,
+                                TextDecoration.OBFUSCATED,
+                                TextDecoration.STRIKETHROUGH,
+                                TextDecoration.UNDERLINED)
+                        ),
+                        false
+                );
     }
 }
