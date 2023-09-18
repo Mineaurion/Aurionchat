@@ -42,7 +42,7 @@ public class AurionChat extends AbstractAurionChat {
     @Listener
     public void Init(ConstructPluginEvent event) {
         getlogger().info("AurionChat Initializing");
-        this.enable(true);
+        this.enable();
     }
 
     @Listener

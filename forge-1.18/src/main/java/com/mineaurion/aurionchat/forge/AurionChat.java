@@ -58,7 +58,7 @@ public class AurionChat extends AbstractAurionChat {
     @SubscribeEvent
     public void serverStarted(ServerStartedEvent event)
     {
-        this.enable(true);
+        this.enable();
     }
 
     @SubscribeEvent

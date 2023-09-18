@@ -48,7 +48,7 @@ public class AurionChat extends AbstractAurionChat {
     @SubscribeEvent
     public void serverStarted(FMLServerStartedEvent event)
     {
-        this.enable(false);
+        this.enable();
     }
 
     @SubscribeEvent

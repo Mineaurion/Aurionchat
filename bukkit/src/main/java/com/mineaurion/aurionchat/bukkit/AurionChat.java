@@ -30,7 +30,7 @@ public class AurionChat extends AbstractAurionChat {
     public void onEnable(){
         getlogger().info("AurionChat Initializing");
         audiences = BukkitAudiences.create(plugin);
-        this.enable(true);
+        this.enable();
     }
 
     public void onDisable() {

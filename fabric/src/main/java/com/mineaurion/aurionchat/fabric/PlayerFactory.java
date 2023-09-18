@@ -9,6 +9,10 @@ import static com.mineaurion.aurionchat.fabric.AurionChat.toNativeText;
 
 public class PlayerFactory extends com.mineaurion.aurionchat.common.player.PlayerFactory<ServerPlayerEntity> {
 
+    public PlayerFactory(){
+        super(true);
+    }
+
     @Override
     protected UUID getUUID(ServerPlayerEntity player) {
         return player.getUuid();

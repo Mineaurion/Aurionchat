@@ -25,7 +25,7 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
 
     private final PluginLogger logger = getlogger();
 
-    public final void enable(boolean withLuckPerms){
+    public final void enable(){
         //send message for startup
         try {
             aurionChatPlayers = new HashMap<>();
@@ -34,9 +34,6 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
             setupPlayerFactory();
             registerPlatformListeners(); // if no error , init of the "plugin"
             registerCommands();
-            if(withLuckPerms){
-                luckPermsUtils = new LuckPermsUtils(LuckPermsProvider.get());
-            }
         } catch (IOException e) {
             // perform action in case of error
             disablePlugin();

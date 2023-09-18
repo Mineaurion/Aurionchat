@@ -1,17 +1,21 @@
 package com.mineaurion.aurionchat.common.player;
 
-import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
 import net.kyori.adventure.text.Component;
+import net.luckperms.api.LuckPermsProvider;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public abstract class PlayerFactory<T> implements AutoCloseable {
 
-    private static final LuckPermsUtils luckPermsUtils = AbstractAurionChat.luckPermsUtils;
+    private LuckPermsUtils luckPermsUtils = null;
 
-    public PlayerFactory(){}
+    public PlayerFactory(boolean withLuckPerms){
+        if(withLuckPerms){
+            luckPermsUtils = new LuckPermsUtils(LuckPermsProvider.get());
+        }
+    }
 
     protected abstract UUID getUUID(T player);
     protected abstract String getName(T player);

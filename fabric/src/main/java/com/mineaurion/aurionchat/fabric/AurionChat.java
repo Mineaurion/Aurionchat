@@ -27,7 +27,7 @@ public class AurionChat extends AbstractAurionChat implements DedicatedServerMod
     @Override
     public void onInitializeServer() {
         getlogger().info("AurionChat Initializing");
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.enable(true));
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> this.enable());
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> new ChatCommand(this, dispatcher));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> this.disable());

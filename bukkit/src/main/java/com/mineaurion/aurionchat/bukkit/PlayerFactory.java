@@ -11,6 +11,7 @@ public class PlayerFactory extends com.mineaurion.aurionchat.common.player.Playe
     private final BukkitAudiences audiences;
 
     public PlayerFactory(AurionChat plugin){
+        super(true);
         this.audiences = plugin.getAudiences();
     }
 

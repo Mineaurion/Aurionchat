@@ -8,6 +8,10 @@ import java.util.UUID;
 
 public class PlayerFactory extends com.mineaurion.aurionchat.common.player.PlayerFactory<ServerPlayer> {
 
+    public PlayerFactory(){
+        super(true);
+    }
+
     @Override
     protected UUID getUUID(ServerPlayer player) {
         return player.uniqueId();
