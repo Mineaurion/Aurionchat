@@ -28,9 +28,4 @@ public class PlayerFactory extends com.mineaurion.aurionchat.common.player.Playe
     protected void sendMessage(ServerPlayer player, Component message) {
         player.sendMessage(toNativeText(message), Util.NIL_UUID);
     }
-
-    @Override
-    protected boolean hasPermission(ServerPlayer player, String permission) {
-        return AurionChat.luckPermsUtils.hasPermission(player.getUUID(), permission);
-    }
 }

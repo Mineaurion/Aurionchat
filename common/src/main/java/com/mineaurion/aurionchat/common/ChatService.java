@@ -7,6 +7,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.impl.ForgivingExceptionHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -31,14 +32,14 @@ public class ChatService {
     public ChatService(AbstractAurionChat plugin) throws IOException {
         this.plugin = plugin;
         this.config = this.plugin.getConfigurationAdapter();
-        this.createConnection(getUri());
+        this.createConnection();
     }
 
     public String getUri() {
         return config.getString("rabbitmq.uri", "amqp://guest:guest@localhost:5672/");
     }
 
-    private void createConnection(String uri) throws IOException {
+    private void createConnection() throws IOException {
         ConnectionFactory factory = new ConnectionFactory();
         try{
             factory.setUri(getUri());
@@ -46,6 +47,7 @@ public class ChatService {
             factory.setTopologyRecoveryEnabled(true);
             factory.setNetworkRecoveryInterval(10000);
             factory.setRequestedHeartbeat(10);
+            factory.setExceptionHandler(new ForgivingExceptionHandler());
 
             connection = factory.newConnection();
             channel = connection.createChannel();
@@ -63,7 +65,7 @@ public class ChatService {
 
     public void reCreateConnection() throws IOException {
         this.close();
-        this.createConnection(getUri());
+        this.createConnection();
     }
 
     private void join() throws IOException{
@@ -71,6 +73,7 @@ public class ChatService {
 
         String queue = channel.queueDeclare().getQueue();
         channel.queueBind(queue, EXCHANGE_NAME, "");
+
         channel.basicConsume(queue, true, consumer(), consumerTag -> {});
     }
 

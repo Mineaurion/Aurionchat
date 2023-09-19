@@ -68,7 +68,7 @@ public class AurionChat extends AbstractAurionChat implements DedicatedServerMod
 
     @Override
     protected Path getConfigDirectory() {
-        return FabricLoader.getInstance().getGameDir().resolve("mods").resolve(AbstractAurionChat.ID);
+        return FabricLoader.getInstance().getGameDir().resolve("config").resolve(AbstractAurionChat.ID);
     }
 
     @Override

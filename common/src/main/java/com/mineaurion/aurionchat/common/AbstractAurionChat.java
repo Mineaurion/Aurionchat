@@ -20,9 +20,7 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
     private Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
     private ChatService chatService;
-
-    public static LuckPermsUtils luckPermsUtils = null;
-
+    
     private final PluginLogger logger = getlogger();
 
     public final void enable(){
