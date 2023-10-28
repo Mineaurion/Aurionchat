@@ -21,11 +21,7 @@ jobs:
         include:
           - platform: forge
             branch: "1.16"
-          - platform: fabric
-            branch: "1.16"
           - platform: forge
-            branch: "1.18"
-          - platform: fabric
             branch: "1.18"
     uses: ./.github/workflows/build.yaml
     with:
