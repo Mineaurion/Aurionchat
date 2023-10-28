@@ -10,21 +10,22 @@ import com.mineaurion.aurionchat.forge.listeners.ChatListener;
 import com.mineaurion.aurionchat.forge.listeners.LoginListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.network.NetworkConstants;
+import net.minecraftforge.fml.network.FMLNetworkConstants;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.util.function.Supplier;
+
+import static net.minecraftforge.fml.ExtensionPoint.DISPLAYTEST;
 
 @Mod(AbstractAurionChat.ID)
 public class AurionChat extends AbstractAurionChat {
@@ -33,36 +34,27 @@ public class AurionChat extends AbstractAurionChat {
 
     public AurionChat() {
         getlogger().info("AurionChat Initializing");
-        try {
-            ModLoadingContext.class.getDeclaredMethod("registerExtensionPoint", Class.class, Supplier.class)
-                    .invoke(
-                            ModLoadingContext.get(),
-                            DisplayTest.class,
-                            (Supplier<?>) () -> new DisplayTest(
-                                    () -> NetworkConstants.IGNORESERVERONLY,
-                                    (a, b) -> true
-                            )
-                    );
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
+        ModLoadingContext.get().registerExtensionPoint(DISPLAYTEST, () -> Pair.of(
+                () -> FMLNetworkConstants.IGNORESERVERONLY, // ignore me, I'm a server only mod
+                (s,b) -> true // I accept anything from the server or the save, if I'm asked
+        ));
         MinecraftForge.EVENT_BUS.register(this);
 
     }
 
     @SubscribeEvent
-    public void serverAboutToStart(ServerAboutToStartEvent event){
+    public void serverAboutToStart(FMLServerStartingEvent event){
         new ChatCommand(this, event.getServer().getCommands().getDispatcher());
     }
 
     @SubscribeEvent
-    public void serverStarted(ServerStartedEvent event)
+    public void serverStarted(FMLServerStartedEvent event)
     {
         this.enable();
     }
 
     @SubscribeEvent
-    public void serverStopped(ServerStoppedEvent event) {
+    public void serverStopped(FMLServerStoppedEvent event) {
         this.disable();
     }
 
@@ -108,7 +100,7 @@ public class AurionChat extends AbstractAurionChat {
         return new Log4jPluginLogger(LogManager.getLogger(AurionChat.ID));
     }
 
-    public static net.minecraft.network.chat.Component toNativeText(Component component){
-        return net.minecraft.network.chat.Component.Serializer.fromJson(GsonComponentSerializer.gson().serialize(component));
+    public static ITextComponent toNativeText(Component component) {
+        return ITextComponent.Serializer.fromJson(GsonComponentSerializer.gson().serialize(component));
     }
 }
