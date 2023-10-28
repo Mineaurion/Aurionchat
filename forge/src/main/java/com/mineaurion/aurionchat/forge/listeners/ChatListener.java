@@ -6,8 +6,6 @@ import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.forge.AurionChat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,6 +19,7 @@ public class ChatListener {
     public ChatListener(AurionChat plugin){
         this.plugin = plugin;
     }
+
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public void onServerChatEvent(ServerChatEvent event) {
 
@@ -28,7 +27,7 @@ public class ChatListener {
         String currentChannel = aurionChatPlayer.getCurrentChannel();
         Component messageFormat = Utils.processMessage(
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
-                LegacyComponentSerializer.builder().build().deserialize(event.getMessage()),
+                GsonComponentSerializer.gson().deserialize(net.minecraft.network.chat.Component.Serializer.toJson(event.getMessage())),
                 aurionChatPlayer
         );
         try {

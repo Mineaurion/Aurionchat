@@ -11,68 +11,70 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.MessageArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.MessageArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 
 public class ChatCommand extends ChatCommandCommon {
-    public ChatCommand(AurionChat plugin, CommandDispatcher<CommandSource> dispatcher){
+    public ChatCommand(AurionChat plugin, CommandDispatcher<CommandSourceStack> dispatcher){
         super(plugin);
         register(dispatcher);
         registerAliasChannels(dispatcher);
     }
-    public void register(CommandDispatcher<CommandSource> dispatcher)
+
+    public void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
-        RequiredArgumentBuilder<CommandSource, String> channelArg = Commands.argument("channel", StringArgumentType.string()).suggests(((context, builder) -> {
+        RequiredArgumentBuilder<CommandSourceStack, String> channelArg = Commands.argument("channel", StringArgumentType.string()).suggests(((context, builder) -> {
             getPlugin().getConfigurationAdapter().getChannels().forEach((name, channel) -> builder.suggest(name));
             return builder.buildFuture();
         }));
 
-        LiteralCommandNode<CommandSource> join = Commands.literal("join")
-                .then(channelArg.executes(ctx -> execute(ctx, Action.JOIN)))
+        LiteralCommandNode<CommandSourceStack> join = Commands.literal("join")
+                .then(channelArg.executes(ctx -> this.execute(ctx, Action.JOIN)))
                 .build();
 
-        LiteralCommandNode<CommandSource> leave = Commands.literal("leave")
-                .then(channelArg.executes(ctx -> execute(ctx, Action.LEAVE)))
+        LiteralCommandNode<CommandSourceStack> leave = Commands.literal("leave")
+                .then(channelArg.executes(ctx -> this.execute(ctx, Action.LEAVE)))
                 .build();
 
-        LiteralCommandNode<CommandSource> spy = Commands.literal("spy")
-                .then(channelArg.executes(ctx -> execute(ctx, Action.SPY)))
+        LiteralCommandNode<CommandSourceStack> spy = Commands.literal("spy")
+                .then(channelArg.executes(ctx -> this.execute(ctx, Action.SPY)))
                 .build();
 
-        LiteralCommandNode<CommandSource> allListen = Commands.literal("allListen")
-                .executes(ctx -> execute(ctx, Action.ALLLISTEN))
+        LiteralCommandNode<CommandSourceStack> allListen = Commands.literal("allListen")
+                .executes(ctx -> this.execute(ctx, Action.ALLLISTEN))
                 .build();
 
-        LiteralCommandNode<CommandSource> reload = Commands.literal("reload")
+        LiteralCommandNode<CommandSourceStack> reload = Commands.literal("reload")
                 .requires((commandSource) -> commandSource.hasPermission(3))
-                .executes(ctx -> execute(ctx, Action.RELOAD))
+                .executes(ctx -> this.execute(ctx, Action.RELOAD))
                 .build();
+
 
         dispatcher.register(
-                Commands.literal("channel")
-                        .then(join)
-                        .then(leave)
-                        .then(spy)
-                        .then(allListen)
-                        .then(reload)
-                        .executes(ctx -> execute(ctx, Action.DEFAULT))
+          Commands.literal("channel")
+                  .then(join)
+                  .then(leave)
+                  .then(spy)
+                  .then(allListen)
+                  .then(reload)
+                  .executes(ctx -> this.execute(ctx, Action.DEFAULT))
         );
     }
 
-    public void registerAliasChannels(CommandDispatcher<CommandSource> dispatcher){
-        RequiredArgumentBuilder<CommandSource, MessageArgument.Message> messageArg = Commands.argument("message", MessageArgument.message());
+    public void registerAliasChannels(CommandDispatcher<CommandSourceStack> dispatcher){
+        RequiredArgumentBuilder<CommandSourceStack, MessageArgument.Message> messageArg = Commands.argument("message", MessageArgument.message());
 
         getPlugin().getConfigurationAdapter().getChannels().forEach((name, channel) -> {
-            ArgumentBuilder<CommandSource, RequiredArgumentBuilder<CommandSource, MessageArgument.Message>> argBuilder = messageArg.executes(ctx -> (onCommand(
+            ArgumentBuilder<CommandSourceStack, RequiredArgumentBuilder<CommandSourceStack, MessageArgument.Message>> argBuilder = messageArg.executes(ctx -> (onCommand(
                     getPlugin().getAurionChatPlayers().get(ctx.getSource().getPlayerOrException().getUUID()),
-                    GsonComponentSerializer.gson().deserialize(ITextComponent.Serializer.toJson(MessageArgument.getMessage(ctx, "message"))),
+                    GsonComponentSerializer.gson().deserialize(Component.Serializer.toJson(MessageArgument.getMessage(ctx, "message"))),
                     name,
                     channel.format)) ? 1 : 0
             );
+
             dispatcher.register(
                     Commands.literal(channel.alias).requires(commandSource -> commandSource.getEntity() != null).then(argBuilder)
             );
@@ -82,9 +84,9 @@ public class ChatCommand extends ChatCommandCommon {
         });
     }
 
-    private int execute(CommandContext<CommandSource> ctx, Action action) {
+    private int execute(CommandContext<CommandSourceStack> ctx, Action action) {
         try {
-            ServerPlayerEntity player = ctx.getSource().getPlayerOrException();
+            ServerPlayer player = ctx.getSource().getPlayerOrException();
             AurionChatPlayer aurionChatPlayer = getPlugin().getAurionChatPlayers().get(player.getUUID());
             String channel;
             try{
@@ -94,7 +96,7 @@ public class ChatCommand extends ChatCommandCommon {
             }
             return this.execute(aurionChatPlayer, channel , action) ? 1 : 0;
         } catch (CommandSyntaxException e){
-            ctx.getSource().sendFailure(new StringTextComponent("You need to be a player to do this"));
+            ctx.getSource().sendFailure(Component.empty().append("You need to be a player to do this"));
             return 0;
         }
     }

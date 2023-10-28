@@ -3,48 +3,47 @@ on:
   push:
     tags:
       - 'v*'
+
 jobs:
+  getVersion:
+    runs-on: ubuntu-22.04
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+    steps:
+      - id: vars
+        run: echo "tag=${GITHUB_REF#refs/*/v}" >> $GITHUB_OUTPUT
+  build:
+    needs: getVersion
+    strategy:
+      matrix:
+        platform: [ "bukkit", "sponge", "forge", "fabric" ]
+        branch: ["master"]
+        include:
+          - platform: forge
+            branch: "1.16"
+          - platform: fabric
+            branch: "1.16"
+          - platform: forge
+            branch: "1.18"
+          - platform: fabric
+            branch: "1.18"
+    uses: ./.github/workflows/build.yaml
+    with:
+      version: ${{ needs.getVersion.outputs.tag }}
+      platform: ${{ matrix.platform }}
+      branch: ${{ matrix.branch }}
   release:
+    needs:
+      - build
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
         with:
-          distribution: corretto
-          java-version: 17
-      - name: Use gradle cache for faster builds
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-      - name: Cleanup Gradle Cache
-        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-        run: |
-          rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          rm -f ~/.gradle/caches/modules-2/gc.properties
-      - name: Setup Gradle Wrapper Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
-      - name: Create release branch and bump version
-        env:
-          REF: ${{ github.ref }}
-        run: |
-          sed -i "s/pluginVersion=SNAPSHOT/pluginVersion=${REF:11}/" gradle.properties
-
-      - name: Create release with Gradle
-        run: ./gradlew clean build
-
-      - name: Create Release
+          path: build
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            bukkit/build/libs/*-all.jar
-            sponge/build/libs/*-all.jar
-            forge-1.16/build/libs/*-all.jar
-            forge-1.18/build/libs/*-all.jar
-            fabric/build/libs/AurionChat-fabric-*.jar
+            build/**/*.jar
