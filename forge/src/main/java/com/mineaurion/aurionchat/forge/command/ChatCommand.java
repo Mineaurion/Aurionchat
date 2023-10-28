@@ -15,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 public class ChatCommand extends ChatCommandCommon {
@@ -96,7 +97,7 @@ public class ChatCommand extends ChatCommandCommon {
             }
             return this.execute(aurionChatPlayer, channel , action) ? 1 : 0;
         } catch (CommandSyntaxException e){
-            ctx.getSource().sendFailure(Component.empty().append("You need to be a player to do this"));
+            ctx.getSource().sendFailure(new TextComponent("You need to be a player to do this"));
             return 0;
         }
     }

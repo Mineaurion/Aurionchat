@@ -26,6 +26,6 @@ public class PlayerFactory extends com.mineaurion.aurionchat.common.player.Playe
 
     @Override
     protected void sendMessage(ServerPlayer player, Component message) {
-        player.sendSystemMessage(toNativeText(message));
+        player.sendMessage(toNativeText(message), Util.NIL_UUID);
     }
 }

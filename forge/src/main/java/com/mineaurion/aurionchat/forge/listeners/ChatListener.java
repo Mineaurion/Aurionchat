@@ -27,7 +27,7 @@ public class ChatListener {
         String currentChannel = aurionChatPlayer.getCurrentChannel();
         Component messageFormat = Utils.processMessage(
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
-                GsonComponentSerializer.gson().deserialize(net.minecraft.network.chat.Component.Serializer.toJson(event.getMessage())),
+                GsonComponentSerializer.gson().deserialize(net.minecraft.network.chat.Component.Serializer.toJson(event.getComponent())),
                 aurionChatPlayer
         );
         try {
