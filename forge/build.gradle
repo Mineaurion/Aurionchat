@@ -138,4 +138,6 @@ shadowJar {
     relocate 'org.slf4j', 'com.mineaurion.aurionchat.lib.slf4j'
     relocate 'net.kyori.adventure', 'com.mineaurion.aurionchat.lib.adventure'
     relocate 'net.kyori.event', 'com.mineaurion.aurionchat.lib.eventbus'
+    relocate 'com.google', 'com.mineaurion.aurionchat.lib.google'
+
 }
