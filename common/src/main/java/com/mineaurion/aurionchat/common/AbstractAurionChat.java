@@ -43,6 +43,7 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
         if(!chatService.connected){
             chatService.close();
         }
+        logger.info("Aurionchat shutdown complete");
     }
 
     protected Path resolveConfig(String filename){
