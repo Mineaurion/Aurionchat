@@ -101,6 +101,23 @@ Follow the [1.16](https://github.com/Mineaurion/aurionchat#forge-116) section fo
 
 The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20. The config file is the same syntax as the sponge one.
 
+## URL Mode
+Theres a variety of options available for handling URLs. Options are as follows:
+
+| Name                 | Value | Description                                                             |
+|----------------------|-------|-------------------------------------------------------------------------|
+| Allow URLs           | `1`   | When disabled, replaces scanned URLs with `[url removed]`               |
+| Allow HTTP           | `2`   | When enabled, does not enforce the use of `https://`                    |
+| Scan Domains         | `4`   | When enabled, scans for domains that have no leading `https://` as well |
+| Display Domains Only | `8`   | When enabled, displays only the domain portion of scanned URLs in chat  |
+
+The `options.url_mode` configuration value must be set to the sum of the values of all enabled options.
+
+For example;
+- to allow URLs and only display the domain portion; you'd have to set it to `9`.
+- to replace all URLs and domains with `[url removed]`, set it to `4`
+- to allow URLs and domains, and only display the domain portion; set it to `13`
+
 ## Automessage
 
 For this part to work you need to install this [plugin](https://github.com/Mineaurion/AurionChat-AutoMessage)  on one of our server. 

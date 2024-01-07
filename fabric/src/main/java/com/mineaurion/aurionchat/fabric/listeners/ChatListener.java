@@ -3,6 +3,7 @@ package com.mineaurion.aurionchat.fabric.listeners;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
+import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.fabric.AurionChat;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.kyori.adventure.text.Component;
@@ -26,11 +27,12 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
     public boolean allowChatMessage(SignedMessage message, ServerPlayerEntity sender, Parameters params) {
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(sender.getUuid());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
+        Channel channel = plugin.getConfigurationAdapter().getChannels().get(currentChannel);
         Component messageFormat = Utils.processMessage(
-                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
+                channel.format,
                 GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(message.getContent())),
                 aurionChatPlayer,
-                Utils.URL_MODE_ALLOW
+                channel.urlMode
         );
         try {
             plugin.getChatService().send(currentChannel, messageFormat);
