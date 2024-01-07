@@ -35,7 +35,8 @@ public class ChatListener {
         Component messageFormat = Utils.processMessage(
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 event.message(),
-                aurionChatPlayer
+                aurionChatPlayer,
+                Utils.URL_MODE_ALLOW
         );
 
         try{

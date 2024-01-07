@@ -28,7 +28,8 @@ public class ChatListener {
         Component messageFormat = Utils.processMessage(
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 GsonComponentSerializer.gson().deserialize(net.minecraft.network.chat.Component.Serializer.toJson(event.getMessage())),
-                aurionChatPlayer
+                aurionChatPlayer,
+                Utils.URL_MODE_ALLOW
         );
         try {
             plugin.getChatService().send(currentChannel, messageFormat);

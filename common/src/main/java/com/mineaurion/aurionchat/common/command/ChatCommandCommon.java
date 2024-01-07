@@ -128,7 +128,7 @@ public class ChatCommandCommon {
 
     public boolean onCommand(AurionChatPlayer aurionChatPlayers, Component message, String channel, String format){
         aurionChatPlayers.addChannel(channel);
-        Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers);
+        Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers, Utils.URL_MODE_ALLOW);
         try {
             plugin.getChatService().send(channel, messageFormat);
             return true;
