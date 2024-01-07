@@ -60,7 +60,10 @@ public abstract class ConfigurateConfigAdapter implements ConfigurationAdapter {
         return node.childrenMap().entrySet().stream().collect(
                 Collectors.toMap(
                         k -> k.getKey().toString(),
-                        v -> new Channel(v.getValue().node("format").getString(), v.getValue().node("alias").getString())
+                        v -> new Channel(
+                                v.getValue().node("format").getString(),
+                                v.getValue().node("alias").getString(),
+                                v.getValue().node("url_mode").getInt(1))
                 )
         );
     }

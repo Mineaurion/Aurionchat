@@ -3,6 +3,7 @@ package com.mineaurion.aurionchat.sponge.listeners;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
+import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -32,11 +33,12 @@ public class ChatListener {
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(player.uniqueId());
 
         String currentChannel = aurionChatPlayer.getCurrentChannel();
+        Channel channel = plugin.getConfigurationAdapter().getChannels().get(currentChannel);
         Component messageFormat = Utils.processMessage(
-                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
+                channel.format,
                 event.message(),
                 aurionChatPlayer,
-                Utils.URL_MODE_ALLOW
+                channel.urlMode
         );
 
         try{
