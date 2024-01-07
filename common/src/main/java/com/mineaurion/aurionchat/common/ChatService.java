@@ -3,6 +3,7 @@ package com.mineaurion.aurionchat.common;
 import com.google.gson.Gson;
 import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
+import com.mineaurion.aurionchat.common.player.PlayerEvent;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 public class ChatService {
     private static final String EXCHANGE_NAME = "aurion.chat";
@@ -108,6 +110,7 @@ public class ChatService {
         // send
         channel.basicPublish(EXCHANGE_NAME, "", null, packet.toString().getBytes());
     }
+
     public void close(){
         try {
             channel.close();
