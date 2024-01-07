@@ -51,8 +51,16 @@ jobs:
           sed -i "s/pluginVersion=SNAPSHOT/pluginVersion=${{ inputs.version}}/" gradle.properties
       - name: Create release with Gradle
         run: ./gradlew ${{ inputs.platform }}:clean ${{ inputs.platform }}:build
+      # TODO: workaround for fabric the -all version is not re-offuscated
       - name: Upload ${{ inputs.platform }}
+        if: ${{ inputs.platform!='fabric' }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.event.repository.name }}-${{ inputs.version }}.jar
           path: ${{ inputs.platform }}/build/libs/*-all.jar
+      - name: Upload ${{ inputs.platform }}
+        if: ${{ inputs.platform=='fabric' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-${{ inputs.version }}.jar
+          path: ${{ inputs.platform }}/build/libs/*-${{ inputs.version }}.jar
