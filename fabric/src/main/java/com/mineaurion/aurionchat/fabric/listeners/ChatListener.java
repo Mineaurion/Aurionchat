@@ -29,7 +29,8 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
         Component messageFormat = Utils.processMessage(
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(message.getContent())),
-                aurionChatPlayer
+                aurionChatPlayer,
+                Utils.URL_MODE_ALLOW
         );
         try {
             plugin.getChatService().send(currentChannel, messageFormat);
