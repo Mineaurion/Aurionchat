@@ -85,6 +85,9 @@ public class ChatService {
             String message = json.get("message").getAsString();
             String type = json.get("type").getAsString();
             Component messageDeserialize = GsonComponentSerializer.gson().deserialize(message);
+            if(this.config.getBoolean("options.spy", false)){
+                plugin.getlogger().info(Utils.getDisplayString(messageDeserialize));
+            }
 
             plugin.getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
                 if(type.equalsIgnoreCase("automessage") && this.config.getBoolean("options.automessage", false)){
@@ -92,9 +95,6 @@ public class ChatService {
                         aurionChatPlayers.sendMessage(messageDeserialize);
                     }
                 } else if (type.equalsIgnoreCase("chat")) {
-                    if(this.config.getBoolean("options.spy", false)){
-                        plugin.getlogger().info(message);
-                    }
                     if(aurionChatPlayers.getChannels().contains(channel)){
                         aurionChatPlayers.sendMessage(messageDeserialize);
                     }
