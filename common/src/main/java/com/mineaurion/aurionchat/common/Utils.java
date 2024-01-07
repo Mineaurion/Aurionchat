@@ -21,6 +21,8 @@ public class Utils {
             "(?<protocol>https?://)? # http/s \n" +
             "(?<domain>([\\w-]+\\.)*([\\w-]+(\\.[\\w-]+)+?)) # domains with * subdomains and +? endings \n" +
             "(?<path>(/[\\w-_.]+)*/?) # url path \n" +
+            "(\\#(?<fragment>[\\w_-]+))? # url fragment \n" +
+            "(?<parameters>\\?(([\\w_%-]+)=([\\w_%-]+)&?))? # urlencoded parameters \n" +
             ").*? # append anything");
     public static final int URL_MODE_ALLOW = 0x1;
     public static final int URL_MODE_ALLOW_HTTP = 0x2;
