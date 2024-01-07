@@ -5,6 +5,8 @@ authors: [Yann151924]
 website: https://mineaurion.com
 depend:
   - LuckPerms
+softdepend:
+  - PlaceholderAPI
 commands:
   chat:
     aliases: [ch, channel]
