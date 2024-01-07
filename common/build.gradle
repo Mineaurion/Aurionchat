@@ -4,7 +4,8 @@ plugins {
 }
 
 test {
-    useJUnitPlatform {}
+    useJUnit()
+    include '**/Test*.class'
 }
 
 jacocoTestReport {
@@ -53,4 +54,7 @@ dependencies {
     api('org.spongepowered:configurate-yaml:4.1.2')
     api('org.spongepowered:configurate-gson:4.1.2')
     api('org.spongepowered:configurate-hocon:4.1.2')
+
+    testImplementation('junit:junit:4.12')
+    testImplementation('org.easymock:easymock:3.6')
 }
