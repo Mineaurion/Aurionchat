@@ -1,6 +1,7 @@
 package com.mineaurion.aurionchat.common;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -8,6 +9,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
@@ -31,6 +34,24 @@ public class Utils {
         Component afterMessage = replaceToken(formatSplit.length == 2 ? formatSplit[1] : "", aurionChatPlayer);
 
         return beforeMessage.append(message).append(afterMessage);
+    }
+
+    public static String getDisplayString(Component component) {
+        return Stream.concat(Stream.of(component), component.children().stream())
+                .map(it -> {
+                    if (it instanceof TextComponent)
+                        return ((TextComponent) it).content();
+                    // todo: support other types
+                    //else if (it instanceof BlockNBTComponent) ;
+                    //else if (it instanceof EntityNBTComponent) ;
+                    //else if (it instanceof KeybindComponent) ;
+                    //else if (it instanceof ScoreComponent) ;
+                    //else if (it instanceof SelectorComponent) ;
+                    //else if (it instanceof StorageNBTComponent) ;
+                    //else if (it instanceof TranslatableComponent) ;
+                    return "";
+                })
+                .collect(Collectors.joining());
     }
 
     private static Component replaceToken(String text, AurionChatPlayer aurionChatPlayer){
