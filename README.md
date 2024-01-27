@@ -2,8 +2,7 @@
 
 ### What is it ?
 
-
-AurionChat is a cross chat plugin beetween server for bukkit and sponge. We can describe as a chat channel plugin too. This plugin work with rabbitmq to transfer the message beetween the server if you don't know what i'm talking please refer to [this](https://www.rabbitmq.com/) 
+AurionChat is a cross chat plugin beetween server for bukkit and sponge. We can describe as a chat channel plugin too. This plugin work with rabbitmq to transfer the message beetween the server if you don't know what i'm talking please refer to [this](https://www.rabbitmq.com/)
 
 ### How it works ?
 
@@ -11,14 +10,12 @@ When you send the message if other people listen to the same channel as you type
 
 ### Features
 
-
 - Chat channel
 - Formating chat
-- Bukkit 1.7 to 1.20.1 - Sponge 8 - Fabric 5.1.20 - Forge 1.16 and 1.18 support 
+- Bukkit 1.7 to 1.20.1 - Sponge 8 - Fabric 5.1.20 - Forge 1.16 and 1.18 support
 - Automessage
 
 ### Commands
-
 
 - `channel` : List the channel listened
 - `channel join <channelName>` : Listen and Join the desired channel
@@ -33,7 +30,6 @@ When you send the message if other people listen to the same channel as you type
 - `aurionchat.joinchannel.<channelName>` : Auto join the channel
 - `aurionchat.listenchannel.<channelName>` : Listen to the channel
 
-
 ---
 
 ## Chat
@@ -46,6 +42,7 @@ You can have more info about the uri here : https://www.rabbitmq.com/uri-spec.ht
 The plugin/mod assume that a global channel is always defined and player who join the server will listen to the channel and the channel of the server by default
 
 This an example to declare a channel :
+
 ```
 channels:
     #You can put any alphanumeric name you want.
@@ -64,9 +61,10 @@ At this time you can use only this token :
 
 You can put any color code beetwen the token or any characters if you want.
 ```
+
 ## Forge 1.16
 
-The mod need FTBRanks to be working with a minimal version of 1605.1.5. 
+The mod need FTBRanks to be working with a minimal version of 1605.1.5.
 
 The config file is the same syntax as the sponge one.
 
@@ -88,7 +86,7 @@ java.lang.NoClassDefFoundError: org/slf4j/spi/SLF4JServiceProvider
 ```
 
 You need to delete this folder from your server : `libraries/org/apache/logging/log4j/log4j-slf4j18-impl` and you can start again the server.
-  
+
 </details>
 
 ## Forge 1.18
@@ -101,16 +99,36 @@ Follow the [1.16](https://github.com/Mineaurion/aurionchat#forge-116) section fo
 
 The mod need [Luckperms](https://modrinth.com/mod/luckperms/versions) to be working with a minimal version of 5.1.20. The config file is the same syntax as the sponge one.
 
+## URL Mode
+
+Theres a variety of options available for handling URLs. Options are as follows:
+
+The option are based on enum in the code : https://github.com/Mineaurion/Aurionchat/blob/master/common/src/main/java/com/mineaurion/aurionchat/common/Utils.java#L24
+
+| Name                    | Value                  | Description                                                        |
+|-------------------------|------------------------|--------------------------------------------------------------------|
+| Disallow URL and Domain | `DISALLOW`             | Disallow domain and url and replace it with "[url removed]"        |
+| Disallow URL            | `DISALLOW_URL`         | Disallow only url and domain remain intact                         |
+| Display only Domain     | `DISPLAY_ONLY_DOMAINS` | Replace any url with only the domain, the url is instact for click |
+| Force Https             | `FORCE_HTTPS`          | Replace any http url with https instead                            |
+| Allow only domain click | `CLICK_DOMAIN`         | Domain will be only clickable                                      |
+| Allow URLs              | `ALLOW`                | Allow url to be clickable and domain                               |
+
+
+The `options.url_mode` configuration value is an array so you can add multiple to value to it. Be careful to respect the syntax of the value or the config will not work.
+
 ## Automessage
 
-For this part to work you need to install this [plugin](https://github.com/Mineaurion/AurionChat-AutoMessage)  on one of our server. 
+For this part to work you need to install this [plugin](https://github.com/Mineaurion/AurionChat-AutoMessage) on one of our server.
 
 You can disable the automessage for one server in the configurtion just switch this :
+
 ```
  enable=true
 ```
 
-To this : 
+To this :
+
 ```
  enable=false
 ```
@@ -120,7 +138,6 @@ Permission of every automessage channel is : `aurionchat.automessage.<channelNam
 ### Discord
 
 If you need support regarding our plugin, come on our [discord](https://discord.gg/Zn4ZbP9)
-
 
 ### Development
 
