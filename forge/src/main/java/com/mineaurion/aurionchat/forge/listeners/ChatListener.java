@@ -29,7 +29,7 @@ public class ChatListener {
         Component messageFormat = Utils.processMessage(
                 channel.format,
                 LegacyComponentSerializer.builder().build().deserialize(event.getMessage()),
-                aurionChatPlayer
+                aurionChatPlayer,
                 channel.urlMode
         );
         try {
