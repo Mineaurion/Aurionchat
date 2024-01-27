@@ -30,7 +30,7 @@ public class ChatListener {
         Component messageFormat = Utils.processMessage(
                 channel.format,
                 GsonComponentSerializer.gson().deserialize(ITextComponent.Serializer.toJson(event.getComponent())),
-                aurionChatPlayer
+                aurionChatPlayer,
                 channel.urlMode
         );
         try {
