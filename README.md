@@ -137,6 +137,10 @@ Permission of every automessage channel is : `aurionchat.automessage.<channelNam
 
 ### Discord
 
+#### Integration Service
+There is a third-party Discord integration bot that works with AurionChat [available here](https://github.com/comroid-git/ForwardMQ/tree/aurion-to-discord-link).
+
+#### Support Server
 If you need support regarding our plugin, come on our [discord](https://discord.gg/Zn4ZbP9)
 
 ### Development
