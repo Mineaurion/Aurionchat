@@ -6,103 +6,138 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.intellij.lang.annotations.MagicConstant;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Utils {
     private static final Pattern URL_PATTERN = Pattern.compile("(?xi) # comments and case insensitive \n" +
             "(.*?)( # prepend least possible of anything and group actual result \n" +
             "(?<protocol>https?://)? # http/s \n" +
             "(?<domain>([\\w-]+\\.)*([\\w-]+(\\.[\\w-]+)+?)) # domains with * subdomains and +? endings \n" +
-            "(?<path>(/[\\w-_.]+)*/?) # url path \n" +
-            "(\\#(?<fragment>[\\w_-]+))? # url fragment \n" +
-            "(?<parameters>\\?(([\\w_%-]+)=([\\w_%-]+)&?))? # urlencoded parameters \n" +
-            ").*? # append anything");
-    public static final int URL_MODE_ALLOW = 0x1;
-    public static final int URL_MODE_ALLOW_HTTP = 0x2;
-    public static final int URL_MODE_SCAN_DOMAINS = 0x4;
-    public static final int URL_MODE_DISPLAY_ONLY_DOMAINS = 0x8;
+            "(?<url>(?<path>(/[\\w-_.]+)*/?)\n(\\#(?<fragment>[\\w_-]+))?\n(?<parameters>\\?(([\\w_%-]+)=([\\w_%-]+)&?))? # all of the url \n" +
+            ")).*? # append anything");
 
-    public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer,
-                                           @MagicConstant(flagsFromClass = Utils.class) int urlMode) {
+    public enum URL_MODE {
+        DISALLOW,
+        DISSALLOW_URL,
+        DISPLAY_ONLY_DOMAINS,
+        ALLOW,
+        FORCE_HTTPS,
+        CLICK_DOMAIN
+    }
+
+    public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer, List<URL_MODE> urlModes) {
+        Component processedMessage = urlScanning(message, urlModes);
         if (!aurionChatPlayer.isAllowedColors()) {
             Component messageWithoutStyle = Component.text("");
-            if (!message.children().isEmpty()) {
-                for (Component component : message.children()) {
+            if (!processedMessage.children().isEmpty()) {
+                for (Component component : processedMessage.children()) {
                     messageWithoutStyle = messageWithoutStyle.append(removeAllStyleAndColor(component));
                 }
             } else {
-                messageWithoutStyle = messageWithoutStyle.append(removeAllStyleAndColor(message));
+                messageWithoutStyle = messageWithoutStyle.append(removeAllStyleAndColor(processedMessage));
             }
-            message = messageWithoutStyle;
+            processedMessage = messageWithoutStyle;
         }
 
-        String[] formatSplit = format.split("\\{message}");
+        String[] formatSplit = format.split("\\{message\\}");
 
-        Component blob = replaceToken(formatSplit[0], aurionChatPlayer);
-        final String display = getDisplayString(message);
-        final Matcher matcher = URL_PATTERN.matcher(display);
-        int eIndex = display.length();
-        while (matcher.find()) {
-            eIndex = matcher.end();
+        return Component.text()
+                .append(replaceToken(formatSplit[0], aurionChatPlayer))
+                .append(processedMessage.children())
+                .append(replaceToken(formatSplit.length == 2 ? formatSplit[1] : "", aurionChatPlayer))
+                .build()
+                ;
+    }
 
-            // append text before url
-            blob = blob.append(Component.text(matcher.group(1)));
+    /**
+     * Sanitize url or add click event on it
+     */
+    private static Component urlScanning(Component message, List<URL_MODE> urlModes) {
+        final Component urlRemoved = Component.text("[url removed]");
+        TextComponent.Builder component = Component.text();
 
-            String urlDisplay = matcher.group(2), urlAction;
+        if(!message.children().isEmpty()){
+            message.children().forEach(children -> component.append(urlScanning(children, urlModes)));
+        }
 
-            // check protocol present
-            if (matcher.group("protocol") == null) {
-                // validate that simple domains should be scanned
-                if ((urlMode & URL_MODE_SCAN_DOMAINS) == 0) {
-                    // otherwise append url as plaintext and continue
-                    blob = blob.append(Component.text(urlDisplay));
-                    continue;
+        if(message instanceof TextComponent){
+            TextComponent.Builder builder = Component.text();
+
+            final String display = ((TextComponent) message).content();
+            final Matcher matcher = URL_PATTERN.matcher(display);
+
+            if(matcher.find()){
+                matcher.reset(); // Discard internal state
+                int eIndex = display.length();
+                while(matcher.find()){
+                    eIndex = matcher.end();
+                    // append text before url
+                    builder.append(Component.text(matcher.group(1)));
+
+                    if(urlModes.contains(URL_MODE.DISALLOW)){
+                        builder.append(urlRemoved);
+                    } else {
+                        String urlDisplay = matcher.group(2);
+                        String urlAction = "";
+
+                        if(urlModes.contains(URL_MODE.FORCE_HTTPS) && urlDisplay.startsWith("http:")){
+                            urlDisplay = urlDisplay.replace("http:", "https:");
+                        }
+                        if(matcher.group("protocol") != null  || !matcher.group("url").isEmpty() ){
+                            if(urlModes.contains(URL_MODE.DISSALLOW_URL)){
+                                builder.append(urlRemoved);
+                                continue;
+                            }
+                        }
+                        if(urlModes.contains(URL_MODE.DISPLAY_ONLY_DOMAINS)){
+                            urlDisplay = matcher.group("domain");
+                        }
+
+                        if(urlModes.contains(URL_MODE.CLICK_DOMAIN) || urlModes.contains(URL_MODE.ALLOW)){
+                            String protocol = urlDisplay.startsWith("http") ? "" : "https://";
+                            urlAction = protocol + urlDisplay + matcher.group("url");
+                        }
+
+                        Component clickComponent = urlAction.isEmpty() ? Component.text(urlDisplay) : Component.text(urlDisplay).clickEvent(ClickEvent.openUrl(urlAction));
+
+                        builder.append(clickComponent);
+                    }
                 }
-                urlAction = "https://" + urlDisplay;
+                // Append last non match string
+                builder.append(Component.text(display.substring(eIndex)));
+            } else {
+                // Don't match anything then just append the string to the component
+                builder.append(Component.text(display));
             }
-            // check enforce https
-            else if ((urlMode & URL_MODE_ALLOW_HTTP) == 0 && urlDisplay.startsWith("http:"))
-                urlAction = urlDisplay = urlDisplay.replace("http:", "https:");
-                // or just use the url
-            else urlAction = urlDisplay;
-
-            // check display mode
-            if ((urlMode & URL_MODE_DISPLAY_ONLY_DOMAINS) != 0)
-                urlDisplay = matcher.group("domain");
-
-            // check urls allowed
-            if ((urlMode & URL_MODE_ALLOW) != 0)
-                blob = blob.append(Component.text(urlDisplay)
-                        .clickEvent(ClickEvent.openUrl(urlAction)));
-            else blob = blob.append(Component.text("[url removed]"));
+            component.append(builder.build());
         }
-        return blob.append(Component.text(display.substring(eIndex)))
-                .append(replaceToken(formatSplit.length == 2 ? formatSplit[1] : "", aurionChatPlayer));
+        return component.build();
     }
 
     public static String getDisplayString(Component component) {
-        return Stream.concat(Stream.of(component), component.children().stream())
-                .map(it -> {
-                    if (it instanceof TextComponent)
-                        return ((TextComponent) it).content();
-                    // todo: support other types
-                    //else if (it instanceof BlockNBTComponent) ;
-                    //else if (it instanceof EntityNBTComponent) ;
-                    //else if (it instanceof KeybindComponent) ;
-                    //else if (it instanceof ScoreComponent) ;
-                    //else if (it instanceof SelectorComponent) ;
-                    //else if (it instanceof StorageNBTComponent) ;
-                    //else if (it instanceof TranslatableComponent) ;
-                    return "";
-                })
-                .collect(Collectors.joining());
+        StringBuilder content = new StringBuilder();
+
+        if(!component.children().isEmpty()){
+            component.children().forEach( child -> content.append(getDisplayString(child)));
+        }
+
+        if(component instanceof TextComponent){
+            content.append(((TextComponent) component).content());
+        }
+        // todo: support other types
+        //else if (it instanceof BlockNBTComponent) ;
+        //else if (it instanceof EntityNBTComponent) ;
+        //else if (it instanceof KeybindComponent) ;
+        //else if (it instanceof ScoreComponent) ;
+        //else if (it instanceof SelectorComponent) ;
+        //else if (it instanceof StorageNBTComponent) ;
+        //else if (it instanceof TranslatableComponent) ;
+        return content.toString();
     }
 
     private static Component replaceToken(String text, AurionChatPlayer aurionChatPlayer) {

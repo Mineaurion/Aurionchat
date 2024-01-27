@@ -2,12 +2,12 @@ package com.mineaurion.aurionchat.common.command;
 
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
 import net.kyori.adventure.text.Component;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Set;
 
 import static net.kyori.adventure.text.Component.*;
@@ -128,7 +128,7 @@ public class ChatCommandCommon {
 
     public boolean onCommand(AurionChatPlayer aurionChatPlayers, Component message, String channel, String format){
         aurionChatPlayers.addChannel(channel);
-        Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers, Utils.URL_MODE_ALLOW);
+        Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers, Collections.singletonList(Utils.URL_MODE.ALLOW));
         try {
             plugin.getChatService().send(channel, messageFormat);
             return true;

@@ -1,13 +1,15 @@
 package com.mineaurion.aurionchat.common.config;
 
 import com.google.common.base.Splitter;
-import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.Utils;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,10 +62,20 @@ public abstract class ConfigurateConfigAdapter implements ConfigurationAdapter {
         return node.childrenMap().entrySet().stream().collect(
                 Collectors.toMap(
                         k -> k.getKey().toString(),
-                        v -> new Channel(
-                                v.getValue().node("format").getString(),
-                                v.getValue().node("alias").getString(),
-                                v.getValue().node("url_mode").getInt(1))
+                        v -> {
+                            List<Utils.URL_MODE> urlModeList;
+                            try {
+                                urlModeList = stringListToUrlMode(v.getValue().node("url_mode").getList(String.class));
+                            } catch (SerializationException e) {
+                                throw new RuntimeException(e);
+                            }
+                            return new Channel(
+                                    v.getValue().node("format").getString(),
+                                    v.getValue().node("alias").getString(),
+                                    urlModeList
+
+                            );
+                        }
                 )
         );
     }

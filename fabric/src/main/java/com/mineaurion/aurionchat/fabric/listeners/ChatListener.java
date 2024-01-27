@@ -1,7 +1,6 @@
 package com.mineaurion.aurionchat.fabric.listeners;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.fabric.AurionChat;

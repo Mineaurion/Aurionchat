@@ -8,6 +8,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.UnaryOperator;
@@ -22,31 +24,33 @@ public class TestMessageProcessing {
     static String prefix = "[U]";
     static String displayName = "Kaleidox";
     static String suffix = "!";
-    static String formatPrefix = "Minecraft {prefix} {display_name}{suffix}: ";
+    static String format = "Minecraft {prefix} {display_name}{suffix}: {message}";
     static String testUrl1 = "java.com";
     static String testUrl2 = "minecraft.net";
     static String testUrlRemoved = "[url removed]";
     static String testBase = "here is a url; %s and here is another: %s thats all there is!";
 
     static String testUrlClickable(String it) {
-        return "https://" + it;
+        return "https://" + it + "";
     }
 
     static String testUrlHttp(String it) {
         return "http://" + it;
     }
 
-    static String format() {
-        return formatPrefix
+    static String format(String message) {
+        return format
                 .replace("{display_name}", displayName)
                 .replace("{prefix}", prefix)
-                .replace("{suffix}", suffix);
+                .replace("{suffix}", suffix)
+                .replace("{message}", message)
+                ;
     }
 
     static String testText(String url1, String url2, boolean output) {
         String format = String.format(testBase, url1, url2);
         return output
-                ? format()+format
+                ? format(format)
                 : format;
     }
 
@@ -79,76 +83,106 @@ public class TestMessageProcessing {
         reset(playerAdp, configAdp, plugin);
     }
 
-    void checkClickable(Component output, int ci, int ui, UnaryOperator<String> urlFunc) {
-        String url = new String[]{testUrl1,testUrl2}[ui];
+    void checkClickable(Component output, int childrenIndex, int urlIndex, UnaryOperator<String> urlFunc) {
+        String url = new String[]{testUrl1,testUrl2}[urlIndex];
         List<Component> children = output.children();
-        assertTrue("invalid children count", children.size() > ci);
-        ClickEvent event = children.get(ci).clickEvent();
+        assertTrue("invalid children count", children.get(1).children().size() > childrenIndex);
+        ClickEvent event = children.get(1).children().get(childrenIndex).clickEvent();
         assertNotNull("url is not clickable: " + url, event);
         assertEquals("event has wrong action", ClickEvent.Action.OPEN_URL, event.action());
         assertEquals("event has wrong url", urlFunc.apply(url), event.value());
     }
 
-    void checkNotClickable(Component output, int ci) {
+    void checkNotClickable(Component output, int childrenIndex) {
         List<Component> children = output.children();
-        assertTrue("invalid children count", children.size() > ci);
-        Component child = children.get(ci);
+        assertTrue("invalid children count", children.get(1).children().size() > childrenIndex);
+        Component child = children.get(1).children().get(childrenIndex);
         ClickEvent event = child.clickEvent();
         assertNull("url should not be clickable: "+getDisplayString(child),event);
     }
 
+    /**
+     * Test to only check if we recursively handle children
+     */
     @Test
-    public void testDomain() {
-        Component output = processMessage(formatPrefix, text(testUrl1), player, URL_MODE_ALLOW);
+    public void testChildrenOneLevel(){
+        Component withChild = Component.text().append(text(testUrl1)).append(text(testUrl2)).build();
 
-        // check display
+        Component output = processMessage(format, withChild, player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS));
+
         String displayString = getDisplayString(output);
-        System.out.println(displayString);
-        assertEquals("display string mismatch", format()+testUrl1, displayString);
 
-        checkNotClickable(output, 0);
+        // +1 is the prefix component we create in the method
+        assertEquals(2 + 1, output.children().size());
     }
 
     @Test
-    public void testDomainScan() {
-        Component output = processMessage(formatPrefix, text(testUrl1), player, URL_MODE_ALLOW | URL_MODE_SCAN_DOMAINS);
+    public void testChildrenMoreThanOneLevel(){
+        Component child = Component.text().append(text("Child")).build();
+        Component parentWithChild = Component.text().append(text("Parent")).append(child).build();
+        Component grandParent = Component.text()
+                .append(parentWithChild)
+                .append(text("No Child"))
+                .build()
+                ;
+        Component output = processMessage(format, grandParent, player, Collections.emptyList());
+        String displayString = getDisplayString(output);
+        System.out.println(displayString);
+        assertEquals(2 + 1, output.children().size());
+    }
+
+    @Test
+    public void testDomain() {
+        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.ALLOW, URL_MODE.DISPLAY_ONLY_DOMAINS));
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
-        assertEquals("display string mismatch", format()+testUrl1, displayString);
+        assertEquals("display string mismatch", format(testUrl1), displayString);
+        checkClickable(output, 0, 0, TestMessageProcessing::testUrlClickable);
 
+    }
+
+    @Test
+    public void testClickDomain() {
+        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.CLICK_DOMAIN));
+
+        // check display
+        String displayString = getDisplayString(output);
+        System.out.println(displayString);
+
+        assertEquals("display string mismatch", format(testUrl1), displayString);
         checkClickable(output, 0, 0, TestMessageProcessing::testUrlClickable);
     }
 
     @Test
     public void testUrl() {
-        Component output = processMessage(formatPrefix, text(testUrlClickable(testUrl1)), player, URL_MODE_ALLOW);
+        Component output = processMessage(format, text(testUrlClickable(testUrl1)), player, Arrays.asList(URL_MODE.ALLOW));
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
-        assertEquals("display string mismatch", format()+testUrlClickable(testUrl1), displayString);
+        assertEquals("display string mismatch", format(testUrlClickable(testUrl1)), displayString);
 
         checkClickable(output, 0, 0, TestMessageProcessing::testUrlClickable);
     }
 
     @Test
     public void testEmbeddedUrl() {
-        Component output = processMessage(formatPrefix, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, URL_MODE_ALLOW);
+        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.FORCE_HTTPS, URL_MODE.ALLOW));
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", testText(testUrl1, testUrlClickable(testUrl2), true), displayString);
 
-        checkNotClickable(output, 1);
+        checkClickable(output, 1, 0, TestMessageProcessing::testUrlClickable);
         checkClickable(output, 3, 1, TestMessageProcessing::testUrlClickable);
     }
 
     @Test
     public void testDeniedUrl() {
-        Component output = processMessage(formatPrefix, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, 0);
+        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS, URL_MODE.DISSALLOW_URL));
 
         // check display
         String displayString = getDisplayString(output);
@@ -161,7 +195,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testDeniedUrlDomainScan() {
-        Component output = processMessage(formatPrefix, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, URL_MODE_SCAN_DOMAINS);
+        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISALLOW));
 
         // check display
         String displayString = getDisplayString(output);
@@ -174,27 +208,28 @@ public class TestMessageProcessing {
 
     @Test
     public void testSimplifiedDisplay() {
-        Component output = processMessage(formatPrefix, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, URL_MODE_ALLOW | URL_MODE_DISPLAY_ONLY_DOMAINS);
+        Component output = processMessage(format, text(testText(testUrlClickable(testUrl1), testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.CLICK_DOMAIN, URL_MODE.DISPLAY_ONLY_DOMAINS));
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", testText(testUrl1, testUrl2, true), displayString);
 
-        checkNotClickable(output, 1);
+        checkClickable(output, 1, 0, TestMessageProcessing::testUrlClickable);
         checkClickable(output, 3, 1, TestMessageProcessing::testUrlClickable);
     }
 
     @Test
     public void testHttp() {
-        Component output = processMessage(formatPrefix, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, URL_MODE_ALLOW | URL_MODE_ALLOW_HTTP);
+        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.ALLOW));
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", testText(testUrl1, testUrlHttp(testUrl2), true), displayString);
 
-        checkNotClickable(output, 1);
+
+        checkClickable(output, 1, 0, TestMessageProcessing::testUrlClickable);
         checkClickable(output, 3, 1, TestMessageProcessing::testUrlHttp);
     }
 }
