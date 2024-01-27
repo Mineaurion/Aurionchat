@@ -2,7 +2,6 @@ package com.mineaurion.aurionchat.bukkit.listeners;
 
 import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -37,7 +36,8 @@ public class ChatListener implements Listener {
         Component messageFormat = Utils.processMessage(
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
                 LegacyComponentSerializer.legacy('&').deserialize(event.getMessage()).asComponent(),
-                aurionChatPlayer
+                aurionChatPlayer,
+                plugin.getConfigurationAdapter().getChannels().get(currentChannel).urlMode
         );
 
         try{

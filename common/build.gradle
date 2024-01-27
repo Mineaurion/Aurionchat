@@ -4,7 +4,8 @@ plugins {
 }
 
 test {
-    useJUnitPlatform {}
+    useJUnit()
+    include '**/Test*.class'
 }
 
 jacocoTestReport {
@@ -15,6 +16,7 @@ dependencies {
 
     compileOnly 'com.google.code.gson:gson:2.7'
     compileOnly 'com.google.guava:guava:19.0'
+    compileOnly 'org.jetbrains:annotations:21.+'
 
     api('net.kyori:adventure-api:4.11.0') {
         exclude(module: 'adventure-bom')
@@ -52,4 +54,7 @@ dependencies {
     api('org.spongepowered:configurate-yaml:4.1.2')
     api('org.spongepowered:configurate-gson:4.1.2')
     api('org.spongepowered:configurate-hocon:4.1.2')
+
+    testImplementation('junit:junit:4.13.2')
+    testImplementation('org.easymock:easymock:3.6')
 }
