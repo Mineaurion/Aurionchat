@@ -3,7 +3,6 @@ package com.mineaurion.aurionchat.common;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.common.player.PlayerFactory;
-import net.luckperms.api.LuckPermsProvider;
 
 import java.io.IOException;
 import java.io.InputStream;

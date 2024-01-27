@@ -2,6 +2,7 @@ package com.mineaurion.aurionchat.forge.listeners;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.Utils;
+import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.forge.AurionChat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -24,10 +25,12 @@ public class ChatListener {
 
         AurionChatPlayer aurionChatPlayer = this.plugin.getAurionChatPlayers().get(event.getPlayer().getUUID());
         String currentChannel = aurionChatPlayer.getCurrentChannel();
+        Channel channel = plugin.getConfigurationAdapter().getChannels().get(currentChannel);
         Component messageFormat = Utils.processMessage(
-                plugin.getConfigurationAdapter().getChannels().get(currentChannel).format,
+                channel.format,
                 LegacyComponentSerializer.builder().build().deserialize(event.getMessage()),
                 aurionChatPlayer
+                channel.urlMode
         );
         try {
             plugin.getChatService().send(currentChannel, messageFormat);

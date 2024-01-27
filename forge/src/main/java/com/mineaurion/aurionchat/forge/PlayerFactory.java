@@ -1,7 +1,6 @@
 package com.mineaurion.aurionchat.forge;
 
 import net.kyori.adventure.text.Component;
-import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
