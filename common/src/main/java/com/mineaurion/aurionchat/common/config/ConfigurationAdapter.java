@@ -1,11 +1,10 @@
 package com.mineaurion.aurionchat.common.config;
 
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.Utils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public interface ConfigurationAdapter {
 
@@ -35,4 +34,16 @@ public interface ConfigurationAdapter {
         }
         return Optional.empty();
     };
+
+    default List<Utils.URL_MODE> stringListToUrlMode(List<String> slist) {
+        List<Utils.URL_MODE> list = new ArrayList<>();
+        for (String val : slist) {
+            try {
+                list.add(Utils.URL_MODE.valueOf(val));
+            } catch (IllegalArgumentException e){
+                throw new RuntimeException("This url mode '" + val + "' is not supported. We supported this mode : " + Arrays.toString(Utils.URL_MODE.values()));
+            }
+        }
+        return list;
+    }
 }
