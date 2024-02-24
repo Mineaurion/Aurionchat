@@ -103,7 +103,9 @@ public class Utils {
                             urlAction = protocol + urlDisplay + matcher.group("url");
                         }
 
-                        Component clickComponent = urlAction.isEmpty() ? Component.text(urlDisplay) : Component.text(urlDisplay).clickEvent(ClickEvent.openUrl(urlAction));
+                        Component clickComponent = urlAction.isEmpty() ? Component.text(urlDisplay) : Component.text(urlDisplay)
+                                .decorate(TextDecoration.UNDERLINED)
+                                .clickEvent(ClickEvent.openUrl(urlAction));
 
                         builder.append(clickComponent);
                     }
