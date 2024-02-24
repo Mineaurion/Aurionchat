@@ -1,0 +1,28 @@
+plugins {
+    id("java-library")
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+    compileOnly 'com.google.code.gson:gson:2.10.1'
+}
+
+publishing {
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/Mineaurion/aurionchat"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
