@@ -47,3 +47,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             build/**/*.jar
+  publish:
+    needs:
+      - getVersion
+      - release
+    uses: ./.github/workflows/publish.yaml
+    with:
+      version: ${{ needs.getVersion.outputs.tag }}

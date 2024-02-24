@@ -14,4 +14,4 @@ pluginManagement {
 
 rootProject.name = 'aurionchat'
 
-include 'common', 'bukkit', 'sponge', 'forge', 'fabric'
+include 'common', 'api', 'bukkit', 'sponge', 'forge', 'fabric'
