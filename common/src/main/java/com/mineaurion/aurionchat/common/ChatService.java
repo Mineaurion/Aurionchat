@@ -1,6 +1,7 @@
 package com.mineaurion.aurionchat.common;
 
 import com.google.gson.Gson;
+import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.api.RabbitMQMessage;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.rabbitmq.client.Channel;
@@ -16,6 +17,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 public class ChatService {
@@ -79,36 +81,39 @@ public class ChatService {
 
     private DeliverCallback consumer(){
         return (consumerTag, delivery) -> {
-            RabbitMQMessage rabbitMQMessage = new Gson().fromJson(new String(delivery.getBody(), StandardCharsets.UTF_8), RabbitMQMessage.class);
-            Component messageDeserialize = GsonComponentSerializer.gson().deserialize(rabbitMQMessage.getMessage());
+            AurionPacket packet = new Gson().fromJson(new String(delivery.getBody(), StandardCharsets.UTF_8), AurionPacket.class);
+            Component messageDeserialize = GsonComponentSerializer.gson().deserialize(packet.getTellRawData());
             if(this.config.getBoolean("options.spy", false)){
                 plugin.getlogger().info(Utils.getDisplayString(messageDeserialize));
             }
 
             plugin.getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
-                if(rabbitMQMessage.getType().equals(RabbitMQMessage.Type.AUTO_MESSAGE) && this.config.getBoolean("options.automessage", false)){
-                    if(aurionChatPlayers.hasPermission("aurionchat.automessage." + rabbitMQMessage.getChannel())){
+                if(packet.getType().equals(AurionPacket.Type.AUTO_MESSAGE) && this.config.getBoolean("options.automessage", false)){
+                    if(aurionChatPlayers.hasPermission("aurionchat.automessage." + packet.getChannelName())){
                         aurionChatPlayers.sendMessage(messageDeserialize);
                     }
-                } else if (rabbitMQMessage.getType().equals(RabbitMQMessage.Type.CHAT)) {
-                    if(aurionChatPlayers.getChannels().contains(rabbitMQMessage.getChannel())){
+                } else if (packet.getType().equals(AurionPacket.Type.CHAT)) {
+                    if(aurionChatPlayers.getChannels().contains(packet.getChannelName())){
                         aurionChatPlayers.sendMessage(messageDeserialize);
                     }
                 } else {
-                    plugin.getlogger().warn("Received message with the type " + rabbitMQMessage.getType() + " and the message was " + rabbitMQMessage + ". It won't be processed");
+                    plugin.getlogger().warn("Received message with the type " + packet.getType() + " and the message was " + packet + ". It won't be processed");
                 }
             });
         };
     }
 
-    public void send(String channelName, Component message) throws IOException {
-        RabbitMQMessage rabbitMQMessage = new RabbitMQMessage(
-                channelName,
-                RabbitMQMessage.Type.CHAT,
-                GsonComponentSerializer.gson().serialize(message)
-        );
+    public void send(AurionPacket.Builder builder) throws IOException {
+        Component component = Component.text(message);
+        AurionPacket packet = AurionPacket.builder()
+                .channelName(channelName)
+                .playerId(playerId)
+                .displayName(playerName)
+                .source(serverName)
+                .tellRawData(GsonComponentSerializer.gson().serialize(component))
+                .build();
 
-        channel.basicPublish(EXCHANGE_NAME, "", null, new Gson().toJson(rabbitMQMessage).getBytes());
+        channel.basicPublish(EXCHANGE_NAME, "", null, packet.toString().getBytes());
     }
     public void close(){
         try {
