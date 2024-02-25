@@ -104,15 +104,10 @@ public class ChatService {
     }
 
     public void send(AurionPacket.Builder builder) throws IOException {
-        Component component = Component.text(message);
-        AurionPacket packet = AurionPacket.builder()
-                .channelName(channelName)
-                .playerId(playerId)
-                .displayName(playerName)
-                .source(serverName)
-                .tellRawData(GsonComponentSerializer.gson().serialize(component))
-                .build();
+        // add context info
+        AurionPacket packet = builder.source(config.getString("server-name", "ingame")).build();
 
+        // send
         channel.basicPublish(EXCHANGE_NAME, "", null, packet.toString().getBytes());
     }
     public void close(){
