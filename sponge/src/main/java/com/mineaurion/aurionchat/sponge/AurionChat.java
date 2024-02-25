@@ -7,7 +7,7 @@ import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.sponge.command.ChatCommand;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
-import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
+import com.mineaurion.aurionchat.sponge.listeners.PlayerListener;
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
@@ -53,7 +53,7 @@ public class AurionChat extends AbstractAurionChat {
     @Override
     protected void registerPlatformListeners() {
         EventManager eventManager = Sponge.eventManager();
-        eventManager.registerListeners(this.container, new LoginListener(this));
+        eventManager.registerListeners(this.container, new PlayerListener(this));
         eventManager.registerListeners(this.container, new ChatListener(this));
     }
 
