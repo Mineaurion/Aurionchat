@@ -44,6 +44,7 @@ public abstract class PlayerListenerCommon<T extends AbstractAurionChat> {
         }
     }
 
+    // todo: call this event from implementation
     protected void playerAdvancement(ServerPlayer player, String sanitizedAdvancementMessage){
         AurionChatPlayer plr = this.plugin.getAurionChatPlayers().remove(player.getId());
         Component component = Component.text(sanitizedAdvancementMessage);
@@ -56,6 +57,7 @@ public abstract class PlayerListenerCommon<T extends AbstractAurionChat> {
         }
     }
 
+    // todo: call this event from implementation
     protected void playerDeath(ServerPlayer player, String sanitizedDeathMessage){
         AurionChatPlayer plr = this.plugin.getAurionChatPlayers().remove(player.getId());
         Component component = Component.text(sanitizedDeathMessage);
