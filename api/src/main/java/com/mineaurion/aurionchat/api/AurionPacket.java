@@ -2,6 +2,7 @@ package com.mineaurion.aurionchat.api;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import com.mineaurion.aurionchat.api.model.Named;
 import lombok.*;
 import lombok.Builder.Default;
 import lombok.experimental.FieldDefaults;
@@ -9,22 +10,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.util.Optional;
 
 @Value
 @Builder(toBuilder = true)
-public class AurionPacket implements Serializable {
+@AllArgsConstructor // make public for gson
+public class AurionPacket implements Named, Serializable {
     public static Gson gson = new Gson();
 
     public static AurionPacket parse(String json) {
         return gson.fromJson(json, AurionPacket.class);
     }
 
-    public static Builder chat(String playerName, String message, Object tellRaw) {
+    public static Builder chat(AurionPlayer player, String message, Object tellRaw) {
         return AurionPacket.builder()
                 .type(Type.CHAT)
                 .source("ingame")
-                .displayName(playerName)
+                .player(player)
                 .detail(message)
                 .tellRawData(tellRaw.toString());
     }
@@ -41,17 +43,17 @@ public class AurionPacket implements Serializable {
     /** packet type */
     Type type;
 
-    /** id of related player */
-    @Default @Nullable UUID playerId = null;
-
     /** one of: servername, 'discord' or 'ingame' literal */
     String source;
+
+    /** related player */
+    @Default @Nullable AurionPlayer player = null;
 
     /** channel name */
     @Default @Nullable String channelName = null;
 
     /** display name of sender (one of: player name, automessage title) */
-    String displayName;
+    @Default @Nullable String displayName = null;
 
     /** detail data (one of: message text, join text, achievement text) */
     @Default @Nullable String detail = null;
@@ -60,6 +62,7 @@ public class AurionPacket implements Serializable {
     @NotNull String tellRawData;
 
     /** what to display in plaintext environments */
+    @SuppressWarnings("ConstantValue") // false positive bcs of lombok
     public String getRawDisplay() {
         return displayName + ' ' + type.verb + (detail==null?"": ": " + detail);
     }
@@ -67,6 +70,20 @@ public class AurionPacket implements Serializable {
     @Override
     public String toString() {
         return gson.toJson(this);
+    }
+
+    @Override
+    @SuppressWarnings({"ConstantValue", "OptionalOfNullableMisuse"}) // false positive bcs of lombok
+    public @Nullable String getName() {
+        return Optional.ofNullable(player)
+                .map(Named::getBestName)
+                .orElse(null);
+    }
+
+    @Override
+    @SuppressWarnings("ConstantValue") // false positive bcs of lombok
+    public @Nullable String getDisplayName() {
+        return displayName;
     }
 
     @Getter
