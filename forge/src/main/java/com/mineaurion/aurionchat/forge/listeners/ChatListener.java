@@ -6,7 +6,6 @@ import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.forge.AurionChat;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,11 +36,10 @@ public class ChatListener {
                 channel.urlMode
         );
         AurionPacket.Builder packet = AurionPacket.chat(
-                        event.getPlayer().getScoreboardName(),
+                        aurionChatPlayer,
                         event.getRawText(),
                         gson().serialize(component))
-                .playerId(event.getPlayer().getUUID())
-                .channelName(currentChannel);
+                .channel(currentChannel);
         try {
             plugin.getChatService().send(packet);
         } catch (IOException e) {

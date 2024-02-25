@@ -50,7 +50,7 @@ public class AurionPacket implements Named, Serializable {
     @Default @Nullable AurionPlayer player = null;
 
     /** channel name */
-    @Default @Nullable String channelName = null;
+    @Default @Nullable String channel = null;
 
     /** display name of sender (one of: player name, automessage title) */
     @Default @Nullable String displayName = null;

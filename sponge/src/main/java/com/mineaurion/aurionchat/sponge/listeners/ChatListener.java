@@ -6,7 +6,6 @@ import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.sponge.AurionChat;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.IsCancelled;
@@ -44,11 +43,10 @@ public class ChatListener {
                 channel.urlMode
         );
         AurionPacket.Builder packet = AurionPacket.chat(
-                        player.name(),
+                        aurionChatPlayer,
                         Utils.getDisplayString(event.message()),
                         gson().serialize(messageFormat))
-                .playerId(player.uniqueId())
-                .channelName(currentChannel);
+                .channel(currentChannel);
         try {
             plugin.getChatService().send(packet);
         } catch (Exception e) {

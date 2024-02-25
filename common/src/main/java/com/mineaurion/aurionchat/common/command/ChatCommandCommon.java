@@ -132,11 +132,10 @@ public class ChatCommandCommon {
         aurionChatPlayers.addChannel(channel);
         Component component = Utils.processMessage(format, message, aurionChatPlayers, Collections.singletonList(Utils.URL_MODE.ALLOW));
         AurionPacket.Builder packet = AurionPacket.chat(
-                        aurionChatPlayers.getPlayer().getDisplayName(),
+                        aurionChatPlayers,
                         Utils.getDisplayString(message),
                         GsonComponentSerializer.gson().serialize(component))
-                .playerId(aurionChatPlayers.getPlayer().getUUID())
-                .channelName(channel);
+                .channel(channel);
         try {
             plugin.getChatService().send(packet);
             return true;
