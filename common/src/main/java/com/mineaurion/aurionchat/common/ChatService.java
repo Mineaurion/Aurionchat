@@ -69,10 +69,10 @@ public class ChatService {
     }
 
     private void join() throws IOException{
-        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+        channel.exchangeDeclare(EXCHANGE_NAME, "topic");
 
         String queue = channel.queueDeclare().getQueue();
-        channel.queueBind(queue, EXCHANGE_NAME, "");
+        channel.queueBind(queue, EXCHANGE_NAME, "#");
 
         channel.basicConsume(queue, true, consumer(), consumerTag -> {});
     }
@@ -106,7 +106,7 @@ public class ChatService {
         AurionPacket packet = builder.source(config.getString("server-name", "ingame")).build();
 
         // send
-        channel.basicPublish(EXCHANGE_NAME, "", null, packet.toString().getBytes());
+        channel.basicPublish(EXCHANGE_NAME, packet.getChannel(), null, packet.toString().getBytes());
     }
     public void close(){
         try {
