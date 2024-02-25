@@ -91,6 +91,10 @@ public class AurionPacket implements Named, Serializable {
     @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
     public enum Type {
         @SerializedName("chat") CHAT("wrote"),
+        @SerializedName("join") JOIN("joined"),
+        @SerializedName("leave") LEAVE("left"),
+        @SerializedName("death") DEATH("died"),
+        @SerializedName("advancement") ADVANCEMENT("made advancement"),
         @SerializedName("automessage") AUTO_MESSAGE("broadcasted");
 
         String verb;

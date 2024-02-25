@@ -5,7 +5,6 @@ import com.mineaurion.aurionchat.api.model.ServerPlayer;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.api.model.Player;
-import com.mineaurion.aurionchat.common.player.PlayerEvent;
 import net.kyori.adventure.text.Component;
 
 import static com.mineaurion.aurionchat.api.AurionPacket.Type.*;
