@@ -1,9 +1,11 @@
 package com.mineaurion.aurionchat.bukkit.listeners;
 
+import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.bukkit.AurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.Utils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -13,6 +15,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.io.IOException;
+
+import static net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson;
 
 public class ChatListener implements Listener {
 
@@ -39,9 +43,14 @@ public class ChatListener implements Listener {
                 aurionChatPlayer,
                 plugin.getConfigurationAdapter().getChannels().get(currentChannel).urlMode
         );
-
+        AurionPacket.Builder packet = AurionPacket.chat(
+                player.getName(),
+                event.getMessage(),
+                gson().serialize(messageFormat))
+                .playerId(player.getUniqueId())
+                .channelName(currentChannel);
         try{
-            plugin.getChatService().send(currentChannel, messageFormat);
+            plugin.getChatService().send(packet);
         }
         catch(IOException e){
             Bukkit.getConsoleSender().sendMessage(e.getMessage());
