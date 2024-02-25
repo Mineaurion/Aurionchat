@@ -11,9 +11,15 @@ import java.util.UUID;
 @Value @NonFinal
 public class AurionPlayer implements Player {
     UUID id;
+    /**
+     * raw, sanitized recently known player name
+     */
     String name;
     @Nullable String prefix;
     @Nullable String suffix;
+    /**
+     * sanitized display name of the player
+     */
     @Nullable String displayName;
 
     public AurionPlayer(UUID id, String name, @Nullable String prefix, @Nullable String suffix) {

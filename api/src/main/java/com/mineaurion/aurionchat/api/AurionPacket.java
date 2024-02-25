@@ -22,6 +22,13 @@ public class AurionPacket implements Named, Serializable {
         return gson.fromJson(json, AurionPacket.class);
     }
 
+    /**
+     * create a packet builder for a chat message
+     * @param player the related player
+     * @param message the raw, sanitized text content of the message
+     * @param tellRaw shown to ingame players
+     * @return builder; should be extended with {@link Builder#channel(String)}
+     */
     public static Builder chat(AurionPlayer player, String message, Object tellRaw) {
         return AurionPacket.builder()
                 .type(Type.CHAT)
@@ -31,6 +38,27 @@ public class AurionPacket implements Named, Serializable {
                 .tellRawData(tellRaw.toString());
     }
 
+    /**
+     * create a packet builder for a player event
+     * @param player the related player
+     * @param type the exact type of player event
+     * @param tellRaw shown to ingame players
+     * @return builder; should be extended with {@link Builder#detail(String)} and {@link Builder#channel(String)}
+     */
+    public static Builder event(AurionPlayer player, Type type, Object tellRaw) {
+        return AurionPacket.builder()
+                .type(Type.CHAT)
+                .source("ingame")
+                .player(player)
+                .tellRawData(tellRaw.toString());
+    }
+
+    /**
+     * create a packet builder for an automessage
+     * @param message the raw, sanitized message
+     * @param tellRaw shown to ingame players
+     * @return builder; should be extended with {@link Builder#channel(String)}
+     */
     public static Builder autoMessage(String message, Object tellRaw) {
         return AurionPacket.builder()
                 .type(Type.AUTO_MESSAGE)
@@ -52,10 +80,10 @@ public class AurionPacket implements Named, Serializable {
     /** channel name */
     @Default @Nullable String channel = null;
 
-    /** display name of sender (one of: player name, automessage title) */
+    /** sanitized display name of sender (one of: player name, automessage title) */
     @Default @Nullable String displayName = null;
 
-    /** detail data (one of: message text, join text, achievement text) */
+    /** sanitized detail data (one of: message text, join text, achievement text) */
     @Default @Nullable String detail = null;
 
     /** what ingame players see */
