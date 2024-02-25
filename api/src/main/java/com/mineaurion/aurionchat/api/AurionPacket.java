@@ -22,8 +22,8 @@ public class AurionPacket implements Serializable {
 
     public static Builder chat(String playerName, String message, Object tellRaw) {
         return AurionPacket.builder()
-                .type(Type.AUTO_MESSAGE)
-                .source("chat")
+                .type(Type.CHAT)
+                .source("ingame")
                 .displayName(playerName)
                 .detail(message)
                 .tellRawData(tellRaw.toString());
@@ -39,12 +39,12 @@ public class AurionPacket implements Serializable {
     }
 
     /** packet type */
-    @Default Type type = Type.CHAT;
+    Type type;
 
     /** id of related player */
     @Default @Nullable UUID playerId = null;
 
-    /** one of: servername, 'discord' or 'chat' literal */
+    /** one of: servername, 'discord' or 'ingame' literal */
     String source;
 
     /** channel name */
