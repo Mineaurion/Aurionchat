@@ -6,11 +6,15 @@ import com.mineaurion.aurionchat.api.model.Named;
 import lombok.*;
 import lombok.Builder.Default;
 import lombok.experimental.FieldDefaults;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Optional;
+
+import static net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson;
 
 @Value
 @Builder(toBuilder = true)
@@ -65,6 +69,10 @@ public class AurionPacket implements Named, Serializable {
     @SuppressWarnings("ConstantValue") // false positive bcs of lombok
     public String getRawDisplay() {
         return displayName + ' ' + type.verb + (detail==null?"": ": " + detail);
+    }
+
+    public Component getComponent() {
+        return gson().deserialize(tellRawData);
     }
 
     @Override
