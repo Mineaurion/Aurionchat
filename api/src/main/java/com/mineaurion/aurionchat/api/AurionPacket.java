@@ -20,11 +20,19 @@ public class AurionPacket implements Serializable {
         return gson.fromJson(json, AurionPacket.class);
     }
 
-    public static Builder autoMessage(String channel, String message, Object tellRaw) {
+    public static Builder chat(String playerName, String message, Object tellRaw) {
+        return AurionPacket.builder()
+                .type(Type.AUTO_MESSAGE)
+                .source("chat")
+                .displayName(playerName)
+                .detail(message)
+                .tellRawData(tellRaw.toString());
+    }
+
+    public static Builder autoMessage(String message, Object tellRaw) {
         return AurionPacket.builder()
                 .type(Type.AUTO_MESSAGE)
                 .source("automessage")
-                .channelName(channel)
                 .displayName("AutoMessage")
                 .detail(message)
                 .tellRawData(tellRaw.toString());
@@ -36,11 +44,11 @@ public class AurionPacket implements Serializable {
     /** id of related player */
     @Default @Nullable UUID playerId = null;
 
-    /** one of: servername, 'discord' literal */
+    /** one of: servername, 'discord' or 'chat' literal */
     String source;
 
     /** channel name */
-    String channelName;
+    @Default @Nullable String channelName = null;
 
     /** display name of sender (one of: player name, automessage title) */
     String displayName;
