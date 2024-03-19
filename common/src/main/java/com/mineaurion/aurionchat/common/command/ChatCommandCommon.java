@@ -4,6 +4,7 @@ import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
+import com.mineaurion.aurionchat.common.exception.InsufficientPermissionException;
 import net.kyori.adventure.text.Component;
 
 import java.io.IOException;
@@ -90,6 +91,10 @@ public class ChatCommandCommon {
 
     public boolean execute(AurionChatPlayer aurionChatPlayer, String channel, Action action) {
         try {
+            String perm = "aurionchat.channel." + action.name().toLowerCase() + "." + channel;
+            if (action.ordinal() <= 2 // action is any of [join, leave or spy]
+                    && !aurionChatPlayer.hasPermission(perm))
+                throw new InsufficientPermissionException(perm);
             switch (action) {
                 case JOIN:
                     this.join(aurionChatPlayer, channel);
@@ -101,6 +106,9 @@ public class ChatCommandCommon {
                     this.spy(aurionChatPlayer, channel);
                     break;
                 case ALLLISTEN:
+                    perm = "aurionchat.alllisten";
+                    if (!aurionChatPlayer.hasPermission(perm))
+                        throw new InsufficientPermissionException(perm);
                     this.allListen(aurionChatPlayer, plugin.getConfigurationAdapter().getChannels().keySet());
                     break;
                 case RELOAD:
@@ -119,6 +127,9 @@ public class ChatCommandCommon {
             return true;
         } catch (ChannelNotFoundException e){
             aurionChatPlayer.sendMessage(text(e.getMessage()).color(RED));
+            return false;
+        } catch (InsufficientPermissionException e){
+            aurionChatPlayer.sendMessage(text("You are missing the required permission: "+e.getMessage()).color(RED));
             return false;
         } catch (IOException exception){
             System.out.println(exception.getMessage());
