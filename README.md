@@ -25,10 +25,16 @@ When you send the message if other people listen to the same channel as you type
 
 ### Permissions
 
-- `aurionchat.chat.speak`: Can speak in channel
-- `aurionchat.chat.colors` : Usage of colors in chat
-- `aurionchat.joinchannel.<channelName>` : Auto join the channel
-- `aurionchat.listenchannel.<channelName>` : Listen to the channel
+| Permission                           | Description                    |
+|--------------------------------------|--------------------------------|
+| `aurionchat.chat.speak`              | Can speak in channel           |
+| `aurionchat.chat.colors`             | Usage of colors in chat        |
+| `aurionchat.joinchannel.<channel>`   | Auto join the channel          |
+| `aurionchat.listenchannel.<channel>` | Listen to the channel          |
+| `aurionchat.channel.join.<channel>`  | Can join the channel           |
+| `aurionchat.channel.leave.<channel>` | Can leave the channel          |
+| `aurionchat.channel.spy.<channel>`   | Can spy the channel            |
+| `aurionchat.channel.alllisten`       | Can spy/listen all the channel |
 
 ---
 
