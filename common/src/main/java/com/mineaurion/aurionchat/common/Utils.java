@@ -126,22 +126,6 @@ public class Utils {
         return component.build();
     }
 
-    private static final MDSpec[] MD_SPECS = new MDSpec[]{
-            new MDSpec('_', (n, b) -> {
-                if (n == 1)
-                    b.decorate(ITALIC);
-                else b.decorate(UNDERLINED);
-            }),
-            new MDSpec('*', (n, b) -> {
-                if (n == 1)
-                    b.decorate(ITALIC);
-                else b.decorate(BOLD);
-            }),
-            new MDSpec('~', ($, b) -> b.decorate(STRIKETHROUGH)),
-            new MDSpec('|', ($, b) -> b.decorate(OBFUSCATED)),
-            new MDSpec('`', ($, b) -> b.style(Style.style().font(Key.key("uniform")).build()))
-    };
-
     private static TextComponent parseMarkdown(String message, boolean markdown) {
         if (!markdown)
             return Component.text(message);
@@ -153,30 +137,30 @@ public class Utils {
         for (int i = 0; i < message.length(); i++) {
             c = message.charAt(i);
             MDSpec found = null;
-                findSpec:
-                {
-                    for (MDSpec s : MD_SPECS)
-                        if (c == s.spec) {
-                            if (txt.length() > 0) {
-                                pushText(builder, spec, txt.toString(), specCounter);
-                                specCounter = 0;
-                                spec = null;
-                            }
-                            txt = new StringBuilder();
-                            found = s;
-                            break findSpec;
+            findSpec:
+            {
+                for (MDSpec s : MDSpec.values())
+                    if (c == s.spec) {
+                        if (txt.length() > 0) {
+                            pushText(builder, spec, txt.toString(), specCounter);
+                            specCounter = 0;
+                            spec = null;
                         }
-                    txt.append(c);
-                }
-                if (found != null) {
-                    spec = found;
-                    if (specCounter == 2) {
-                        for (int x = 0; x < 3; x++)
-                            txt.append(spec.spec);
-                    } else if (specCounter > 2)
+                        txt = new StringBuilder();
+                        found = s;
+                        break findSpec;
+                    }
+                txt.append(c);
+            }
+            if (found != null) {
+                spec = found;
+                if (specCounter == 2) {
+                    for (int x = 0; x < 3; x++)
                         txt.append(spec.spec);
-                    specCounter++;
-                }
+                } else if (specCounter > 2)
+                    txt.append(spec.spec);
+                specCounter++;
+            }
         }
         return builder.build();
     }
@@ -189,7 +173,20 @@ public class Utils {
         builder.append(comp);
     }
 
-    private static final class MDSpec {
+    private enum MDSpec {
+        Underscore('_', (n, b) -> {
+            if (n == 1)
+                b.decorate(ITALIC);
+            else b.decorate(UNDERLINED);
+        }),
+        Stars('*', (n, b) -> {
+            if (n == 1)
+                b.decorate(ITALIC);
+            else b.decorate(BOLD);
+        }),
+        Tildes('~', ($, b) -> b.decorate(STRIKETHROUGH)),
+        Separators('|', ($, b) -> b.decorate(OBFUSCATED)),
+        Colons('`', ($, b) -> b.style(Style.style().font(Key.key("uniform")).build()));
         final char spec;
         final BiConsumer<@NotNull Integer, TextComponent.Builder> func;
 
@@ -198,6 +195,7 @@ public class Utils {
             this.func = func;
         }
     }
+
 
     public static String getDisplayString(Component component) {
         StringBuilder content = new StringBuilder();
