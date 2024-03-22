@@ -108,7 +108,7 @@ public class TestMessageProcessing {
     public void testChildrenOneLevel(){
         Component withChild = Component.text().append(text(testUrl1)).append(text(testUrl2)).build();
 
-        Component output = processMessage(format, withChild, player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS));
+        Component output = processMessage(format, withChild, player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS), markdownEnabled);
 
         String displayString = getDisplayString(output);
 
@@ -125,7 +125,7 @@ public class TestMessageProcessing {
                 .append(text("No Child"))
                 .build()
                 ;
-        Component output = processMessage(format, grandParent, player, Collections.emptyList());
+        Component output = processMessage(format, grandParent, player, Collections.emptyList(), markdownEnabled);
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals(2 + 1, output.children().size());
@@ -133,7 +133,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testDomain() {
-        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.ALLOW, URL_MODE.DISPLAY_ONLY_DOMAINS));
+        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.ALLOW, URL_MODE.DISPLAY_ONLY_DOMAINS), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -145,7 +145,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testClickDomain() {
-        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.CLICK_DOMAIN));
+        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.CLICK_DOMAIN), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -157,7 +157,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testUrl() {
-        Component output = processMessage(format, text(testUrlClickable(testUrl1)), player, Arrays.asList(URL_MODE.ALLOW));
+        Component output = processMessage(format, text(testUrlClickable(testUrl1)), player, Arrays.asList(URL_MODE.ALLOW), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -169,7 +169,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testEmbeddedUrl() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.FORCE_HTTPS, URL_MODE.ALLOW));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.FORCE_HTTPS, URL_MODE.ALLOW), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -182,7 +182,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testDeniedUrl() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS, URL_MODE.DISSALLOW_URL));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS, URL_MODE.DISSALLOW_URL), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -195,7 +195,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testDeniedUrlDomainScan() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISALLOW));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISALLOW), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -208,7 +208,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testSimplifiedDisplay() {
-        Component output = processMessage(format, text(testText(testUrlClickable(testUrl1), testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.CLICK_DOMAIN, URL_MODE.DISPLAY_ONLY_DOMAINS));
+        Component output = processMessage(format, text(testText(testUrlClickable(testUrl1), testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.CLICK_DOMAIN, URL_MODE.DISPLAY_ONLY_DOMAINS), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);
@@ -221,7 +221,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testHttp() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.ALLOW));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.ALLOW), markdownEnabled);
 
         // check display
         String displayString = getDisplayString(output);

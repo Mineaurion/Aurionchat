@@ -30,8 +30,10 @@ public class Utils {
         CLICK_DOMAIN
     }
 
-    public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer, List<URL_MODE> urlModes) {
+    public static Component processMessage(String format, Component message, AurionChatPlayer aurionChatPlayer, List<URL_MODE> urlModes, boolean markdownEnabled) {
         Component processedMessage = urlScanning(message, urlModes);
+        if (markdownEnabled)
+            processedMessage = convertMarkdown(processedMessage);
         if (!aurionChatPlayer.isAllowedColors()) {
             Component messageWithoutStyle = Component.text("");
             if (!processedMessage.children().isEmpty()) {
@@ -52,6 +54,13 @@ public class Utils {
                 .append(replaceToken(formatSplit.length == 2 ? formatSplit[1] : "", aurionChatPlayer))
                 .build()
                 ;
+    }
+
+    /**
+     * convert markdown sequences
+     */
+    private static Component convertMarkdown(Component component) {
+        return component; // todo
     }
 
     /**
