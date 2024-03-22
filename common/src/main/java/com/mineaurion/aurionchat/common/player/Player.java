@@ -12,7 +12,11 @@ public interface Player {
 
     void sendMessage(Component message);
 
-    boolean hasPermission(String permission);
+    default boolean hasPermission(String permission) {
+        return hasPermission(permission, false);
+    }
+
+    boolean hasPermission(String permission, boolean explicitly);
 
     String getPreffix();
 
