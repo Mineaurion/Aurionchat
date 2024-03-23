@@ -49,7 +49,8 @@ public class BukkitConfigurationAdapter implements ConfigurationAdapter {
                     new Channel(
                             this.configuration.getString("channels." + channel + ".format"),
                             this.configuration.getString("channels." + channel + ".alias"),
-                            stringListToUrlMode(this.configuration.getStringList("channels." + channel + ".url_mode"))
+                            stringListToUrlMode(this.configuration.getStringList("channels." + channel + ".url_mode")),
+                            this.configuration.getBoolean("channels." + channel + ".publish", true)
                     )
             );
         }
