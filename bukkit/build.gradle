@@ -34,3 +34,62 @@ shadowJar {
     relocate 'net.kyori.adventure', 'com.mineaurion.aurionchat.lib.adventure'
     relocate 'net.kyori.event', 'com.mineaurion.aurionchat.lib.eventbus'
 }
+
+
+def urls = [
+    [
+        url: "https://download.getbukkit.org/spigot/spigot-1.20.4.jar",
+        folder: 'spigot-1.20',
+    ],
+    [
+        url: "https://github.com/IzzelAliz/Arclight/releases/download/Trials%2F1.0.5/arclight-forge-1.20.1-1.0.5.jar",
+        folder: "arclight"
+    ]
+]
+
+task downloadServerJar{
+    urls.forEach {server ->
+        download.run {
+            src server.url
+            dest "${projectDir}/run/" + server.folder + "/server.jar"
+        }
+        copy {
+            from "${projectDir}/libs/start.sh"
+            into "${projectDir}/run/" + server.folder
+        }
+        copy {
+            from "${projectDir}/libs/start.bat"
+            into "${projectDir}/run/" + server.folder
+        }
+    }
+}
+
+def localServerJar = [
+    [
+        file: "${projectDir}/libs/spigot-1.7.10-SNAPSHOT-b1657.jar",
+        folder: "spigot-1.7"
+    ],
+    [
+        file: "${projectDir}/libs/Thermos-1.7.10-1614-server.jar",
+        folder: "thermos-1.7"
+    ]
+]
+
+task copyLocalServerJar {
+    dependsOn downloadServerJar
+    localServerJar.forEach { server ->
+        copy {
+            from server.file
+            into "${projectDir}/run/" + server.folder
+            rename { "server.jar" }
+        }
+        copy {
+            from "${projectDir}/libs/start.sh"
+            into "${projectDir}/run/" + server.folder
+        }
+        copy {
+            from "${projectDir}/libs/start.bat"
+            into "${projectDir}/run/" + server.folder
+        }
+    }
+}
