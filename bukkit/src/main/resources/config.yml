@@ -7,17 +7,19 @@ options:
   sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
   #sound: "ORB_PICKUP" #1.7
 
-
 channels:
   global:
     format: "[GLOBAL] {prefix}{display_name} : &f{message}"
     alias: "g"
     url_mode: ["ALLOW"] # check https://github.com/Mineaurion/Aurionchat/#url-mode for reference
+    markdown: true
   infinity:
     format: "[&6I&f] {prefix}{display_name} : &f{message}"
     alias: "inf"
     url_mode: ["ALLOW"] # check https://github.com/Mineaurion/Aurionchat/#url-mode for reference
+    markdown: false
   revelation:
     format: "[&5R&f] {prefix}{display_name} : &f{message}"
     alias: "reve"
     url_mode: ["ALLOW"] # check https://github.com/Mineaurion/Aurionchat/#url-mode for reference
+    markdown: false

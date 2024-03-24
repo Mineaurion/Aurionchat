@@ -20,7 +20,7 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("HttpUrlsUsage")
-public class TestMessageProcessing {
+public class TestUrlProcessing {
     static String prefix = "[U]";
     static String displayName = "Kaleidox";
     static String suffix = "!";
@@ -60,7 +60,7 @@ public class TestMessageProcessing {
     AurionChatPlayer player;
 
     @Before
-    public void setupAurionChatPlayer() {
+    public void setup() {
         playerAdp = mock(Player.class);
         configAdp = mock(ConfigurationAdapter.class);
         plugin = mock(AbstractAurionChat.class);
@@ -108,7 +108,7 @@ public class TestMessageProcessing {
     public void testChildrenOneLevel(){
         Component withChild = Component.text().append(text(testUrl1)).append(text(testUrl2)).build();
 
-        Component output = processMessage(format, withChild, player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS));
+        Component output = processMessage(format, withChild, player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS), true);
 
         String displayString = getDisplayString(output);
 
@@ -125,7 +125,7 @@ public class TestMessageProcessing {
                 .append(text("No Child"))
                 .build()
                 ;
-        Component output = processMessage(format, grandParent, player, Collections.emptyList());
+        Component output = processMessage(format, grandParent, player, Collections.emptyList(), true);
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals(2 + 1, output.children().size());
@@ -133,56 +133,56 @@ public class TestMessageProcessing {
 
     @Test
     public void testDomain() {
-        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.ALLOW, URL_MODE.DISPLAY_ONLY_DOMAINS));
+        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.ALLOW, URL_MODE.DISPLAY_ONLY_DOMAINS), true);
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", format(testUrl1), displayString);
-        checkClickable(output, 0, 0, TestMessageProcessing::testUrlClickable);
+        checkClickable(output, 0, 0, TestUrlProcessing::testUrlClickable);
 
     }
 
     @Test
     public void testClickDomain() {
-        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.CLICK_DOMAIN));
+        Component output = processMessage(format, text(testUrl1), player, Arrays.asList(URL_MODE.CLICK_DOMAIN), true);
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
 
         assertEquals("display string mismatch", format(testUrl1), displayString);
-        checkClickable(output, 0, 0, TestMessageProcessing::testUrlClickable);
+        checkClickable(output, 0, 0, TestUrlProcessing::testUrlClickable);
     }
 
     @Test
     public void testUrl() {
-        Component output = processMessage(format, text(testUrlClickable(testUrl1)), player, Arrays.asList(URL_MODE.ALLOW));
+        Component output = processMessage(format, text(testUrlClickable(testUrl1)), player, Arrays.asList(URL_MODE.ALLOW), true);
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", format(testUrlClickable(testUrl1)), displayString);
 
-        checkClickable(output, 0, 0, TestMessageProcessing::testUrlClickable);
+        checkClickable(output, 0, 0, TestUrlProcessing::testUrlClickable);
     }
 
     @Test
     public void testEmbeddedUrl() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.FORCE_HTTPS, URL_MODE.ALLOW));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.FORCE_HTTPS, URL_MODE.ALLOW), true);
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", testText(testUrl1, testUrlClickable(testUrl2), true), displayString);
 
-        checkClickable(output, 1, 0, TestMessageProcessing::testUrlClickable);
-        checkClickable(output, 3, 1, TestMessageProcessing::testUrlClickable);
+        checkClickable(output, 1, 0, TestUrlProcessing::testUrlClickable);
+        checkClickable(output, 3, 1, TestUrlProcessing::testUrlClickable);
     }
 
     @Test
     public void testDeniedUrl() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS, URL_MODE.DISSALLOW_URL));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISPLAY_ONLY_DOMAINS, URL_MODE.DISSALLOW_URL), true);
 
         // check display
         String displayString = getDisplayString(output);
@@ -195,7 +195,7 @@ public class TestMessageProcessing {
 
     @Test
     public void testDeniedUrlDomainScan() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISALLOW));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.DISALLOW), true);
 
         // check display
         String displayString = getDisplayString(output);
@@ -208,20 +208,20 @@ public class TestMessageProcessing {
 
     @Test
     public void testSimplifiedDisplay() {
-        Component output = processMessage(format, text(testText(testUrlClickable(testUrl1), testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.CLICK_DOMAIN, URL_MODE.DISPLAY_ONLY_DOMAINS));
+        Component output = processMessage(format, text(testText(testUrlClickable(testUrl1), testUrlClickable(testUrl2), false)), player, Arrays.asList(URL_MODE.CLICK_DOMAIN, URL_MODE.DISPLAY_ONLY_DOMAINS), true);
 
         // check display
         String displayString = getDisplayString(output);
         System.out.println(displayString);
         assertEquals("display string mismatch", testText(testUrl1, testUrl2, true), displayString);
 
-        checkClickable(output, 1, 0, TestMessageProcessing::testUrlClickable);
-        checkClickable(output, 3, 1, TestMessageProcessing::testUrlClickable);
+        checkClickable(output, 1, 0, TestUrlProcessing::testUrlClickable);
+        checkClickable(output, 3, 1, TestUrlProcessing::testUrlClickable);
     }
 
     @Test
     public void testHttp() {
-        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.ALLOW));
+        Component output = processMessage(format, text(testText(testUrl1, testUrlHttp(testUrl2), false)), player, Arrays.asList(URL_MODE.ALLOW), true);
 
         // check display
         String displayString = getDisplayString(output);
@@ -229,7 +229,7 @@ public class TestMessageProcessing {
         assertEquals("display string mismatch", testText(testUrl1, testUrlHttp(testUrl2), true), displayString);
 
 
-        checkClickable(output, 1, 0, TestMessageProcessing::testUrlClickable);
-        checkClickable(output, 3, 1, TestMessageProcessing::testUrlHttp);
+        checkClickable(output, 1, 0, TestUrlProcessing::testUrlClickable);
+        checkClickable(output, 3, 1, TestUrlProcessing::testUrlHttp);
     }
 }
