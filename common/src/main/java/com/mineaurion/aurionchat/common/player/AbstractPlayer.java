@@ -35,8 +35,8 @@ public class AbstractPlayer<T> implements Player {
     }
 
     @Override
-    public boolean hasPermission(String permission) {
-        return this.factory.hasPermission(player, permission);
+    public boolean hasPermission(String permission, boolean explicitly) {
+        return this.factory.hasPermission(player, permission, explicitly);
     }
 
     @Override

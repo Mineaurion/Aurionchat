@@ -29,8 +29,8 @@ public abstract class PlayerFactory<T> implements AutoCloseable {
         return luckPermsUtils != null ? luckPermsUtils.getPlayerSuffix(getUUID(player)).orElse("") : "";
     };
 
-    protected boolean hasPermission(T player, String permission) {
-        return luckPermsUtils.hasPermission(getUUID(player), permission);
+    protected boolean hasPermission(T player, String permission, boolean explicitly) {
+        return luckPermsUtils.hasPermission(getUUID(player), permission, explicitly);
     }
 
     public final Player wrap(T player){
