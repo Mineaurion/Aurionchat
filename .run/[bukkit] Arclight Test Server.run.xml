@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="[bukkit] Arclight Test Server" type="JarApplication" activateToolWindowBeforeRun="false">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/run/arclight/server.jar" />
+    <option name="VM_PARAMETERS" value="-Xmx4G" />
+    <option name="PROGRAM_PARAMETERS" value="nogui" />
+    <option name="WORKING_DIRECTORY" value="C:\dev\thirdparty\Aurionchat\run\arclight" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <module name="aurionchat.bukkit.main" />
+    <method v="2">
+      <option name="Gradle.BeforeRunTask" enabled="false" tasks="prepareArclightBukkitFile" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
+    </method>
+  </configuration>
+</component>

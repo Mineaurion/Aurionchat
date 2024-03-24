@@ -58,3 +58,99 @@ subprojects { subProject ->
         archivesBaseName = project.jarName + "-" + project.name + getWorkingBranch()
     }
 }
+
+
+def urls = [
+        [
+                url: "https://download.getbukkit.org/spigot/spigot-1.20.4.jar",
+                folder: 'spigot-1.20',
+        ],
+        [
+                url: "https://github.com/IzzelAliz/Arclight/releases/download/Trials%2F1.0.5/arclight-forge-1.20.1-1.0.5.jar",
+                folder: "arclight"
+        ],
+        [
+                url: "https://serverjars.com/api/fetchJar/modded/fabric/1.20.4",
+                folder: "fabric-1.20"
+        ]
+]
+
+task downloadServerJar {
+    urls.forEach {server ->
+        download.run {
+            src server.url
+            dest "${projectDir}/run/" + server.folder + "/server.jar"
+        }
+        copy {
+            from "${projectDir}/libs/start.sh"
+            into "${projectDir}/run/" + server.folder
+        }
+        copy {
+            from "${projectDir}/libs/start.bat"
+            into "${projectDir}/run/" + server.folder
+        }
+    }
+}
+
+def localServerJar = [
+        [
+                file: "${projectDir}/libs/spigot-1.7.10-SNAPSHOT-b1657.jar",
+                folder: "spigot-1.7"
+        ],
+        [
+                file: "${projectDir}/libs/Thermos-1.7.10-1614-server.jar",
+                folder: "thermos-1.7"
+        ]
+]
+
+task copyLocalServerJar {
+    dependsOn downloadServerJar
+    localServerJar.forEach { server ->
+        copy {
+            from server.file
+            into "${projectDir}/run/" + server.folder
+            rename { "server.jar" }
+        }
+        copy {
+            from "${projectDir}/libs/start.sh"
+            into "${projectDir}/run/" + server.folder
+        }
+        copy {
+            from "${projectDir}/libs/start.bat"
+            into "${projectDir}/run/" + server.folder
+        }
+    }
+}
+
+evaluationDependsOn('fabric')
+evaluationDependsOn('forge')
+
+task prepareSpigotFile(type: Copy) {
+    dependsOn copyLocalServerJar, project('bukkit').shadowJar
+    from project('bukkit').shadowJar.outputs.files.singleFile
+    into "${projectDir}/run/spigot-1.20/plugins/"
+    rename { name -> 'AurionChat-Bukkit.jar' }
+}
+task cleanArclightFiles(type: Delete) {
+    dependsOn copyLocalServerJar
+    delete "${projectDir}/run/arclight/plugins/AurionChat-Bukkit.jar",
+            "${projectDir}/run/arclight/mods/AurionChat-Forge.jar"
+}
+task prepareArclightBukkitFile(type: Copy) {
+    dependsOn cleanArclightFiles, project('bukkit').shadowJar
+    from project('bukkit').shadowJar.outputs.files.singleFile
+    into "${projectDir}/run/arclight/plugins/"
+    rename { name -> 'AurionChat-Bukkit.jar' }
+}
+task prepareArclightForgeFile(type: Copy) {
+    dependsOn cleanArclightFiles, project('forge').shadowJar
+    from project('forge').shadowJar.outputs.files.singleFile
+    into "${projectDir}/run/arclight/mods/"
+    rename { name -> 'AurionChat-Forge.jar' }
+}
+task prepareFabricFile(type: Copy) {
+    dependsOn copyLocalServerJar, project('fabric').remappedShadowJar
+    from project('fabric').remappedShadowJar.outputs.files.singleFile
+    into  "${projectDir}/run/fabric-1.20/mods/"
+    rename { name -> 'AurionChat-Fabric.jar' }
+}
