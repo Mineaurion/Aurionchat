@@ -10,6 +10,7 @@ import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.impl.ForgivingExceptionHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
 
 public class ChatService {
     private static final String EXCHANGE_NAME = "aurion.chat";
@@ -77,28 +79,35 @@ public class ChatService {
         channel.basicConsume(queue, true, consumer(), consumerTag -> {});
     }
 
-    private DeliverCallback consumer(){
+    private DeliverCallback consumer() {
         return (consumerTag, delivery) -> {
             RabbitMQMessage rabbitMQMessage = new Gson().fromJson(new String(delivery.getBody(), StandardCharsets.UTF_8), RabbitMQMessage.class);
             Component messageDeserialize = GsonComponentSerializer.gson().deserialize(rabbitMQMessage.getMessage());
-            if(this.config.getBoolean("options.spy", false)){
+            if (this.config.getBoolean("options.spy", false)) {
                 plugin.getlogger().info(Utils.getDisplayString(messageDeserialize));
             }
 
-            plugin.getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
-                if(rabbitMQMessage.getType().equals(RabbitMQMessage.Type.AUTO_MESSAGE) && this.config.getBoolean("options.automessage", false)){
-                    if(aurionChatPlayers.hasPermission("aurionchat.automessage." + rabbitMQMessage.getChannel())){
-                        aurionChatPlayers.sendMessage(messageDeserialize);
-                    }
-                } else if (rabbitMQMessage.getType().equals(RabbitMQMessage.Type.CHAT)) {
-                    if(aurionChatPlayers.getChannels().contains(rabbitMQMessage.getChannel())){
-                        aurionChatPlayers.sendMessage(messageDeserialize);
-                    }
-                } else {
-                    plugin.getlogger().warn("Received message with the type " + rabbitMQMessage.getType() + " and the message was " + rabbitMQMessage + ". It won't be processed");
-                }
-            });
+            String channelName = rabbitMQMessage.getChannel();
+            if (rabbitMQMessage.getType().equals(RabbitMQMessage.Type.AUTO_MESSAGE) && this.config.getBoolean("options.automessage", false)) {
+                deliver(channelName, messageDeserialize, acp -> acp.hasPermission("aurionchat.automessage." + channelName));
+            } else if (rabbitMQMessage.getType().equals(RabbitMQMessage.Type.CHAT)) {
+                deliver(channelName, messageDeserialize);
+            } else {
+                plugin.getlogger().warn("Received message with the type " + rabbitMQMessage.getType() + " and the message was " + rabbitMQMessage + ". It won't be processed");
+            }
         };
+    }
+
+    public void deliver(String channelName, Component message) {
+        deliver(channelName, message, null);
+    }
+
+    public void deliver(String channelName, Component message, @Nullable Predicate<AurionChatPlayer> deliverToPlayer) {
+        plugin.getAurionChatPlayers().forEach((uuid, acp) -> {
+            if (acp.getChannels().contains(channelName) && (deliverToPlayer == null || deliverToPlayer.test(acp))) {
+                acp.sendMessage(message);
+            }
+        });
     }
 
     public void send(String channelName, Component message) throws IOException {

@@ -72,8 +72,8 @@ public abstract class ConfigurateConfigAdapter implements ConfigurationAdapter {
                             return new Channel(
                                     v.getValue().node("format").getString(),
                                     v.getValue().node("alias").getString(),
-                                    urlModeList
-
+                                    urlModeList,
+                                    v.getValue().node("publish").getBoolean(true)
                             );
                         }
                 )
