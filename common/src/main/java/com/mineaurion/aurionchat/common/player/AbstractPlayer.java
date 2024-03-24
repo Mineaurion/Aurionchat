@@ -1,16 +1,24 @@
 package com.mineaurion.aurionchat.common.player;
 
+import com.mineaurion.aurionchat.api.model.ServerPlayer;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class AbstractPlayer<T> implements Player {
+public class AbstractPlayer<T> implements ServerPlayer {
 
     private final PlayerFactory<T> factory;
     private final T player;
 
     private final UUID uuid;
     private final String name;
+
+    @Nullable
+    @Override
+    public String getName() {
+        return name;
+    }
 
     public AbstractPlayer(PlayerFactory<T> factory, T player){
         this.factory = factory;
@@ -20,7 +28,7 @@ public class AbstractPlayer<T> implements Player {
     }
 
     @Override
-    public UUID getUUID() {
+    public UUID getId() {
         return this.uuid;
     }
 
@@ -40,7 +48,7 @@ public class AbstractPlayer<T> implements Player {
     }
 
     @Override
-    public String getPreffix() {
+    public String getPrefix() {
         return this.factory.getPreffix(player);
     }
 

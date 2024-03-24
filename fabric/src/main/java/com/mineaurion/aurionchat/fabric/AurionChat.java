@@ -6,7 +6,7 @@ import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.common.logger.Slf4jPluginLogger;
 import com.mineaurion.aurionchat.fabric.command.ChatCommand;
 import com.mineaurion.aurionchat.fabric.listeners.ChatListener;
-import com.mineaurion.aurionchat.fabric.listeners.LoginListener;
+import com.mineaurion.aurionchat.fabric.listeners.PlayerListener;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -35,7 +35,7 @@ public class AurionChat extends AbstractAurionChat implements DedicatedServerMod
 
     @Override
     protected void registerPlatformListeners() {
-        LoginListener loginListener = new LoginListener(this);
+        PlayerListener loginListener = new PlayerListener(this);
         ChatListener chatListener = new ChatListener(this);
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> loginListener.onPlayerJoin(handler.getPlayer()));
