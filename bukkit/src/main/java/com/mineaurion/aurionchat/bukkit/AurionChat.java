@@ -8,6 +8,7 @@ import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.JavaPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -30,6 +31,8 @@ public class AurionChat extends AbstractAurionChat {
     public void onEnable(){
         getlogger().info("AurionChat Initializing");
         audiences = BukkitAudiences.create(plugin);
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+            ((BukkitConfigurationAdapter) getConfigurationAdapter()).initPlaceholderApi();
         this.enable();
     }
 
