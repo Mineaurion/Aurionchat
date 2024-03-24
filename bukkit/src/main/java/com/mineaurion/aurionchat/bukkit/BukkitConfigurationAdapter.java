@@ -69,6 +69,7 @@ public class BukkitConfigurationAdapter implements ConfigurationAdapter {
     }
 
     public void initPlaceholderApi() {
+        plugin.getlogger().info("Hooking into PlaceholderAPI");
         apapi = new AurionPlaceholderAPI(plugin);
         PlaceholderAPI.registerExpansion(apapi);
     }
