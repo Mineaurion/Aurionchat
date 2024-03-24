@@ -35,7 +35,6 @@ public class ChatCommandCommon {
 
     private void join(AurionChatPlayer aurionChatPlayer, String channel) throws ChannelNotFoundException {
         this.checkChannelExist(channel);
-        aurionChatPlayer.removeChannel(aurionChatPlayer.getCurrentChannel());
         aurionChatPlayer.setCurrentChannel(channel);
         aurionChatPlayer.sendMessage(text("You have joined the " + channel + " channel.").color(GOLD));
     }
