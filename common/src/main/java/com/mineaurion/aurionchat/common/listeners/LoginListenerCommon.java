@@ -1,8 +1,9 @@
 package com.mineaurion.aurionchat.common.listeners;
 
+import com.mineaurion.aurionchat.api.model.ServerPlayer;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
-import com.mineaurion.aurionchat.common.player.Player;
+import com.mineaurion.aurionchat.api.model.Player;
 
 public abstract class LoginListenerCommon<T extends AbstractAurionChat> {
     public T plugin;
@@ -11,13 +12,13 @@ public abstract class LoginListenerCommon<T extends AbstractAurionChat> {
         this.plugin = plugin;
     }
 
-    protected void playerLeaving(Player player){
-        this.plugin.getAurionChatPlayers().remove(player.getUUID());
+    protected void playerLeaving(ServerPlayer player){
+        this.plugin.getAurionChatPlayers().remove(player.getId());
     };
 
-    protected void playerJoin(Player player){
+    protected void playerJoin(ServerPlayer player){
         this.plugin.getAurionChatPlayers().putIfAbsent(
-            player.getUUID(),
+            player.getId(),
             new AurionChatPlayer(player, plugin)
         );
     }

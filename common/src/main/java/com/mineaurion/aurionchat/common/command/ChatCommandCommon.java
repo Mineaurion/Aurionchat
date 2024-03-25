@@ -1,11 +1,13 @@
 package com.mineaurion.aurionchat.common.command;
 
+import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.exception.ChannelNotFoundException;
 import com.mineaurion.aurionchat.common.exception.InsufficientPermissionException;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -138,13 +140,18 @@ public class ChatCommandCommon {
         }
     }
 
-    public boolean onCommand(AurionChatPlayer aurionChatPlayers, Component message, String channel, String format){
+    public boolean onCommand(AurionChatPlayer aurionChatPlayers, Component message, String channel, String format) {
         aurionChatPlayers.addChannel(channel);
-        Component messageFormat = Utils.processMessage(format, message, aurionChatPlayers, Collections.singletonList(Utils.URL_MODE.ALLOW));
+        Component component = Utils.processMessage(format, message, aurionChatPlayers, Collections.singletonList(Utils.URL_MODE.ALLOW));
+        AurionPacket.Builder packet = AurionPacket.chat(
+                        aurionChatPlayers,
+                        Utils.getDisplayString(message),
+                        GsonComponentSerializer.gson().serialize(component))
+                .channel(channel);
         try {
-            plugin.getChatService().send(channel, messageFormat);
+            plugin.getChatService().send(packet);
             return true;
-        } catch (IOException e){
+        } catch (IOException e) {
             aurionChatPlayers.sendMessage(text("The server returned an error, your message could not be sent").color(DARK_RED));
             System.err.println(e.getMessage());
         }
