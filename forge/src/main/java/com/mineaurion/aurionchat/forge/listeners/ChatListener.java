@@ -1,6 +1,7 @@
 package com.mineaurion.aurionchat.forge.listeners;
 
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.forge.AurionChat;
@@ -33,7 +34,10 @@ public class ChatListener {
                 channel.urlMode
         );
         try {
-            plugin.getChatService().send(currentChannel, messageFormat);
+            ChatService chatService = plugin.getChatService();
+            if (channel.publish)
+                chatService.send(currentChannel, messageFormat);
+            else chatService.deliver(currentChannel, messageFormat);
         } catch (IOException e) {
             LogManager.getLogger().error(e.getMessage());
         }
