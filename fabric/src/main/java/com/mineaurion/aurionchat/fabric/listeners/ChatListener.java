@@ -1,18 +1,20 @@
 package com.mineaurion.aurionchat.fabric.listeners;
 
+import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.config.Channel;
 import com.mineaurion.aurionchat.fabric.AurionChat;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.network.message.MessageType.Parameters;
 import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.io.IOException;
+
+import static net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson;
 
 public class ChatListener implements ServerMessageEvents.AllowChatMessage {
 
@@ -29,13 +31,18 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
         Channel channel = plugin.getConfigurationAdapter().getChannels().get(currentChannel);
         Component messageFormat = Utils.processMessage(
                 channel.format,
-                GsonComponentSerializer.gson().deserialize(Text.Serializer.toJson(message.getContent())),
+                gson().deserialize(Text.Serializer.toJson(message.getContent())),
                 aurionChatPlayer,
                 channel.urlMode
         );
+        AurionPacket.Builder packet = AurionPacket.chat(
+                        aurionChatPlayer,
+                        message.getSignedContent(),
+                        gson().serialize(messageFormat))
+                .channel(currentChannel);
         try {
-            plugin.getChatService().send(currentChannel, messageFormat);
-        } catch (IOException e){
+            plugin.getChatService().send(packet);
+        } catch (IOException e) {
             this.plugin.getlogger().severe(e.getMessage());
         }
         // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.

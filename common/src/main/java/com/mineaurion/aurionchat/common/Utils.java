@@ -142,9 +142,9 @@ public class Utils {
         return content.toString();
     }
 
-    private static Component replaceToken(String text, AurionChatPlayer aurionChatPlayer) {
+    public static Component replaceToken(String text, AurionChatPlayer aurionChatPlayer){
         return LegacyComponentSerializer.legacy('&').deserialize(
-                text.replace("{prefix}", aurionChatPlayer.getPlayer().getPreffix())
+                text.replace("{prefix}", aurionChatPlayer.getPlayer().getPrefix())
                         .replace("{suffix}", aurionChatPlayer.getPlayer().getSuffix())
                         .replace("{display_name}", aurionChatPlayer.getPlayer().getDisplayName())
         );

@@ -1,7 +1,8 @@
+import com.mineaurion.aurionchat.api.model.ServerPlayer;
 import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
-import com.mineaurion.aurionchat.common.player.Player;
+import com.mineaurion.aurionchat.api.model.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.junit.After;
@@ -54,20 +55,20 @@ public class TestMessageProcessing {
                 : format;
     }
 
-    Player playerAdp;
+    ServerPlayer playerAdp;
     ConfigurationAdapter configAdp;
     AbstractAurionChat plugin;
     AurionChatPlayer player;
 
     @Before
     public void setupAurionChatPlayer() {
-        playerAdp = mock(Player.class);
+        playerAdp = mock(ServerPlayer.class);
         configAdp = mock(ConfigurationAdapter.class);
         plugin = mock(AbstractAurionChat.class);
 
         // we could specify call count here for micro-optimization
         expect(playerAdp.getDisplayName()).andReturn(displayName).atLeastOnce();
-        expect(playerAdp.getPreffix()).andReturn(prefix).atLeastOnce();
+        expect(playerAdp.getPrefix()).andReturn(prefix).atLeastOnce();
         expect(playerAdp.getSuffix()).andReturn(suffix).atLeastOnce();
         expect(playerAdp.hasPermission("aurionchat.chat.colors")).andReturn(true).atLeastOnce();
         expect(configAdp.getChannels()).andReturn(new HashMap<>()).anyTimes();

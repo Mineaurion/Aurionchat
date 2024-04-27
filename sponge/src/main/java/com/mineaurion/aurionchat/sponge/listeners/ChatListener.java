@@ -1,5 +1,6 @@
 package com.mineaurion.aurionchat.sponge.listeners;
 
+import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.Utils;
 import com.mineaurion.aurionchat.common.config.Channel;
@@ -12,6 +13,8 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.util.Tristate;
 
+import static net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson;
+
 public class ChatListener {
 
     private final AurionChat plugin;
@@ -21,11 +24,11 @@ public class ChatListener {
     }
 
     @Listener @IsCancelled(Tristate.UNDEFINED)
-    public void onPlayerChat(PlayerChatEvent event, @First ServerPlayer player){
-        if(event.isCancelled()) {
+    public void onPlayerChat(PlayerChatEvent event, @First ServerPlayer player) {
+        if (event.isCancelled()) {
             return;
         }
-        if(!player.hasPermission("aurionchat.chat.speak")){
+        if (!player.hasPermission("aurionchat.chat.speak")) {
             event.setCancelled(true);
             return;
         }
@@ -39,12 +42,15 @@ public class ChatListener {
                 aurionChatPlayer,
                 channel.urlMode
         );
-
-        try{
-            plugin.getChatService().send(currentChannel, messageFormat);
-        }
-        catch (Exception e){
-           this.plugin.getlogger().severe(e.getMessage());
+        AurionPacket.Builder packet = AurionPacket.chat(
+                        aurionChatPlayer,
+                        Utils.getDisplayString(event.message()),
+                        gson().serialize(messageFormat))
+                .channel(currentChannel);
+        try {
+            plugin.getChatService().send(packet);
+        } catch (Exception e) {
+            this.plugin.getlogger().severe(e.getMessage());
         }
         event.setCancelled(true);  // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.
     }

@@ -1,5 +1,7 @@
 package com.mineaurion.aurionchat.common.player;
 
+import com.mineaurion.aurionchat.api.model.Player;
+import com.mineaurion.aurionchat.api.model.ServerPlayer;
 import com.mineaurion.aurionchat.common.LuckPermsUtils;
 import net.kyori.adventure.text.Component;
 import net.luckperms.api.LuckPermsProvider;
@@ -33,7 +35,7 @@ public abstract class PlayerFactory<T> implements AutoCloseable {
         return luckPermsUtils.hasPermission(getUUID(player), permission);
     }
 
-    public final Player wrap(T player){
+    public final ServerPlayer wrap(T player){
         Objects.requireNonNull(player, "player");
         return new AbstractPlayer<>(this, player);
     }

@@ -1,19 +1,25 @@
 package com.mineaurion.aurionchat.common;
 
-import com.mineaurion.aurionchat.common.player.Player;
+import com.mineaurion.aurionchat.api.AurionPlayer;
+import com.mineaurion.aurionchat.api.model.Player;
+import com.mineaurion.aurionchat.api.model.ServerPlayer;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AurionChatPlayer {
-    private final Player player;
+public class AurionChatPlayer extends AurionPlayer {
+    private final ServerPlayer player;
     private Set<String> channels = new HashSet<>();
     private String currentChannel;
     private static final String DEFAULT_CHANNEL = "global";  // Player default channel when he is speaking. We assume global is always defined in the config
 
-    public AurionChatPlayer(Player player, AbstractAurionChat plugin){
+    public AurionChatPlayer(ServerPlayer player, AbstractAurionChat plugin){
+        super(player.getId(),
+                player.getDisplayName(),
+                player.getPrefix(),
+                player.getSuffix());
         this.player = player;
         this.setCurrentChannel(DEFAULT_CHANNEL);
         this.setChannels(new HashSet<>(Collections.singletonList(DEFAULT_CHANNEL)));
@@ -84,8 +90,8 @@ public class AurionChatPlayer {
     {
         return "currentChannel:" + this.currentChannel +
                 ",channels:" + this.channels.toString() +
-                ",uuid:" + this.player.getUUID() +
-                ",prefix:" + this.player.getPreffix() +
+                ",uuid:" + this.player.getId() +
+                ",prefix:" + this.player.getPrefix() +
                 ",suffix:" + this.player.getSuffix() +
                 ",name:" + this.player.getDisplayName()
                 ;

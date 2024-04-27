@@ -6,7 +6,44 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
+    compileOnly 'org.jetbrains:annotations:+'
     compileOnly 'com.google.code.gson:gson:2.10.1'
+
+    api('net.kyori:adventure-api:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'checker-qual')
+        exclude(module: 'annotations')
+    }
+
+    api('net.kyori:adventure-text-serializer-gson:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+        exclude(module: 'gson')
+    }
+
+    api('net.kyori:adventure-text-serializer-legacy:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api('net.kyori:adventure-text-serializer-plain:4.11.0') {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api("net.kyori:adventure-text-minimessage:4.11.0") {
+        exclude(module: 'adventure-bom')
+        exclude(module: 'adventure-api')
+    }
+
+    api('net.kyori:event-api:3.0.0') {
+        exclude(module: 'checker-qual')
+        exclude(module: 'guava')
+    }
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok:+'
+    annotationProcessor 'org.projectlombok:lombok:+'
 }
 
 publishing {

@@ -7,7 +7,7 @@ import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
 import com.mineaurion.aurionchat.forge.command.ChatCommand;
 import com.mineaurion.aurionchat.forge.listeners.ChatListener;
-import com.mineaurion.aurionchat.forge.listeners.LoginListener;
+import com.mineaurion.aurionchat.forge.listeners.PlayerListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraftforge.common.MinecraftForge;
@@ -68,7 +68,7 @@ public class AurionChat extends AbstractAurionChat {
 
     @Override
     protected void registerPlatformListeners() {
-        MinecraftForge.EVENT_BUS.register(new LoginListener(this));
+        MinecraftForge.EVENT_BUS.register(new PlayerListener(this));
         MinecraftForge.EVENT_BUS.register(new ChatListener(this));
     }
 
