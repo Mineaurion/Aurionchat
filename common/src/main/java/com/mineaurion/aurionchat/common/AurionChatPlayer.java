@@ -18,10 +18,10 @@ public class AurionChatPlayer {
         this.setCurrentChannel(DEFAULT_CHANNEL);
         this.setChannels(new HashSet<>(Collections.singletonList(DEFAULT_CHANNEL)));
         for(String channel: plugin.getConfigurationAdapter().getChannels().keySet()){
-            if(player.hasPermission("aurionchat.joinchannel." + channel)){
+            if(player.hasPermission("aurionchat.joinchannel." + channel, true)){
                 this.addChannel(channel);
                 this.setCurrentChannel(channel);
-            } else if (player.hasPermission("aurionchat.listenchannel." + channel)) {
+            } else if (player.hasPermission("aurionchat.listenchannel." + channel, true)) {
                 this.addChannel(channel);
             }
         }

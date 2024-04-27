@@ -10,7 +10,7 @@ public class PlayerFactory extends com.mineaurion.aurionchat.common.player.Playe
 
     private final BukkitAudiences audiences;
 
-    public PlayerFactory(AurionChat plugin){
+    public PlayerFactory(AurionChat plugin) {
         super(true);
         this.audiences = plugin.getAudiences();
     }
@@ -31,7 +31,10 @@ public class PlayerFactory extends com.mineaurion.aurionchat.common.player.Playe
     }
 
     @Override
-    protected boolean hasPermission(Player player, String permission) {
-        return player.hasPermission(permission);
+    protected boolean hasPermission(Player player, String permission, boolean explicitly) {
+        return explicitly
+                ? player.getEffectivePermissions().stream()
+                .anyMatch(perm -> permission.equals(perm.getPermission()))
+                : player.hasPermission(permission);
     }
 }
