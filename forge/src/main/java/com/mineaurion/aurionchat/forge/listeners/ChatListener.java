@@ -30,7 +30,8 @@ public class ChatListener {
                 channel.format,
                 GsonComponentSerializer.gson().deserialize(net.minecraft.network.chat.Component.Serializer.toJson(event.getMessage())),
                 aurionChatPlayer,
-                channel.urlMode
+                channel.urlMode,
+                channel.markdown
         );
         try {
             plugin.getChatService().send(currentChannel, messageFormat);

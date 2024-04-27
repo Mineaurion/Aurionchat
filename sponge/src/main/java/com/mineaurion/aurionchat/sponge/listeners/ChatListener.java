@@ -37,7 +37,8 @@ public class ChatListener {
                 channel.format,
                 event.message(),
                 aurionChatPlayer,
-                channel.urlMode
+                channel.urlMode,
+                channel.markdown
         );
 
         try{
