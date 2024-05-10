@@ -50,5 +50,10 @@ gradle-app.setting
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
+# Avoid ignoring this two files. 1.7 version of minecraft - save in the repo for testing purpose.
+# This is old version so better to be safe and commit this file
+!spigot-1.7.10-SNAPSHOT-b1657.jar
+!Thermos-1.7.10-1614-server.jar
+
 # Cache of project
 .gradletasknamecache
