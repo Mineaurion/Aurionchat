@@ -10,10 +10,10 @@ public class LoginListener extends LoginListenerCommon<AurionChat> {
     }
 
     public void onPlayerJoin(ServerPlayerEntity player){
-        playerJoin(plugin.getPlayerFactory().wrap(player));
+        playerJoin(plugin.getSenderFactory().wrap(player.getCommandSource()));
     }
 
     public void onPlayerQuit(ServerPlayerEntity player){
-        this.playerLeaving(plugin.getPlayerFactory().wrap(player));
+        this.playerLeaving(plugin.getSenderFactory().wrap(player.getCommandSource()));
     }
 }

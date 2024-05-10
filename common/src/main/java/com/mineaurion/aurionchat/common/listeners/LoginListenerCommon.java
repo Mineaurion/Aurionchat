@@ -1,8 +1,8 @@
 package com.mineaurion.aurionchat.common.listeners;
 
 import com.mineaurion.aurionchat.api.model.ServerPlayer;
-import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.plugin.AbstractAurionChat;
 
 public abstract class LoginListenerCommon<T extends AbstractAurionChat> {
     public T plugin;

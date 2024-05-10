@@ -47,7 +47,7 @@ public class ChatListener {
         try {
             plugin.getChatService().send(packet);
         } catch (Exception e) {
-            this.plugin.getlogger().severe(e.getMessage());
+            this.plugin.getLogger().severe(e.getMessage());
         }
         event.setCancelled(true);  // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.
     }

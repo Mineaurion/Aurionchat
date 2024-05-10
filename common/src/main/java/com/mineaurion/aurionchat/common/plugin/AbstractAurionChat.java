@@ -1,8 +1,8 @@
-package com.mineaurion.aurionchat.common;
+package com.mineaurion.aurionchat.common.plugin;
 
-import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
+import com.mineaurion.aurionchat.common.AurionChatPlayer;
+import com.mineaurion.aurionchat.common.ChatService;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
-import com.mineaurion.aurionchat.common.player.PlayerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,21 +14,25 @@ import java.util.UUID;
 
 public abstract class AbstractAurionChat implements AurionChatPlugin {
 
-    public static final String ID = "aurionchat";
+    private final PluginLogger logger;
 
     private Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
     private ChatService chatService;
-    
-    private final PluginLogger logger = getlogger();
+
+    public AbstractAurionChat(PluginLogger logger){
+        this.logger = logger;
+    }
+
 
     public final void enable(){
+        logger.info(AurionChatPlugin.NAME + " starting");
         //send message for startup
         try {
             aurionChatPlayers = new HashMap<>();
             chatService = new ChatService(this);
             logger.info("AurionChat Connected to Rabbitmq");
-            setupPlayerFactory();
+            setupSenderFactory();
             registerPlatformListeners(); // if no error , init of the "plugin"
             registerCommands();
         } catch (IOException e) {
@@ -47,7 +51,7 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
     }
 
     protected Path resolveConfig(String filename){
-        Path configFile = getConfigDirectory().resolve(filename);
+        Path configFile = getBootstrap().getConfigDirectory().resolve(filename);
 
         if(!Files.exists(configFile)){
             try {
@@ -56,7 +60,7 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
                 //ignore
             }
 
-            try(InputStream is = getRessourceStream(filename)){
+            try(InputStream is = getBootstrap().getResourceStream(filename)){
                 Files.copy(is, configFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -75,30 +79,17 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
 
     protected abstract void registerPlatformListeners();
 
-    protected abstract void setupPlayerFactory();
+    protected abstract void setupSenderFactory();
+
+    // protected abstract void setupPlayerFactory();
 
     protected abstract void registerCommands();
 
     protected abstract void disablePlugin();
 
-    public abstract ConfigurationAdapter getConfigurationAdapter();
-
-    public abstract PlayerFactory<?> getPlayerFactory();
-
-    /**
-     * Gets the plugins main data storage directory
-     *
-     * <p>Bukkit: ./plugins/Economy</p>
-     * <p>Sponge: ./Economy/</p>
-     * <p>Fabric: ./mods/Economy</p>
-     * <p>Forge: ./config/Economy</p>
-     *
-     * @return the platforms data folder
-     */
-    protected abstract Path getConfigDirectory();
-
-    private InputStream getRessourceStream(String path){
-        return getClass().getClassLoader().getResourceAsStream(path);
+    @Override
+    public PluginLogger getLogger(){
+        return this.logger;
     }
 
 }

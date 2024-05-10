@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.mineaurion.aurionchat.fabric.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ServerCommandSourceAccessor"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

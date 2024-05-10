@@ -17,16 +17,16 @@ public class LoginListener extends LoginListenerCommon<AurionChat> implements Li
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerKick(PlayerKickEvent event){
-        playerLeaving(plugin.getPlayerFactory().wrap(event.getPlayer()));
+        playerLeaving(plugin.getSenderFactory().wrap(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerQuit(PlayerQuitEvent event){
-        playerLeaving(plugin.getPlayerFactory().wrap(event.getPlayer()));
+        playerLeaving(plugin.getSenderFactory().wrap(event.getPlayer()));
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event){
-        playerJoin(plugin.getPlayerFactory().wrap(event.getPlayer()));
+        playerJoin(plugin.getSenderFactory().wrap(event.getPlayer()));
     }
 }

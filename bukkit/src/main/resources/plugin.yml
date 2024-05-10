@@ -1,21 +1,15 @@
 name: Aurionchat
 version: ${version}
-main: com.mineaurion.aurionchat.bukkit.PluginLoader
+main: com.mineaurion.aurionchat.bukkit.Bootstrap
 authors: [Yann151924]
 website: https://mineaurion.com
 depend:
   - LuckPerms
+
 commands:
   chat:
-    aliases: [ch, channel]
+    aliases: [ch, channel, aurionchat]
     description: "AurionChat's command to manage chat channels"
-    usage: |
-      /<command> - displays player current status on aurionchat
-      /<command> join <channel> - join the specified channel and set as current one
-      /<command> leave <channel> - leave the specified channel
-      /<command> spy <channel> - spy/listen the channel speicified
-      /<command> allListen - listen to all channels
-      /<command> reload - reload the rabbitmq connection
 
 permissions:
   aurionchat.chat.colors:

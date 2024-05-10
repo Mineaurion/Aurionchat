@@ -40,7 +40,7 @@ public class ChatListener implements ServerMessageEvents.AllowChatMessage {
         try {
             plugin.getChatService().send(packet);
         } catch (IOException e) {
-            this.plugin.getlogger().severe(e.getMessage());
+            this.plugin.getLogger().severe(e.getMessage());
         }
         // TODO: need to remove that. Need to adapt rabbitmq to a fanout exchange for the chat.
         // After we can use CHAT_MESSAGE instead of this event

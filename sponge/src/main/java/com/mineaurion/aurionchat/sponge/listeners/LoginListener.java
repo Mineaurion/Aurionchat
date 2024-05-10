@@ -15,16 +15,16 @@ public class LoginListener extends LoginListenerCommon<AurionChat> {
 
     @Listener
     public void onPlayerKick(KickPlayerEvent event) {
-        playerLeaving(plugin.getPlayerFactory().wrap(event.player()));
+        playerLeaving(plugin.getSenderFactory().wrap(event.player()));
     }
 
     @Listener
     public void onPlayerQuit(ServerSideConnectionEvent.Login event) {
-        Sponge.server().player(event.profile().uniqueId()).ifPresent(serverPlayer -> playerLeaving(plugin.getPlayerFactory().wrap(serverPlayer)));
+        Sponge.server().player(event.profile().uniqueId()).ifPresent(serverPlayer -> playerLeaving(plugin.getSenderFactory().wrap(serverPlayer)));
     }
 
     @Listener
     public void onPlayerJoin(ServerSideConnectionEvent.Disconnect event) {
-        playerJoin(plugin.getPlayerFactory().wrap(event.player()));
+        playerJoin(plugin.getSenderFactory().wrap(event.player()));
     }
 }

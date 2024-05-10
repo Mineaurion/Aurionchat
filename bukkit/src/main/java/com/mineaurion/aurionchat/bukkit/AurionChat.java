@@ -1,86 +1,86 @@
 package com.mineaurion.aurionchat.bukkit;
 
-import com.mineaurion.aurionchat.bukkit.command.ChatCommand;
 import com.mineaurion.aurionchat.bukkit.listeners.ChatListener;
-import com.mineaurion.aurionchat.bukkit.listeners.CommandListener;
 import com.mineaurion.aurionchat.bukkit.listeners.LoginListener;
-import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
 import com.mineaurion.aurionchat.common.logger.JavaPluginLogger;
 import com.mineaurion.aurionchat.common.logger.PluginLogger;
+import com.mineaurion.aurionchat.common.plugin.AbstractAurionChat;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.nio.file.Path;
 
 public class AurionChat extends AbstractAurionChat {
 
-    public final JavaPlugin plugin;
+    public final Bootstrap bootstrap;
 
     public BukkitAudiences audiences;
 
-    private PlayerFactory playerFactory;
+    public SenderFactory senderFactory;
 
-    public AurionChat(JavaPlugin plugin){
-        this.plugin = plugin;
-    }
+    private CommandExecutor commandManager;
 
-    public void onEnable(){
-        getlogger().info("AurionChat Initializing");
-        audiences = BukkitAudiences.create(plugin);
-        this.enable();
-    }
-
-    public void onDisable() {
-        this.disable();
+    public AurionChat(Bootstrap bootstrap){
+        super(new JavaPluginLogger(Bukkit.getLogger()));
+        this.bootstrap = bootstrap;
     }
 
     @Override
     protected void registerPlatformListeners() {
-        PluginManager pluginManager = plugin.getServer().getPluginManager();
-        pluginManager.registerEvents(new LoginListener(this), plugin);
-        pluginManager.registerEvents(new CommandListener(this), plugin);
-        pluginManager.registerEvents(new ChatListener(this), plugin);
+        PluginManager pluginManager = getServer().getPluginManager();
+        pluginManager.registerEvents(new LoginListener(this), getBootstrap());
+        pluginManager.registerEvents(new ChatListener(this), getBootstrap());
+    }
+
+    @Override
+    protected void setupSenderFactory() {
+        this.audiences = BukkitAudiences.create(getBootstrap());
+        this.senderFactory = new SenderFactory(this);
     }
 
     @Override
     public ConfigurationAdapter getConfigurationAdapter() {
-        return new BukkitConfigurationAdapter(this, resolveConfig("config.yml").toFile());
+        return new BukkitConfigurationAdapter(resolveConfig("config.yml").toFile());
+    }
+
+    public SenderFactory getSenderFactory(){
+        return this.senderFactory;
     }
 
     @Override
-    protected Path getConfigDirectory() {
-        return this.plugin.getDataFolder().toPath().toAbsolutePath();
+    public Bootstrap getBootstrap(){
+        return this.bootstrap;
+    }
+
+    public Server getServer(){
+        return bootstrap.getServer();
     }
 
     @Override
     protected void registerCommands() {
-        plugin.getCommand("chat").setExecutor(new ChatCommand(this));
+        PluginCommand command = bootstrap.getCommand("chat");
+        if(command == null){
+            getLogger().severe("Unable to register /chat command with the server");
+            return;
+        }
+
+        this.commandManager = new CommandExecutor(this, command);
+        this.commandManager.register();
     }
 
     @Override
     protected void disablePlugin() {
-        plugin.getServer().getPluginManager().disablePlugin(plugin);
+        getServer().getPluginManager().disablePlugin(getBootstrap());
     }
 
     @Override
-    public PluginLogger getlogger() {
+    public PluginLogger getLogger() {
         return new JavaPluginLogger(Bukkit.getLogger());
     }
 
     public BukkitAudiences getAudiences(){
         return audiences;
-    }
-
-    @Override
-    protected void setupPlayerFactory() {
-        this.playerFactory = new PlayerFactory(this);
-    }
-
-    @Override
-    public PlayerFactory getPlayerFactory() {
-        return playerFactory;
     }
 }

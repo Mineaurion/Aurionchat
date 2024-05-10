@@ -22,9 +22,12 @@
   "environment": "server",
   "entrypoints": {
     "server": [
-      "com.mineaurion.aurionchat.fabric.AurionChat"
+      "com.mineaurion.aurionchat.fabric.Bootstrap"
     ]
   },
+  "mixins": [
+    "aurionchat.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.9.0",
     "fabric": "*",

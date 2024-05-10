@@ -2,7 +2,6 @@ package com.mineaurion.aurionchat.forge.listeners;
 
 import com.mineaurion.aurionchat.common.listeners.LoginListenerCommon;
 import com.mineaurion.aurionchat.forge.AurionChat;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -15,11 +14,11 @@ public class LoginListener extends LoginListenerCommon<AurionChat> {
 
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        playerJoin(plugin.getPlayerFactory().wrap((ServerPlayer) event.getEntity()));
+        playerJoin(plugin.getSenderFactory().wrap(event.getEntity().createCommandSourceStack()));
     }
 
     @SubscribeEvent
     public void onPlayerQuit(PlayerEvent.PlayerLoggedOutEvent event){
-        playerLeaving(plugin.getPlayerFactory().wrap((ServerPlayer) event.getEntity()));
+        playerLeaving(plugin.getSenderFactory().wrap(event.getEntity().createCommandSourceStack()));
     }
 }

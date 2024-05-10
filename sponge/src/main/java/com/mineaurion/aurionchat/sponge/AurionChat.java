@@ -1,75 +1,47 @@
 package com.mineaurion.aurionchat.sponge;
 
-import com.google.inject.Inject;
-import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
-import com.mineaurion.aurionchat.common.logger.Log4jPluginLogger;
-import com.mineaurion.aurionchat.common.logger.PluginLogger;
-import com.mineaurion.aurionchat.sponge.command.ChatCommand;
+import com.mineaurion.aurionchat.common.plugin.AbstractAurionChat;
+import com.mineaurion.aurionchat.common.plugin.AurionChatPlugin;
 import com.mineaurion.aurionchat.sponge.listeners.ChatListener;
 import com.mineaurion.aurionchat.sponge.listeners.LoginListener;
-import org.apache.logging.log4j.LogManager;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
-@Plugin("aurionchat")
 public class AurionChat extends AbstractAurionChat {
 
-    private PlayerFactory playerFactory;
+    public final Bootstrap bootstrap;
 
-    @Inject
-    public PluginContainer container;
+    private SenderFactory senderFactory;
+    private CommandExecutor commandManager;
 
-    @Inject
-    @ConfigDir(sharedRoot = false)
-    private Path configDirectory;
-
-    @Listener
-    public void Init(ConstructPluginEvent event) {
-        getlogger().info("AurionChat Initializing");
-        this.enable();
-    }
-
-    @Listener
-    public void onServerStop(StoppingEngineEvent<Server> event){
-        this.disable();
+    public AurionChat(Bootstrap bootstrap){
+        super(bootstrap.getLogger());
+        this.bootstrap = bootstrap;
     }
 
     @Override
     protected void registerPlatformListeners() {
         EventManager eventManager = Sponge.eventManager();
-        eventManager.registerListeners(this.container, new LoginListener(this));
-        eventManager.registerListeners(this.container, new ChatListener(this));
-    }
-
-    @Override
-    protected void setupPlayerFactory() {
-        this.playerFactory = new PlayerFactory();
+        eventManager.registerListeners(this.bootstrap.getPluginContainer(), new LoginListener(this));
+        eventManager.registerListeners(this.bootstrap.getPluginContainer(), new ChatListener(this));
     }
 
     @Override
     protected void registerCommands() {
-        // look #onCommandRegister
-    }
-
-    @Listener
-    public void onCommandRegister(RegisterCommandEvent<Command.Parameterized> event){
-        new ChatCommand(this, event);
+        this.commandManager = new CommandExecutor(this);
+        this.bootstrap.registerListeners(new RegisterCommandsListener(this.bootstrap.getPluginContainer(), this.commandManager));
     }
 
     @Override
@@ -77,22 +49,43 @@ public class AurionChat extends AbstractAurionChat {
         Sponge.eventManager().unregisterListeners(this);
     }
 
+    public static final class RegisterCommandsListener {
+        private final PluginContainer pluginContainer;
+        private final Command.Raw command;
+        RegisterCommandsListener(PluginContainer pluginContainer, Command.Raw command){
+            this.pluginContainer = pluginContainer;
+            this.command = command;
+        }
+        @Listener
+        public void onCommandRegister(RegisterCommandEvent<Command.Raw> event){
+            event.register(this.pluginContainer, this.command, "aurionchat", "chat", "c");
+        }
+    }
+
+    public SenderFactory getSenderFactory(){
+        return this.senderFactory;
+    }
+
+    public Optional<Server> getServer(){
+        return this.bootstrap.getServer();
+    }
+
+    @Override
+    protected void setupSenderFactory() {
+        this.senderFactory = new SenderFactory(this);
+    }
+
     @Override
     public ConfigurationAdapter getConfigurationAdapter() {
         return new SpongeConfigAdapter(resolveConfig());
     }
 
-    @Override
-    public PlayerFactory getPlayerFactory() {
-        return playerFactory;
-    }
-
     private Path resolveConfig() {
-        Path path = getConfigDirectory().resolve(AurionChat.ID + ".conf");
+        Path path = this.bootstrap.getConfigDirectory().resolve(AurionChatPlugin.MOD_ID + ".conf");
         if (!Files.exists(path)) {
             try {
-                createDirectoriesIfNotExists(getConfigDirectory());
-                try (InputStream is = getClass().getClassLoader().getResourceAsStream(AurionChat.ID + ".conf")) {
+                Bootstrap.createDirectoriesIfNotExists(this.bootstrap.getConfigDirectory());
+                try (InputStream is = getClass().getClassLoader().getResourceAsStream(AurionChatPlugin.MOD_ID + ".conf")) {
                     Files.copy(is, path);
                 }
             } catch (IOException e) {
@@ -102,25 +95,8 @@ public class AurionChat extends AbstractAurionChat {
         return path;
     }
 
-    public static void createDirectoriesIfNotExists(Path path) throws IOException {
-        if (Files.exists(path) && (Files.isDirectory(path) || Files.isSymbolicLink(path))) {
-            return;
-        }
-
-        try {
-            Files.createDirectories(path);
-        } catch (FileAlreadyExistsException e) {
-            // ignore
-        }
-    }
-
     @Override
-    protected Path getConfigDirectory() {
-        return configDirectory;
-    }
-
-    @Override
-    public PluginLogger getlogger() {
-        return new Log4jPluginLogger(LogManager.getLogger(AurionChat.ID));
+    public Bootstrap getBootstrap() {
+        return this.bootstrap;
     }
 }

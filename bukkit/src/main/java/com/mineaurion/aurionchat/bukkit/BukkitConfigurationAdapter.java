@@ -11,12 +11,10 @@ import java.util.Map;
 
 public class BukkitConfigurationAdapter implements ConfigurationAdapter {
 
-    private final AurionChat plugin;
     private final File file;
     private YamlConfiguration configuration;
 
-    public BukkitConfigurationAdapter(AurionChat plugin, File file){
-        this.plugin = plugin;
+    public BukkitConfigurationAdapter(File file){
         this.file = file;
         reload();
     }

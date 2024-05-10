@@ -3,6 +3,7 @@ package com.mineaurion.aurionchat.common;
 import com.mineaurion.aurionchat.api.AurionPlayer;
 import com.mineaurion.aurionchat.api.model.Player;
 import com.mineaurion.aurionchat.api.model.ServerPlayer;
+import com.mineaurion.aurionchat.common.plugin.AbstractAurionChat;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collections;
@@ -17,7 +18,7 @@ public class AurionChatPlayer extends AurionPlayer {
 
     public AurionChatPlayer(ServerPlayer player, AbstractAurionChat plugin){
         super(player.getId(),
-                player.getDisplayName(),
+                player.getName(),
                 player.getPrefix(),
                 player.getSuffix());
         this.player = player;

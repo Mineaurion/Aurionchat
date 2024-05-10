@@ -1,7 +1,7 @@
 import com.mineaurion.aurionchat.api.model.ServerPlayer;
-import com.mineaurion.aurionchat.common.AbstractAurionChat;
 import com.mineaurion.aurionchat.common.AurionChatPlayer;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
+import com.mineaurion.aurionchat.common.plugin.AbstractAurionChat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.junit.After;

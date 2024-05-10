@@ -2,6 +2,7 @@ package com.mineaurion.aurionchat.common;
 
 import com.mineaurion.aurionchat.api.AurionPacket;
 import com.mineaurion.aurionchat.common.config.ConfigurationAdapter;
+import com.mineaurion.aurionchat.common.plugin.AbstractAurionChat;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -21,7 +22,7 @@ public class ChatService {
 
     private Connection connection;
     private Channel channel;
-    protected boolean connected = false;
+    public boolean connected = false;
 
     private final AbstractAurionChat plugin;
     private final ConfigurationAdapter config;
@@ -80,7 +81,7 @@ public class ChatService {
             AurionPacket packet = AurionPacket.fromJson(new String(delivery.getBody(), StandardCharsets.UTF_8));
             Component messageDeserialize = packet.getComponent();
             if(this.config.getBoolean("options.spy", false)){
-                plugin.getlogger().info(packet.getDisplayString());
+                plugin.getLogger().info(packet.getDisplayString());
             }
 
             plugin.getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
@@ -93,7 +94,7 @@ public class ChatService {
                         aurionChatPlayers.sendMessage(messageDeserialize);
                     }
                 } else {
-                    plugin.getlogger().warn("Received message with the type " + packet.getType() + " and the message was " + packet + ". It won't be processed");
+                    plugin.getLogger().warn("Received message with the type " + packet.getType() + " and the message was " + packet + ". It won't be processed");
                 }
             });
         };
