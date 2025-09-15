@@ -1,8 +1,5 @@
-plugins {
-    id 'fabric-loom' version '1.1-SNAPSHOT' apply false
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'java'
-}
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 def getWorkingBranch() {
     // Triple double-quotes for the breaklines

@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation parent.project('common')
 
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     api 'net.kyori:adventure-platform-bukkit:4.3.0'

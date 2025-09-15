@@ -12,6 +12,23 @@ pluginManagement {
     }
 }
 
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'fabric-loom:fabric-loom.gradle.plugin:1.9.+'
+        classpath 'com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:8.1.+'
+    }
+}
+
 rootProject.name = 'aurionchat'
 
 include 'common', 'api', 'bukkit', 'sponge', 'forge', 'fabric'

@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
 public class ChatService {
@@ -47,7 +48,7 @@ public class ChatService {
             factory.setRequestedHeartbeat(10);
             factory.setExceptionHandler(new ForgivingExceptionHandler());
 
-            connection = factory.newConnection();
+            connection = factory.newConnection(plugin.getServerName());
             channel = connection.createChannel();
             join();
             connected = true;
@@ -56,7 +57,7 @@ public class ChatService {
             throw new IOException(UriKeyException);
         } catch (IOException|TimeoutException e) {
             System.out.println("Can't connect to rabbitmq, check the log for more error");
-            System.out.println(e.getMessage());
+            e.printStackTrace(System.err);
             throw new IOException(e);
         }
     }
@@ -69,7 +70,8 @@ public class ChatService {
     private void join() throws IOException{
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
 
-        String queue = channel.queueDeclare().getQueue();
+        String queue = channel.queueDeclare(plugin.getServerName() + ".AurionChat",
+                true, true, true, new HashMap<>()).getQueue();
         channel.queueBind(queue, EXCHANGE_NAME, "");
 
         channel.basicConsume(queue, true, consumer(), consumerTag -> {});
@@ -79,10 +81,8 @@ public class ChatService {
         return (consumerTag, delivery) -> {
             AurionPacket packet = AurionPacket.fromJson(new String(delivery.getBody(), StandardCharsets.UTF_8));
             Component messageDeserialize = packet.getComponent();
-            if(this.config.getBoolean("options.spy", false)){
-                plugin.getlogger().info(packet.getDisplayString());
-            }
 
+            plugin.getlogger().info(packet.getDisplayString());
             plugin.getAurionChatPlayers().forEach((uuid, aurionChatPlayers) -> {
                 if(packet.getType().equals(AurionPacket.Type.AUTO_MESSAGE) && this.config.getBoolean("options.automessage", false)){
                     if(aurionChatPlayers.hasPermission("aurionchat.automessage." + packet.getChannel())){
@@ -101,7 +101,8 @@ public class ChatService {
 
     public void send(AurionPacket.Builder builder) throws IOException {
         // add context info
-        AurionPacket packet = builder.source(config.getString("server-name", "ingame")).build();
+        AurionPacket packet = builder.source(plugin.getServerName()).build();
+        packet.getRoute().add(plugin.getServerName());
 
         // send
         channel.basicPublish(EXCHANGE_NAME, "", null, packet.toString().getBytes());

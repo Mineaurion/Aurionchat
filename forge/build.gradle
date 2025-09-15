@@ -51,7 +51,7 @@ minecraft {
             mods {
                 aurionchat {
                     source sourceSets.main
-                    source project(':common').sourceSets.getByName("main")
+                    source parent.project('common').sourceSets.getByName("main")
                 }
             }
         }
@@ -84,7 +84,7 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.44'
-    shadow project(':common')
+    shadow parent.project('common')
 
     shadow 'com.google.code.gson:gson:2.10.1'
     shadow 'com.google.guava:guava:31.1-jre'

@@ -10,4 +10,6 @@ public interface AurionChatPlugin {
      * @return the plugin's logger
      */
     PluginLogger getlogger();
+
+    String getServerName();
 }

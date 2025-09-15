@@ -1,5 +1,4 @@
 import org.spongepowered.gradle.plugin.config.PluginLoaders
-import org.spongepowered.plugin.metadata.model.PluginDependency
 
 plugins {
     id 'org.spongepowered.gradle.plugin' version '2.0.2'
@@ -48,7 +47,7 @@ sponge {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation parent.project('common')
     compileOnly 'org.spongepowered:spongeapi:8.1.0'
 }
 

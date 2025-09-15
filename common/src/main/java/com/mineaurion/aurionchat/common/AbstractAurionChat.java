@@ -19,7 +19,7 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
     private Map<UUID, AurionChatPlayer> aurionChatPlayers;
 
     private ChatService chatService;
-    
+
     private final PluginLogger logger = getlogger();
 
     public final void enable(){
@@ -71,6 +71,11 @@ public abstract class AbstractAurionChat implements AurionChatPlugin {
 
     public Map<UUID,AurionChatPlayer> getAurionChatPlayers() {
         return aurionChatPlayers;
+    }
+
+    @Override
+    public String getServerName() {
+        return getConfigurationAdapter().getString("server_name", "AurionChat#" + Long.toHexString(System.currentTimeMillis()));
     }
 
     protected abstract void registerPlatformListeners();
